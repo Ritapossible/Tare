@@ -123,7 +123,7 @@ UPSTREAM_URL=https://raw.githubusercontent.com
 ```
 
 The template ignores any path in `UPSTREAM_URL`, so the buyer URL carries the file path:
-`https://<seller host>/v1/Ritapossible/tare/sellers-v1/sellers/data/<a|b>.json`. The template
+`https://<seller host>/v1/Ritapossible/tare/02f239ca82d89911e9cd957d9cc5b45d7036f204/sellers/data/<a|b>.json`. The template
 defaults to mainnet if `KITE_NETWORK` is unset; `scripts/seller_probe.mjs` must pass before paying.
 
 Asset pieUSD `0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A` (18 decimals), network `eip155:2368`,

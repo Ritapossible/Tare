@@ -110,9 +110,9 @@ is free. So each seller is:
 
 - one deploy of the unchanged template (vendored in `sellers/wrapper/`) on its own host (two Render services ⇒ two origins),
 - `UPSTREAM_URL=https://raw.githubusercontent.com` (bare host — the template drops any path in it),
-- the payload file path in the buyer URL, pinned to tag `sellers-v1`.
+- the payload file path in the buyer URL, pinned to commit `02f239ca82d89911e9cd957d9cc5b45d7036f204`.
 
-Buyer URLs: `https://<seller-a-host>/v1/Ritapossible/tare/sellers-v1/sellers/data/a.json` (and `b.json` on the B host).
+Buyer URLs: `https://<seller-a-host>/v1/Ritapossible/tare/02f239ca82d89911e9cd957d9cc5b45d7036f204/sellers/data/a.json` (and `b.json` on the B host).
 `scripts/seller_probe.mjs` checks each seller's 402 is testnet pieUSD 0.001 before any payment.
 `config.js` refuses to start if the two origins are equal.
 
