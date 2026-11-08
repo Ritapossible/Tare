@@ -25,7 +25,11 @@ See [SPEC.md](SPEC.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 2. `cp .env.example .env` and set `SERV_API_KEY`.
 3. The $5 starter credit pays for SERV inference only. It does not fund any payment; payments use
    testnet pieUSD from the Kite faucet.
-4. Check it: `node scripts/serv_check.mjs` _(TODO)_
+4. Check it: `npm install && node scripts/serv_check.mjs`. It makes one completion and prints the raw
+   content, `finish_reason` and `usage`, or the error and exits non-zero.
+
+System prompt sha256: `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
+(source: [`src/prompt.js`](src/prompt.js)).
 
 ## Kite testnet setup
 

@@ -5,7 +5,8 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Status
 
-- **Phase:** Day 1, docs written. Next: `package.json`, `src/prompt.js`, `scripts/serv_check.mjs`.
+- **Phase:** Day 1. Docs, `package.json`, `src/prompt.js`, `scripts/serv_check.mjs` done. Waiting on the human: real SERV key run + kpass setup.
+- **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
 - **Seller URLs:** not deployed yet.
 
@@ -13,6 +14,8 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-11-08 | `serv_check.mjs` defaults to `max_completion_tokens`; `--cap-param=max_tokens` switches | SERV docs don't say which it accepts; the 400 error message tells us |
+| 2026-11-08 | `openai@4.104.0` is the only dependency | per CLAUDE.md |
 | 2026-11-08 | Kite track, not Open | The capped Passport session is the spending-limit primitive the Kite track is about |
 | 2026-11-08 | Pay first, verify after, refuse the *next* payment | x402 returns the body only after payment; there is nothing to count before paying |
 | 2026-11-08 | Idempotency key = origin + request_id, created before `execute`; `pending` written before paying | body hash is only known after payment; pending record prevents a double pay on crash/retry |
@@ -47,8 +50,10 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Facts learned (from running things)
 
-_Empty. Fill in from Step 0: serv_check raw output, token-cap parameter, kpass execute output format,
-PAYMENT-RESPONSE encoding._
+- 2026-11-08: `inference-api.openserv.ai` is reachable from the build container. A bad key returns
+  HTTP 401 with body `"Invalid API key"`; `serv_check.mjs` prints it and exits 1.
+- _Still to fill from a real-key run: raw content, finish_reason, usage, whether `max_completion_tokens`
+  is accepted. Then kpass execute output format and PAYMENT-RESPONSE encoding._
 
 ## Open questions
 

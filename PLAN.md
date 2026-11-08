@@ -7,8 +7,8 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 
 ## Day 1 — Sun 8 Nov · Foundation + Step 0
 - [x] 🤖 Docs: SPEC, ARCHITECTURE, PLAN, MEMORY, CLAUDE.md, README skeleton, LICENSE, .env.example
-- [ ] 🤖 `package.json` (Node 22, ESM, `npm test` = `node --test`), `src/prompt.js`
-- [ ] 🤖 `scripts/serv_check.mjs`
+- [x] 🤖 `package.json` (Node 22, ESM, `npm test` = `node --test`), `src/prompt.js` (+ 6 tests)
+- [x] 🤖 `scripts/serv_check.mjs` (error path verified: 401 on a bad key, exit 1)
 - [ ] 🧑 Create SERV key at https://console.openserv.ai, put it in `.env`, run `node scripts/serv_check.mjs`
 - [ ] 🤖 Record in MEMORY.md: token-cap param, `finish_reason`, raw output shape
 - [ ] 🧑 Install `kpass`, run the first five commands in `scripts/kite_check.md` (sandbox, wallet, faucet, register, session)
