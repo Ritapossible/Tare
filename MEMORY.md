@@ -15,7 +15,8 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | Date | Decision | Why |
 |---|---|---|
 | 2026-11-08 | Sellers = vendored unchanged template in `sellers/wrapper/` (commit 893a275), two Render services from one repo | two origins, zero template edits, one-click deploy |
-| 2026-11-08 | Upstream = raw GitHub pinned to tag `sellers-v1`; `UPSTREAM_URL=https://raw.githubusercontent.com` | template drops any path in UPSTREAM_URL; a tag keeps body bytes stable |
+| 2026-11-08 | Upstream = raw GitHub pinned to a **commit SHA**; `UPSTREAM_URL=https://raw.githubusercontent.com` | template drops any path in UPSTREAM_URL; a SHA keeps body bytes stable (tag pushes are refused by this build environment's git proxy, and a SHA is stricter anyway) |
+| 2026-11-08 | `.gitignore` uses `/data/`, not `data/` | `data/` also ignored `sellers/data/`; payloads were silently left out of the first sellers commit |
 | 2026-11-08 | Seller A duplicates are r-0001..r-0380 re-used, shuffled with a seeded PRNG; null ts on every 31st row | deterministic, interleaved, exact counts |
 | 2026-11-08 | `scripts/seller_probe.mjs` must pass before any kpass call | template silently defaults to mainnet if KITE_NETWORK is unset |
 | 2026-11-08 | `serv_check.mjs` defaults to `max_completion_tokens`; `--cap-param=max_tokens` switches | SERV docs don't say which it accepts; the 400 error message tells us |

@@ -26,5 +26,5 @@ fact by running something, add it to `MEMORY.md`. When you finish a plan item, t
 - Node 22, ESM (`"type": "module"`), no TypeScript in the buyer.
 - Tests: `npm test` (`node --test`). SERV and kpass are injected fakes; tests never hit the network.
 - `kpass` is spawned with an argv array, never through a shell.
-- `.env` holds `SERV_API_KEY` only and is gitignored. `data/` is gitignored.
+- `.env` holds `SERV_API_KEY` only and is gitignored. `/data/` (the root store dir only) is gitignored; `sellers/data/` is committed.
 - Keep dependencies minimal (`openai` only, unless MEMORY.md records why another is needed).
