@@ -8,12 +8,16 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 - **Phase:** Day 1. Docs, `package.json`, `src/prompt.js`, `scripts/serv_check.mjs` done. Waiting on the human: real SERV key run + kpass setup.
 - **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
-- **Seller URLs:** not deployed yet.
+- **Seller URLs:** not deployed yet. Code and guide ready (`sellers/README.md`); `sellers.json` holds nulls.
 
 ## Decisions
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-11-08 | Sellers = vendored unchanged template in `sellers/wrapper/` (commit 893a275), two Render services from one repo | two origins, zero template edits, one-click deploy |
+| 2026-11-08 | Upstream = raw GitHub pinned to tag `sellers-v1`; `UPSTREAM_URL=https://raw.githubusercontent.com` | template drops any path in UPSTREAM_URL; a tag keeps body bytes stable |
+| 2026-11-08 | Seller A duplicates are r-0001..r-0380 re-used, shuffled with a seeded PRNG; null ts on every 31st row | deterministic, interleaved, exact counts |
+| 2026-11-08 | `scripts/seller_probe.mjs` must pass before any kpass call | template silently defaults to mainnet if KITE_NETWORK is unset |
 | 2026-11-08 | `serv_check.mjs` defaults to `max_completion_tokens`; `--cap-param=max_tokens` switches | SERV docs don't say which it accepts; the 400 error message tells us |
 | 2026-11-08 | `openai@4.104.0` is the only dependency | per CLAUDE.md |
 | 2026-11-08 | Kite track, not Open | The capped Passport session is the spending-limit primitive the Kite track is about |
@@ -50,6 +54,12 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Facts learned (from running things)
 
+- 2026-11-08: Template run locally with `KITE_NETWORK=testnet`: `/healthz` → `{"network":"eip155:2368","asset":"pieUSD","price":"$0.001"}`;
+  `/v1/*` → 402 with base64 `PAYMENT-REQUIRED` = x402Version 2, scheme exact, amount `1000000000000000`,
+  pieUSD asset, extra `{name: pieUSD, version: 1}`, maxTimeoutSeconds 60.
+- 2026-11-08: With `KITE_NETWORK` unset the template offers **mainnet** (`eip155:2366`, USDC.e, amount 1000). The probe rejects it.
+- 2026-11-08: `new URL("/a.json", "https://raw.githubusercontent.com/x/y")` → `https://raw.githubusercontent.com/a.json` (path dropped). Hence bare-host UPSTREAM_URL.
+- 2026-11-08: Template forwards upstream headers (so raw GitHub's `text/plain` content type passes through) and settles only if upstream < 400. Tare parses body text itself, so content type does not matter. (Closes open question 4.)
 - 2026-11-08: `inference-api.openserv.ai` is reachable from the build container. A bad key returns
   HTTP 401 with body `"Invalid API key"`; `serv_check.mjs` prints it and exits 1.
 - _Still to fill from a real-key run: raw content, finish_reason, usage, whether `max_completion_tokens`
@@ -60,4 +70,3 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 1. `kpass agent session execute` output format (body, headers, `--json`?).
 2. `PAYMENT-RESPONSE` encoding: bare hash or base64 JSON with `transaction`.
 3. SERV token-cap parameter name; is 120 enough at `reasoning_effort: low`.
-4. Does the template pass `text/plain` upstream bodies through unchanged.

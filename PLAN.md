@@ -16,12 +16,14 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 **Gate:** serv_check prints valid claims JSON. If it fails, stop and fix before anything else.
 
 ## Day 2 — Mon 9 Nov · Sellers live
-- [ ] 🤖 `sellers/generate.mjs` → `sellers/data/a.json`, `b.json` (deterministic, asserted counts)
-- [ ] 🤖 `sellers/README.md`: deploy steps for the Kite Express template, twice
+- [x] 🤖 `sellers/generate.mjs` → `sellers/data/a.json`, `b.json` (deterministic, asserted counts, drift test)
+- [x] 🤖 `sellers/README.md`: deploy steps for the Kite Express template, twice
+- [x] 🤖 `sellers/wrapper/`: unchanged template copy; ran locally on testnet, 402 challenge verified
+- [x] 🤖 `scripts/seller_probe.mjs`: no-payment check that a seller charges testnet pieUSD 0.001 on distinct origins
 - [ ] 🧑 Create a seller wallet (PAY_TO), deploy seller A and seller B as two services on two hosts
-- [ ] 🧑 `curl -i <seller>/v1/b.json` → expect 402 with `PAYMENT-REQUIRED`
+- [ ] 🧑 `node scripts/seller_probe.mjs <A url> <B url>` → both `RESULT : ok`
 - [ ] 🧑 `kpass agent session execute --method GET --url <seller B>` → copy the raw output and the hash
-- [ ] 🤖 Record real kpass output format in MEMORY.md; fill `sellers.json`
+- [ ] 🤖 Record real kpass output format in MEMORY.md; fill `sellers.json` (placeholder committed with nulls)
 
 **Gate:** one real testnet hash from seller B exists and is pasted in the README.
 

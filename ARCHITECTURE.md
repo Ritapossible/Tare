@@ -55,9 +55,11 @@ scripts/
   kite_check.md  Step 0 Kite commands for the human
   buy.mjs        CLI: node scripts/buy.mjs <url> [--request-id X]
   reset.mjs      wipes data/store.json for a clean demo take
+  seller_probe.mjs  no-payment 402 check: testnet pieUSD 0.001, distinct origins
 sellers/
   generate.mjs   deterministic payload generator → sellers/data/a.json, b.json
   data/          committed payloads (the upstream for each seller)
+  wrapper/       unchanged Kite x402 Express template (Apache-2.0, commit 893a275)
   README.md      how to deploy each origin from the Kite template
 test/
   *.test.js      node:test, SERV and kpass injected as fakes
@@ -106,10 +108,12 @@ The Kite template (`templates/typescript-express`, Express 5 + `@x402/express`) 
 `/v1/<path>` to `UPSTREAM_URL/<path>` and settles only when the upstream returns < 400. `/healthz`
 is free. So each seller is:
 
-- one deploy of the unchanged template on its own host (two Render/Fly services ⇒ two origins),
-- `UPSTREAM_URL` pointing at a public static copy of `sellers/data/` (raw GitHub or GitHub Pages).
+- one deploy of the unchanged template (vendored in `sellers/wrapper/`) on its own host (two Render services ⇒ two origins),
+- `UPSTREAM_URL=https://raw.githubusercontent.com` (bare host — the template drops any path in it),
+- the payload file path in the buyer URL, pinned to tag `sellers-v1`.
 
-Buyer URLs: `https://<seller-a-host>/v1/a.json`, `https://<seller-b-host>/v1/b.json`.
+Buyer URLs: `https://<seller-a-host>/v1/Ritapossible/tare/sellers-v1/sellers/data/a.json` (and `b.json` on the B host).
+`scripts/seller_probe.mjs` checks each seller's 402 is testnet pieUSD 0.001 before any payment.
 `config.js` refuses to start if the two origins are equal.
 
 ## Failure modes
@@ -132,5 +136,3 @@ Buyer URLs: `https://<seller-a-host>/v1/a.json`, `https://<seller-b-host>/v1/b.j
 2. Whether `PAYMENT-RESPONSE` is the bare hash or base64 JSON containing it (x402 v2 typically
    base64-encodes a settlement object with `transaction`). Store the hash exactly as decoded.
 3. SERV output-cap parameter name, and whether 120 tokens is enough with `reasoning_effort: low`.
-4. Whether the template passes raw GitHub's `text/plain` through unchanged (Tare parses the body
-   text itself, so content type should not matter).
