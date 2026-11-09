@@ -51,30 +51,59 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 **Gate (decides whether Wed builds shared records):** dispute with a real hash, stopped with no hash
 and kpass not called, verified with a real hash.
 
-## Day 4 — Wed 11 Nov · Shared seller records (only if Tuesday's gate passed)
-Tare warns other agents about sellers that did not deliver what they promised.
+## Day 4 — Wed 11 Nov · Shared seller records + "check a seller" (only if Tuesday's gate passed)
+Goal: a person can use Tare, and honest sellers have a reason to care (evaluation: backer fit 10/15).
 - [ ] 🤖 Publish held sellers as a public feed `web/records.json`: one entry per held origin with its
       evidence (promised vs delivered, failed checks, settlement hash, body sha256, prompt sha256, time)
 - [ ] 🤖 Before each buy, read the feeds the operator chooses to trust (`TARE_FEEDS`); a seller held
       in a trusted feed is **warned** and stopped before kpass until a human allows it
-- [ ] 🤖 `/records` page on the site: held sellers and their evidence
+- [ ] 🤖 **"Check a seller" page** (`/check`): paste an x402 seller URL → in good standing / held with
+      evidence / never checked. This is the human-facing entry point.
+- [ ] 🤖 **"Verified by Tare" badge**: a small SVG per origin, served from the published records, that
+      an honest seller can embed. Only sellers with a verified receipt get it; held sellers never do.
 - [ ] 🤖 Tests: trusted feed hit stops before kpass; untrusted or unreachable feed never blocks a buy
       silently (the receipt says what happened); malformed feed entries are ignored; feed contains no
-      hash that kpass did not return
+      hash that kpass did not return; badge never says verified for a held or unchecked origin
 - [ ] 🤖 Write-up limits: only feeds you choose to trust (no global blacklist), evidence on every
       record, records are per origin (a seller can move domain; Kite agent identity is the next step)
-- [ ] 🤖 If time: claims from the 402 `description` (#6) and `count_qualifier` (#7)
 
-## Day 5 — Thu 12 Nov · Hardening + story
-- [ ] 🤖 Fix whatever the live run surfaced; edge cases (kpass timeout, session expired message)
-- [ ] 🤖 Error text in UI is readable (SERV_INVALID, paid_unverified, kpass failed)
+## Day 5 — Thu 12 Nov · Real promises, real sellers, then the story
+Goal: show the problem instead of predicting it (evaluation: problem & demand 12/20, differentiation 11/15).
+Morning:
+- [ ] 🤖 **Promise from the 402 response**: read the seller's own `description` in PAYMENT-REQUIRED
+      (made before any money moves) and check it against the delivery, alongside the body prose.
+      Works on any x402 seller as it exists today, not only ours.
+- [ ] 🤖 **Freshness claim**: SERV extracts a claimed time window ("records from the last 24 hours");
+      code checks it against the row timestamps. Stale data sold as fresh is the common real failure.
+      New prompt ⇒ new prompt hash; update SPEC parse rule and tests.
+- [ ] 🧑 Re-run `node scripts/serv_eval.mjs` with the new claims; paste the output
+Afternoon:
+- [ ] 🤖 **Real-seller probe**: run the no-payment 402 probe and the description check against real
+      public x402 services (start with those listed in `gokite-ai/kite-x402-services`). Report what was
+      found, honest or not; never claim a mismatch that was not observed.
+- [ ] 🤖 **Library export**: `verify(promise, body)` and `tareFetch(url)` with a three-line "add Tare to
+      your agent" section in the README and docs
+- [ ] 🤖 Fix whatever the live run surfaced; readable error text (SERV_INVALID, paid_unverified, kpass failed)
 - [ ] 🤖 README complete: two sentences, SERV key + $5 credit note, Kite commands, `npm test`, three "do X, see Y", model id, "code, not SERV, counts and decides"
-- [ ] 🤖 `docs/WRITEUP.md`: what Tare does, how SERV Reasoning powers it, which track (Kite), what was built during the hackathon, live `serv_eval` numbers, shared records and their limits
+- [ ] 🤖 `docs/WRITEUP.md`: what Tare does, how SERV Reasoning powers it, which track (Kite), what was
+      built during the hackathon, live `serv_eval` numbers, real-seller probe results, shared records
+      and their limits; testnet is a hackathon rule and switching network is one setting
+- [ ] 🧑 Find 2-3 **sourced** figures on agent payments / x402 adoption for the write-up (no invented numbers)
 - [ ] 🤖 Draft X post (tags **@openservai**) and video script (< 90 s)
 
 ## Day 6 — Fri 13 Nov · Record + stretch
-- [ ] 🧑 Record the video from a fresh `reset` (A dispute → A stopped → B verified → the record warns another agent)
-- [ ] 🤖 Stretch, only if all of the above is done: serve the records feed behind x402 with the same Kite seller template (0.001 pieUSD per lookup) as the revenue story
+- [ ] 🧑 Record the video from a fresh `reset`: A dispute → A stopped → B verified → another agent
+      warned by the record → the "check a seller" page with the badge
+- [ ] 🤖 Stretch, only if all of the above is done: serve the records feed behind x402 with the same
+      Kite seller template (0.001 pieUSD per lookup) as the revenue story
+
+## Evaluation targets (idea score 41/60 on 9 Nov)
+| Category | Was | Lever | Target |
+|---|---|---|---|
+| Problem & demand | 12/20 | 402-description promise, freshness claim, real-seller probe, sourced figures | 15-17 |
+| Backer fit | 10/15 | "check a seller" page, verified badge (two-sided), library export | 12-13 |
+| Differentiation | 11/15 | promise made before payment, recomputable evidence | 12-13 |
+| Timing | 8/10 | none needed | 8 |
 
 ## Day 7 — Sat 14 Nov · Submit
 - [ ] 🧑 Repo public, video uploaded
@@ -91,6 +120,9 @@ Tare warns other agents about sellers that did not deliver what they promised.
 - Reppo / Dolphin partner credits: not our tracks; not needed.
 
 ## Not doing (scope guard)
+- A token of any kind
+- A consumer-app pivot (the human entry point is the "check a seller" page)
+- Any feature the 90-second video cannot show
 - A global, trust-everyone reputation registry (shared records are opt-in feeds only)
 - Refunds or on-chain dispute
 - Any chart, any graph drawing, any `gr_` API
