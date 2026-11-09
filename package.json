@@ -10,6 +10,8 @@
   },
   "scripts": {
     "test": "node --test",
+    "app": "node scripts/serve.mjs",
+    "publish:site": "node scripts/publish.mjs",
     "serv:check": "node scripts/serv_check.mjs"
   },
   "dependencies": {

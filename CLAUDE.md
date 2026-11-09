@@ -28,3 +28,6 @@ fact by running something, add it to `MEMORY.md`. When you finish a plan item, t
 - `kpass` is spawned with an argv array, never through a shell.
 - `.env` holds `SERV_API_KEY` only and is gitignored. `/data/` (the root store dir only) is gitignored; `sellers/data/` is committed.
 - Keep dependencies minimal (`openai` only, unless MEMORY.md records why another is needed).
+- `web/` is static vanilla HTML/CSS/ES modules: no framework, no build, no npm deps. Everything a seller
+  or the model wrote goes through `esc()` in `web/assets/render.js`. No charts.
+- Only `scripts/publish.mjs` writes `web/data/state.json`, never by hand.

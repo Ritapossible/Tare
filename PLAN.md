@@ -41,7 +41,8 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 ## Live day — Tue 10 Nov · run `docs/RUNBOOK.md` (🧑), then parser rewrite + first end-to-end run (🤖)
 
 ## Day 4 — Wed 11 Nov · UI + review P1 items
-- [ ] 🤖 `src/server.js`: one plain page, Buy A / Buy B buttons (request_id at render), receipts table, `kpass calls` counter
+- [x] 🤖 Web app (done early, 9 Nov): landing, console, receipt detail, sellers, docs, 404; live mode via `npm run app`, read-only published mode for Vercel; guarded local API; `publish.mjs`
+- [ ] 🧑 Vercel: import repo, Root Directory `web`, preset Other, no build
 - [ ] 🤖 Claims from the 402 `description` (#6) and `count_qualifier` (#7) — if the live run leaves time
 - [ ] 🧑 Live run: reset → buy A → buy A → buy B. Check the three rows.
 

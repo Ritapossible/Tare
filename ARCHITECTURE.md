@@ -50,12 +50,21 @@ src/
   buy.js         buy(url, { requestId, deps }) — the payment order from SPEC.md
   config.js      loads sellers.json, asserts distinct origins
   tare.js        production wiring (real SERV, real kpass, file store, raw kpass log)
+  state.js       the state shape the web app reads (live or published)
+  server.js      local console server: static web/ + guarded /api/state, /api/buy (127.0.0.1 only)
+web/             static site + app, deployable as-is (Vercel root = web/)
+  index.html     landing · app/{index,receipt,sellers}.html · docs/index.html · 404.html
+  assets/        styles.css, layout.js (nav/footer), render.js (pure, escaped), console.js, icons.js
+  data/state.json  published run (read-only mode); written by scripts/publish.mjs
+  vercel.json    clean URLs + security headers
   server.js      local UI: GET / (receipts page), POST /buy?seller=a|b
 scripts/
   serv_check.mjs Step 0 SERV smoke test
   kite_check.md  Step 0 Kite commands for the human
   buy.mjs        CLI: node scripts/buy.mjs <a|b|url> [--request-id X]; raw kpass → data/kpass_raw.log
   unblock.mjs    human override for one origin
+  serve.mjs      npm run app → live console on 127.0.0.1:4020
+  publish.mjs    store → web/data/state.json (refuses malformed hashes / pending receipts)
   serv_eval.mjs  live SERV accuracy + injection-safety eval
   reset.mjs      wipes data/store.json for a clean demo take
   seller_probe.mjs  no-payment 402 check: testnet pieUSD 0.001, distinct origins

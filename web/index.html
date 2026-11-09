@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tare — The label is not the delivery</title>
+  <meta name="description" content="Tare is a buyer agent for x402 data sellers on Kite testnet. SERV reads what the seller claims, code counts what arrived, and a seller that over-claims is refused before the next payment." />
+  <meta property="og:title" content="Tare — The label is not the delivery" />
+  <meta property="og:description" content="SERV reads the label. Code counts the delivery. Kite Passport pays. Sellers that over-claim never get paid twice." />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header data-nav></header>
+
+  <main id="main">
+      <!-- HERO -->
+      <section class="hero pixels" data-sprinkle="30">
+        <div class="wrap">
+          <h1 class="display">
+            <span class="line">The label</span>
+            <span class="line">is not the</span>
+            <span class="line">delivery.</span>
+            <span class="line"><span class="stamp stamp-blue">Tare counts.</span></span>
+          </h1>
+          <p class="lede">
+            Tare is a buyer agent for x402 data sellers on <strong>Kite testnet</strong>. It pays, reads what the
+            seller <span class="hl hl-b">says</span> it delivered, counts what actually <span class="hl hl-o">arrived</span>,
+            and refuses the next payment to any seller whose label does not match.
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn-orange btn-lg" href="/app">Open the console <span data-icon="arrow"></span></a>
+            <a class="btn btn-ghost btn-lg" href="/docs">Read the docs</a>
+          </div>
+          <ul class="hero-facts">
+            <li><span data-icon="coin"></span>0.001 testnet pieUSD per call</li>
+            <li><span data-icon="shield"></span>Code decides, not the model</li>
+          </ul>
+        </div>
+      </section>
+
+  <!-- PROBLEM -->
+  <section class="problem" id="problem">
+    <div class="wrap">
+      <span class="label">The problem</span>
+      <h2 class="display">
+        Agents pay first.
+        <span class="stamp stamp-blue">Nobody</span> checks
+        <span class="stamp stamp-orange">the receipt.</span>
+        <span class="grey">Until now.</span>
+      </h2>
+      <div class="swatches" aria-hidden="true">
+        <i style="background:#f97316"></i><i style="background:#c2410c"></i><i style="background:#56b4ec"></i><i style="background:#3b6db3"></i><i style="background:#1d9bf0"></i>
+      </div>
+      <p class="lede">
+        With x402 the body arrives <strong>only after payment</strong>. A seller can write
+        <span class="hl hl-o">"1,240 unique records, no nulls"</span> and send 860 unique rows with gaps. The agent has
+        already paid. Tare cannot claw that back, but it can <span class="u">make sure it is the last time</span>.
+      </p>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">How it works</span>
+        <h2>Four steps.<br /><span class="grey">One of them is a model.</span></h2>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <i class="step-bar" style="background:#f97316"></i>
+          <div class="n">01</div>
+          <h3>Pay</h3>
+          <p>Kite Passport pays the seller 0.001 pieUSD over x402 and returns the body with a settlement hash.</p>
+          <span class="who who-kite">Kite Passport</span>
+        </article>
+        <article class="step">
+          <i class="step-bar" style="background:#1d9bf0"></i>
+          <div class="n">02</div>
+          <h3>Read the label</h3>
+          <p>SERV Reasoning reads only the seller's prose and returns four claims: count, unique, fields, no nulls.</p>
+          <span class="who who-serv">SERV Reasoning</span>
+        </article>
+        <article class="step">
+          <i class="step-bar" style="background:#f6f6f4"></i>
+          <div class="n">03</div>
+          <h3>Count</h3>
+          <p>Plain code counts the rows, the distinct ids, the fields and the empty values. The rows never reach the model.</p>
+          <span class="who who-code">Tare code</span>
+        </article>
+        <article class="step">
+          <i class="step-bar" style="background:#c2410c"></i>
+          <div class="n">04</div>
+          <h3>Decide</h3>
+          <p>All claims match: clean. Any claim fails: dispute, and the seller's origin is refused before kpass next time.</p>
+          <span class="who who-code">Tare code</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section id="roles">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Who decides</span>
+        <h2>Three systems.<br /><span class="grey">Strict lanes.</span></h2>
+        <p class="lede">The model reads. The code judges. The wallet pays. None of them can do another's job.</p>
+      </div>
+      <div class="roles">
+        <article class="role role-serv">
+          <span class="tag">SERV Reasoning</span>
+          <h3>Reads the label</h3>
+          <ul class="can"><li>Extracts four typed claims from the prose</li><li>Treats the prose as untrusted data</li></ul>
+          <ul class="cannot"><li>Never sees the rows</li><li>Never returns a verdict</li><li>Never pays</li></ul>
+        </article>
+        <article class="role role-code">
+          <span class="tag">Tare code</span>
+          <h3>Counts and decides</h3>
+          <ul class="can"><li>Counts rows, unique ids, fields, nulls</li><li>Compares claims to measurements</li><li>Blocklists the seller's origin</li></ul>
+          <ul class="cannot"><li>Never asks the model for a verdict</li><li>Never invents a hash</li></ul>
+        </article>
+        <article class="role role-kite">
+          <span class="tag">Kite Passport</span>
+          <h3>Pays, within limits</h3>
+          <ul class="can"><li>Capped session: 0.05 per tx, 1 total</li><li>Returns the settlement hash</li></ul>
+          <ul class="cannot"><li>Never called for a blocklisted seller</li><li>Passkey approval stays human</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <section id="demo">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">The demo</span>
+        <h2>Two sellers.<br /><span class="grey">Three buys.</span></h2>
+        <p class="lede">
+          Seller A's label says <span class="hl hl-o">1,240 unique records, no nulls</span>. The array holds 1,240 rows,
+          860 unique ids and 40 empty timestamps. Seller B says 200 and sends 200.
+        </p>
+      </div>
+      <div class="demo">
+        <div class="demo-row">
+          <div class="step-n">1</div>
+          <div class="kv"><span>Buy</span><span>Seller A</span></div>
+          <div class="kv"><span>Claimed</span><span class="big-num">1240</span></div>
+          <div class="kv"><span>Counted</span><span class="big-num">860 <small class="dim" style="font-size:15px">unique</small></span></div>
+          <div class="kv"><span>Failed</span><span><span class="failed-list"><span class="rule-tag">count</span><span class="rule-tag">unique</span><span class="rule-tag">no_nulls</span></span></span></div>
+          <div class="kv"><span>Result</span><span class="chip tone-bad">Dispute · blocked</span></div>
+        </div>
+        <div class="demo-row">
+          <div class="step-n">2</div>
+          <div class="kv"><span>Buy</span><span>Seller A again</span></div>
+          <div class="kv"><span>Claimed</span><span class="big-num faint">—</span></div>
+          <div class="kv"><span>Counted</span><span class="big-num faint">—</span></div>
+          <div class="kv"><span>kpass</span><span>not called</span></div>
+          <div class="kv"><span>Result</span><span class="chip tone-muted">Refused · not paid</span></div>
+        </div>
+        <div class="demo-row">
+          <div class="step-n">3</div>
+          <div class="kv"><span>Buy</span><span>Seller B</span></div>
+          <div class="kv"><span>Claimed</span><span class="big-num">200</span></div>
+          <div class="kv"><span>Counted</span><span class="big-num">200</span></div>
+          <div class="kv"><span>Failed</span><span class="faint">none</span></div>
+          <div class="kv"><span>Result</span><span class="chip tone-ok">Clean · paid</span></div>
+        </div>
+      </div>
+      <p class="dim" style="margin-top:22px;font-size:15px">
+        Counts above come from the committed seller payloads. Transaction hashes appear only in the
+        <a href="/app" class="u">console</a>, and only once kpass has returned them.
+      </p>
+    </div>
+  </section>
+
+  <!-- GUARANTEES -->
+  <section id="guarantees">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Guarantees</span>
+        <h2>Built to fail closed.</h2>
+      </div>
+      <div class="guarantees">
+        <div class="guarantee"><div class="ico" data-icon="stop"></div><div><h3>Refused before paying</h3><p>A blocklisted origin is stopped before kpass is ever called. The console's kpass counter does not move.</p></div></div>
+        <div class="guarantee"><div class="ico" data-icon="shield"></div><div><h3>No claim, no pass</h3><p>A label with no count claim is "unverifiable", not clean. Steering the model into nulls gets a seller held, not paid.</p></div></div>
+        <div class="guarantee"><div class="ico" data-icon="hash"></div><div><h3>Never invents a hash</h3><p>Only a settlement hash returned in PAYMENT-RESPONSE is stored or shown. Missing means "paid, no hash", never a made-up value.</p></div></div>
+        <div class="guarantee"><div class="ico" data-icon="eye"></div><div><h3>Rows never reach the model</h3><p>SERV sees the prose inside &lt;prose&gt; tags and nothing else. Any tags the seller hides in the prose are stripped.</p></div></div>
+        <div class="guarantee"><div class="ico" data-icon="repeat"></div><div><h3>One request, one payment</h3><p>Every buy carries a request id. A double click replays the stored receipt instead of paying twice.</p></div></div>
+        <div class="guarantee"><div class="ico" data-icon="layers"></div><div><h3>One buy at a time</h3><p>Buys run in a single queue, and a payment left pending after a crash blocks that seller until a human looks.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RUN IT -->
+  <section class="band" id="run">
+    <div class="wrap">
+      <span class="label">Run it</span>
+      <h2>Your machine.<br />Your passkey.</h2>
+      <p class="lede" style="margin-top:24px">
+        Payments need a human passkey approval, so the live console runs locally. This hosted site shows the
+        <strong>published run</strong>: the same receipts, read-only.
+      </p>
+<pre><span class="c"># clone, install, check</span>
+git clone https://github.com/Ritapossible/Tare && cd Tare
+npm ci && npm test
+
+<span class="c"># live console on http://127.0.0.1:4020</span>
+npm run app</pre>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">FAQ</span>
+        <h2>Questions,<br /><span class="grey">answered plainly.</span></h2>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary>Does real money move?<span data-icon="chevron"></span></summary>
+          <div class="answer"><p>No. Tare runs on Kite testnet with pieUSD from the faucet. No USDC, no card.</p></div>
+        </details>
+        <details>
+          <summary>Does SERV decide whether to pay?<span data-icon="chevron"></span></summary>
+          <div class="answer"><p>No. SERV Reasoning (<code>gpt-5.4-mini-serv-multipath</code>) only extracts four claims from the seller's prose. Counting, comparing, blocklisting and paying are all plain code. Any extra field the model returns, such as a "verdict", is dropped unread.</p></div>
+        </details>
+        <details>
+          <summary>Why does Tare pay before checking?<span data-icon="chevron"></span></summary>
+          <div class="answer"><p>Because x402 only returns the body after payment. There is nothing to count before paying. Tare's promise is about the next payment: a seller whose label failed is never paid again.</p></div>
+        </details>
+        <details>
+          <summary>Can a seller talk the model into approving?<span data-icon="chevron"></span></summary>
+          <div class="answer"><p>The model has no approval to give. The worst a seller can do is skew the extracted claims, and a label with no count claim fails closed as "unverifiable". Live injection results from <code>scripts/serv_eval.mjs</code> are published in the write-up.</p></div>
+        </details>
+        <details>
+          <summary>What does a dispute actually do?<span data-icon="chevron"></span></summary>
+          <div class="answer"><p>It records the evidence (settlement hash, body hash, prompt hash, claims and counts) and blocklists the seller's origin, so the next buy is refused before kpass. It does not refund the first payment.</p></div>
+        </details>
+        <details>
+          <summary>Why is the hosted console read-only?<span data-icon="chevron"></span></summary>
+          <div class="answer"><p>Kite Passport asks a human to approve the session with a passkey, and that step is never automated. The hosted site shows the receipts from a published local run.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOGETHER -->
+  <section class="together pixels" data-sprinkle="18">
+    <div class="wrap">
+      <span class="label">Try it</span>
+      <h2>Labels lie.<br />Counts don't.</h2>
+      <div class="circles" aria-hidden="true">
+        <i style="background:#f97316">pay</i><i style="background:#c2410c">read</i><i style="background:#1d9bf0">count</i><i style="background:#56b4ec">decide</i><i style="background:#3b6db3">refuse</i>
+      </div>
+      <a class="btn btn-white btn-lg" href="/app">Open the console</a>
+    </div>
+  </section>
+
+  </main>
+
+  <div data-footer></div>
+
+  <script type="module">
+    import { mountLayout } from "/assets/layout.js";
+    mountLayout("site");
+  </script>
+</body>
+</html>

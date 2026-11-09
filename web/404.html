@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Not found — Tare</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <header data-nav></header>
+  <main id="main">
+    <section class="hero pixels" data-sprinkle="20">
+      <div class="wrap">
+        <span class="label">404</span>
+        <h1 class="display" style="font-size:clamp(56px,12vw,140px)">Nothing<br /><span class="stamp stamp-orange">delivered.</span></h1>
+        <p class="lede">The page you asked for is not here. At least we counted.</p>
+        <div class="hero-cta"><a class="btn btn-orange btn-lg" href="/">Back home</a></div>
+      </div>
+    </section>
+  </main>
+  <div data-footer></div>
+  <script type="module">
+    import { mountLayout } from "/assets/layout.js";
+    mountLayout("site");
+  </script>
+</body>
+</html>

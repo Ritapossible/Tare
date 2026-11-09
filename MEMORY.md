@@ -5,7 +5,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Status
 
-- **Phase:** Day 3 core built against fakes (2026-11-09): check, serv, store, buy, config, provisional kpass, CLI, CI. 70 tests pass. Tomorrow (Tue 10 Nov) is the live run: `docs/RUNBOOK.md`.
+- **Phase:** Core + web app built (2026-11-09). 87 tests pass. Next: live run (`docs/RUNBOOK.md`), then `node scripts/publish.mjs` and Vercel deploy (root `web/`).
 - **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
 - **Seller URLs:** not deployed yet. Code and guide ready (`sellers/README.md`); `sellers.json` holds nulls.
@@ -34,6 +34,10 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-09 | Deferred to Day 4+: claims from the 402 `description` (#6), `count_qualifier` (#7), dispute evidence export (#8), explorer links (#9), `tareFetch` export (#11) | from the senior review; P1, after the live run |
 | 2026-11-09 | All commits authored by Rita (`124313160+Ritapossible@users.noreply.github.com`), Claude credited via Co-Authored-By; history rewritten once and force-pushed; payload pin moved `02f239c` → `2303e9e8a14d7801369977668f6067fb5b49ef17` | owner asked to appear as the repo's contributor; noreply email always links to the GitHub account and keeps the personal email private |
 | 2026-11-09 | Work moves to `main` (owner request); `ccr-aaaa0a55-l7co6h` kept until default branch is switched | one obvious branch for judges and clones |
+| 2026-11-09 | Web app = static vanilla HTML/CSS/JS in `web/` (no framework, no build, no deps); visual style inspired by a reference landing page but with Tare's own brand, copy and logo; no charts (rule 8) | Vercel-ready as-is; no impersonation; keeps the dependency rule |
+| 2026-11-09 | Two modes: live (`npm run app`, local API) and published (Vercel reads `web/data/state.json`) | payments need the human passkey on the operator's machine; Vercel can never pay |
+| 2026-11-09 | Local API guards: 127.0.0.1 bind, Host allowlist, `X-Tare-Request` + JSON required, foreign Origin refused, seller key only (no URLs), request_id regex | the API spends testnet funds; any website could otherwise POST to localhost |
+| 2026-11-09 | `publish.mjs` refuses malformed tx hashes and pending receipts; render shows only 0x+64-hex as a hash | rule 3: no invented hash can reach the public page |
 | 2026-11-08 | Kite track, not Open | The capped Passport session is the spending-limit primitive the Kite track is about |
 | 2026-11-08 | Pay first, verify after, refuse the *next* payment | x402 returns the body only after payment; there is nothing to count before paying |
 | 2026-11-08 | Idempotency key = origin + request_id, created before `execute`; `pending` written before paying | body hash is only known after payment; pending record prevents a double pay on crash/retry |

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Docs — Tare</title>
+  <meta name="description" content="How to run Tare: SERV key, Kite testnet setup, sellers, console, and deployment." />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header data-nav></header>
+  <main id="main" class="app-shell">
+    <div class="wrap docs">
+      <nav class="toc" aria-label="On this page">
+        <span class="label">Docs</span>
+        <a href="#what">What Tare is</a>
+        <a href="#quickstart">Quick start</a>
+        <a href="#serv">SERV key</a>
+        <a href="#kite">Kite testnet</a>
+        <a href="#sellers">Sellers</a>
+        <a href="#console">Console</a>
+        <a href="#rules">Rules</a>
+        <a href="#statuses">Statuses</a>
+        <a href="#security">Security</a>
+        <a href="#deploy">Deploy to Vercel</a>
+      </nav>
+      <article class="prose-doc">
+        <span class="label">Docs</span>
+        <h1>Run Tare.</h1>
+        <p class="lede">Everything needed to go from a clone to a disputed seller, a refused payment and a clean one, on Kite testnet.</p>
+
+        <h2 id="what">What Tare is</h2>
+        <p>Tare is a buyer agent that pays x402 data sellers with Kite Passport, reads each seller's own description of its delivery with SERV Reasoning, and checks that description against the delivered rows in code. A seller whose claims fail is blocklisted by origin, and the next buy is refused before any payment.</p>
+        <p><strong>Code, not SERV, counts and decides.</strong> The model id is <code>gpt-5.4-mini-serv-multipath</code>; it only extracts claims.</p>
+
+        <h2 id="quickstart">Quick start</h2>
+<pre>git clone https://github.com/Ritapossible/Tare && cd Tare
+npm ci
+npm test                        # SERV and kpass are faked; no network
+cp .env.example .env            # add SERV_API_KEY
+node scripts/serv_check.mjs     # one real SERV call
+npm run app                     # console on http://127.0.0.1:4020</pre>
+
+        <h2 id="serv">SERV key</h2>
+        <p>Create a key at <a href="https://console.openserv.ai" target="_blank" rel="noopener">console.openserv.ai</a> and put it in <code>.env</code> as <code>SERV_API_KEY</code>. The $5 starter credit pays for SERV inference only; it never funds a payment.</p>
+        <p><code>node scripts/serv_eval.mjs</code> runs seven ordinary and five adversarial seller labels against the real model and reports accuracy and safety.</p>
+
+        <h2 id="kite">Kite testnet</h2>
+        <p>Run these once, in order. You approve the passkey yourself; Tare never automates it.</p>
+<pre>kpass sandbox on
+kpass wallet address
+kpass faucet drop --recipient &lt;address&gt; --token pieUSD
+kpass agent register --type service-tester
+kpass agent session create --task-summary "tare receipt check" \
+  --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h</pre>
+        <p>Asset: pieUSD <code>0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A</code> (18 decimals), network <code>eip155:2368</code>, facilitator <code>https://facilitator.pieverse.io/v2</code>.</p>
+
+        <h2 id="sellers">Sellers</h2>
+        <p>Two sellers, each the unchanged Kite x402 Express template on its <strong>own origin</strong>, priced at 0.001 pieUSD. Deploy steps are in <code>sellers/README.md</code>. Before paying, check both without spending anything:</p>
+<pre>node scripts/seller_probe.mjs "&lt;seller A url&gt;" "&lt;seller B url&gt;"</pre>
+        <table>
+          <thead><tr><th>Seller</th><th>Label</th><th>Delivery</th></tr></thead>
+          <tbody>
+            <tr><td>A</td><td>1,240 unique records, fields id and ts, no nulls</td><td>1,240 rows · 860 unique ids · 40 null ts</td></tr>
+            <tr><td>B</td><td>200 records, fields id and ts, no nulls</td><td>200 rows · 200 unique ids · no nulls</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="console">Console</h2>
+        <p><code>npm run app</code> serves this site with a live API on <code>127.0.0.1:4020</code>. The Buy buttons only accept the sellers in <code>sellers.json</code>; the browser cannot send an arbitrary URL. From the command line:</p>
+<pre>node scripts/reset.mjs        # clean slate for a demo take
+node scripts/buy.mjs a        # dispute, blocklisted
+node scripts/buy.mjs a        # refused, kpass not called
+node scripts/buy.mjs b        # clean
+node scripts/publish.mjs      # copy the run to web/data/state.json for the hosted site</pre>
+
+        <h2 id="rules">Rules</h2>
+        <table>
+          <thead><tr><th>Rule</th><th>Fails when</th></tr></thead>
+          <tbody>
+            <tr><td><code>shape</code></td><td>The body is not JSON with a string <code>prose</code> and an array of objects <code>rows</code>.</td></tr>
+            <tr><td><code>count</code></td><td>A count is claimed and differs from the row count (or the unique-id count, when uniqueness is claimed).</td></tr>
+            <tr><td><code>unique</code></td><td>Uniqueness is claimed and some ids repeat.</td></tr>
+            <tr><td><code>fields</code></td><td>Fields are named and some row lacks one.</td></tr>
+            <tr><td><code>no_nulls</code></td><td>"No nulls" is claimed and a checked value is <code>null</code> or empty.</td></tr>
+          </tbody>
+        </table>
+        <p>Any failure is a dispute. No failure but no count claim is <strong>unverifiable</strong>: the seller is held, because a label that claims nothing cannot be checked.</p>
+
+        <h2 id="statuses">Statuses</h2>
+        <table>
+          <thead><tr><th>Status</th><th>Paid</th><th>Blocked</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>clean</td><td>yes</td><td>no</td><td>Every claim matched.</td></tr>
+            <tr><td>dispute</td><td>yes</td><td>yes</td><td>A claim failed.</td></tr>
+            <tr><td>unverifiable</td><td>yes</td><td>yes</td><td>No count claim to check.</td></tr>
+            <tr><td>refused</td><td>no</td><td>—</td><td>Blocklisted origin or an unresolved pending payment.</td></tr>
+            <tr><td>paid_unchecked</td><td>yes</td><td>no</td><td>SERV failed twice or errored.</td></tr>
+            <tr><td>paid_unverified</td><td>?</td><td>no</td><td>kpass returned no settlement hash.</td></tr>
+            <tr><td>failed</td><td>no</td><td>no</td><td>kpass error or non-200.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="security">Security</h2>
+        <ul>
+          <li>The local API binds to <code>127.0.0.1</code>, checks the <code>Host</code> header (against DNS rebinding), requires a custom header plus JSON (so another website cannot trigger a buy), and only buys sellers listed in <code>sellers.json</code>.</li>
+          <li>Seller prose is untrusted: it is escaped on every page and wrapped in <code>&lt;prose&gt;</code> tags for SERV.</li>
+          <li><code>kpass</code> is spawned with an argument list, never through a shell.</li>
+          <li><code>scripts/publish.mjs</code> refuses to publish any hash that is not a 0x-prefixed 32-byte value.</li>
+        </ul>
+
+        <h2 id="deploy">Deploy to Vercel</h2>
+        <p>The site is static: no build step, no server functions.</p>
+        <ol>
+          <li>Import <code>Ritapossible/Tare</code> in Vercel.</li>
+          <li>Set <strong>Root Directory</strong> to <code>web</code>, Framework Preset to <strong>Other</strong>, and leave the build command empty.</li>
+          <li>Deploy. After a live run, <code>node scripts/publish.mjs</code>, commit <code>web/data/state.json</code> and push; Vercel redeploys with the real receipts.</li>
+        </ol>
+      </article>
+    </div>
+  </main>
+  <div data-footer></div>
+  <script type="module">
+    import { mountLayout } from "/assets/layout.js";
+    mountLayout("app");
+  </script>
+</body>
+</html>

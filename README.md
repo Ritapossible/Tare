@@ -44,6 +44,19 @@ kpass agent session execute --method GET --url "<seller url>"
 
 Testnet settlement hash from seller B: _not yet run — pasted here only once `kpass` returns it._
 
+## Web app
+
+```
+npm run app          # live console on http://127.0.0.1:4020 (Buy works, needs kpass + your passkey)
+npm run publish:site # copy the local run to web/data/state.json for the hosted, read-only site
+```
+
+Pages: landing `/`, console `/app`, receipt detail `/app/receipt`, sellers `/app/sellers`, docs `/docs`.
+
+**Deploy to Vercel:** import `Ritapossible/Tare`, set **Root Directory** to `web`, Framework Preset
+**Other**, no build command. The hosted site is read-only: it shows the published run, because
+payments need a human passkey on the operator's machine.
+
 ## Tests
 
 ```

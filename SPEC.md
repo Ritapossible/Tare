@@ -185,7 +185,21 @@ The human approves the passkey. That click is never automated.
 
 ## UI
 
-One local page. One row per receipt:
+A static web app in `web/` (no build step, no framework, no dependencies), in two modes:
+
+- **live**: `npm run app` serves `web/` plus `/api/state` and `/api/buy` on `127.0.0.1:4020`. Buy works.
+- **published**: static hosting (Vercel, root `web/`) reads `web/data/state.json`, written by
+  `node scripts/publish.mjs` from the local store. Read-only. Publishing refuses malformed hashes and
+  pending receipts.
+
+Pages: `/` (landing), `/app` (console), `/app/receipt?id=` (label vs delivery + evidence),
+`/app/sellers`, `/docs`, `/404`.
+
+`/api/buy` accepts only a seller key from `sellers.json` and an optional `request_id`
+(`[A-Za-z0-9_-]{1,100}`). It requires `Content-Type: application/json` and `X-Tare-Request: 1`,
+rejects a foreign `Origin`, and rejects any `Host` other than `127.0.0.1:<port>`/`localhost:<port>`.
+
+Console row per receipt:
 origin · claims · count · unique_count · failed rules · tx hash or `not paid` · blocklist status.
 A visible `kpass calls: N` counter (it stays put when a refused buy happens). The Buy buttons carry a
 `request_id` created when the page renders.

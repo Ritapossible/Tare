@@ -1,0 +1,14 @@
+{
+  "mode": "published",
+  "generated_at": null,
+  "model": "gpt-5.4-mini-serv-multipath",
+  "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
+  "sellers": { "a": null, "b": null },
+  "seller_labels": {
+    "a": "Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.",
+    "b": "Delivered two hundred records, fields id and ts, no nulls."
+  },
+  "receipts": [],
+  "blocklist": {},
+  "kpass_calls": 0
+}
