@@ -74,32 +74,32 @@ export function ruleRows(r) {
   rows.push({
     rule: "count",
     claimed: cc === null ? "not claimed" : `${cc}${c?.unique === true ? " unique" : ""} records`,
-    measured: measuredCount == null ? "—" : `${measuredCount}${c?.unique === true ? " unique" : ""} records`,
+    measured: measuredCount == null ? "-" : `${measuredCount}${c?.unique === true ? " unique" : ""} records`,
     result: result("count", cc !== null),
   });
   rows.push({
     rule: "unique",
     claimed: c?.unique === true ? "all ids unique" : "not claimed",
-    measured: r?.count == null ? "—" : `${r.unique_count} unique of ${r.count}`,
+    measured: r?.count == null ? "-" : `${r.unique_count} unique of ${r.count}`,
     result: result("unique", c?.unique === true),
   });
   rows.push({
     rule: "fields",
     claimed: c?.fields ? c.fields.join(", ") : "not claimed",
-    measured: !c?.fields || !judged ? "—" : failed.has("fields") ? "missing in some rows" : "present in every row",
+    measured: !c?.fields || !judged ? "-" : failed.has("fields") ? "missing in some rows" : "present in every row",
     result: result("fields", Boolean(c?.fields)),
   });
   rows.push({
     rule: "no_nulls",
     claimed: c?.no_nulls === true ? "no nulls" : "not claimed",
-    measured: c?.no_nulls !== true || !judged ? "—" : failed.has("no_nulls") ? "null or empty values found" : "none found",
+    measured: c?.no_nulls !== true || !judged ? "-" : failed.has("no_nulls") ? "null or empty values found" : "none found",
     result: result("no_nulls", c?.no_nulls === true),
   });
   return rows;
 }
 
 export function failedTags(failed) {
-  if (!failed?.length) return `<span class="faint">—</span>`;
+  if (!failed?.length) return `<span class="faint">-</span>`;
   return `<span class="failed-list">${failed.map((f) => `<span class="rule-tag">${esc(f)}</span>`).join("")}</span>`;
 }
 
@@ -110,8 +110,8 @@ export function receiptRow(r, state) {
   return `<tr>
   <td data-k="Seller"><a class="row-link" href="/app/receipt?id=${encodeURIComponent(r.id)}">${esc(name)}</a><div class="faint hash">${esc(r.origin)}</div></td>
   <td data-k="Status">${statusChip(r.status)}</td>
-  <td data-k="Claimed"><span class="num">${cc ?? "—"}</span></td>
-  <td data-k="Counted"><span class="num">${r.count ?? "—"}</span>${r.unique_count != null ? `<div class="faint">${esc(r.unique_count)} unique</div>` : ""}</td>
+  <td data-k="Claimed"><span class="num">${cc ?? "-"}</span></td>
+  <td data-k="Counted"><span class="num">${r.count ?? "-"}</span>${r.unique_count != null ? `<div class="faint">${esc(r.unique_count)} unique</div>` : ""}</td>
   <td data-k="Failed">${failedTags(r.failed)}</td>
   <td data-k="Tx hash">${txCell(r.tx_hash)}</td>
   <td data-k="Seller record">${recordCell(blocked)}</td>
@@ -129,7 +129,7 @@ export function recordChip(entry, hasUrl = true) {
 }
 
 export function formatTime(iso) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return String(iso);
   return d.toISOString().replace("T", " ").replace(/\.\d+Z$/, " UTC");

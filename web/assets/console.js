@@ -1,6 +1,6 @@
 // Console data + behaviour. Two modes, decided at runtime:
-//   live       — served by `npm run app` on this machine; /api/state exists and Buy works.
-//   published  — static hosting (e.g. Vercel); reads /data/state.json, read-only.
+//   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
+//   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
 import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell } from "./render.js";
 import { icons } from "./icons.js";
 
@@ -124,7 +124,7 @@ export async function mountConsole(root) {
       if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
       const r = body.receipt;
       const s = STATUS[r.status];
-      toast(`${statusChip(r.status)} <strong style="margin-left:8px">Seller ${esc(key.toUpperCase())}</strong> — ${esc(s?.note ?? r.status)} ${r.replayed ? "(replayed, no new payment)" : ""}`);
+      toast(`${statusChip(r.status)} <strong style="margin-left:8px">Seller ${esc(key.toUpperCase())}</strong> - ${esc(s?.note ?? r.status)} ${r.replayed ? "(replayed, no new payment)" : ""}`);
       ids[key] = newRequestId(); // next click is a new purchase
     } catch (err) {
       toast(`<strong>Buy failed:</strong> ${esc(err.message)}`);
@@ -178,12 +178,12 @@ export async function mountReceipt(root) {
         <h2>Evidence</h2>
         <dl class="facts">
           <div><dt>Settlement tx hash</dt><dd>${r.tx_hash ? `<span class="hash">${esc(r.tx_hash)}</span>${copyBtn(r.tx_hash)}` : txCell(null)}</dd></div>
-          <div><dt>Body sha256</dt><dd><span class="hash">${esc(r.body_sha256 ?? "—")}</span>${copyBtn(r.body_sha256)}</dd></div>
-          <div><dt>Prompt sha256</dt><dd><span class="hash">${esc(r.prompt_sha256 ?? "—")}</span></dd></div>
+          <div><dt>Body sha256</dt><dd><span class="hash">${esc(r.body_sha256 ?? "-")}</span>${copyBtn(r.body_sha256)}</dd></div>
+          <div><dt>Prompt sha256</dt><dd><span class="hash">${esc(r.prompt_sha256 ?? "-")}</span></dd></div>
           <div><dt>Failed checks</dt><dd>${failedTags(r.failed)}</dd></div>
           <div><dt>Seller record</dt><dd><span class="hash">${esc(r.origin)}</span> · ${recordCell(blocked)}</dd></div>
           <div><dt>URL</dt><dd><span class="hash">${esc(r.url)}</span></dd></div>
-          <div><dt>Request id</dt><dd><span class="hash">${esc(r.request_id ?? "—")}</span></dd></div>
+          <div><dt>Request id</dt><dd><span class="hash">${esc(r.request_id ?? "-")}</span></dd></div>
           <div><dt>Time</dt><dd>${esc(formatTime(r.created_at))}</dd></div>
         </dl>
       </div>
@@ -218,7 +218,7 @@ export async function mountSellers(root) {
         <div class="seller-top"><span class="seller-name">Seller ${esc(key.toUpperCase())}</span>${recordChip(block, Boolean(url))}</div>
         ${state.seller_labels?.[key] ? `<p class="prose">${esc(state.seller_labels[key])}</p>` : ""}
         <dl class="facts">
-          <div><dt>Origin (seller record key)</dt><dd><span class="hash">${esc(origin ?? "—")}</span></dd></div>
+          <div><dt>Origin (seller record key)</dt><dd><span class="hash">${esc(origin ?? "-")}</span></dd></div>
           <div><dt>Buyer URL</dt><dd><span class="hash">${esc(url ?? "not set in sellers.json")}</span></dd></div>
           <div><dt>Price</dt><dd>0.001 pieUSD per call · Kite testnet</dd></div>
           <div><dt>Receipts</dt><dd>${mine.length}${last ? ` · last ${statusChip(last.status)}` : ""}</dd></div>
