@@ -1,7 +1,7 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard } from "./render.js";
 import { icons } from "./icons.js";
 import { sprinkle } from "./layout.js";
 
@@ -221,32 +221,26 @@ export async function mountReceipt(root) {
 // ---------- sellers page ----------
 export async function mountSellers(root) {
   const state = await loadState();
-  const entries = Object.entries(state.sellers ?? {});
-  const rows = entries
-    .map(([key, url]) => {
-      let origin = null;
-      try {
-        origin = url ? new URL(url).origin : null;
-      } catch {}
-      const mine = state.receipts.filter((r) => r.origin === origin);
-      const last = mine[mine.length - 1];
-      const block = origin ? state.blocklist?.[origin] : null;
-      return `<article class="seller">
-        <div class="seller-top"><span class="seller-name">Seller ${esc(key.toUpperCase())}</span>${recordChip(block, Boolean(url))}</div>
-        ${state.seller_labels?.[key] ? `<p class="prose">${esc(state.seller_labels[key])}</p>` : ""}
-        <dl class="facts">
-          <div><dt>Origin (seller record key)</dt><dd><span class="hash">${esc(origin ?? "-")}</span></dd></div>
-          <div><dt>Buyer URL</dt><dd><span class="hash">${esc(url ?? "not set in sellers.json")}</span></dd></div>
-          <div><dt>Price</dt><dd>0.001 pieUSD per call · Kite testnet</dd></div>
-          <div><dt>Receipts</dt><dd>${mine.length}${last ? ` · last ${statusChip(last.status)}` : ""}</dd></div>
-        </dl>
-      </article>`;
-    })
-    .join("");
+  const keys = Object.keys(state.sellers ?? {});
+  const cards = keys.map((k) => sellerProfileCard(sellerSummary(state, k), icons)).join("");
 
   root.innerHTML = `
-    <div class="app-head"><div><span class="label">Sellers</span><h1>Who we buy from</h1></div>${modeBadge(state)}</div>
+    <div class="app-hero pixels">
+      <div class="app-hero-text">
+        <span class="label">Sellers</span>
+        <h1 class="display">Sellers, <span class="stamp stamp-orange">on record.</span></h1>
+        <p>Every seller Tare buys from, and how its promises held up.</p>
+      </div>
+      ${modeBadge(state)}
+    </div>
     ${modeNotice(state)}
-    <p class="lede" style="margin:0 0 28px">Each seller is the unchanged Kite x402 Express template on its own origin. The origin is the key of its seller record, so two sellers never share one.</p>
-    ${rows ? `<div class="sellers">${rows}</div>` : `<div class="card empty"><h3>No sellers configured</h3><p>Deploy them (sellers/README.md) and fill sellers.json.</p></div>`}`;
+    ${cards ? `<div class="sellers">${cards}</div>` : `<div class="card empty"><h3>No sellers configured</h3><p>Deploy them (sellers/README.md) and fill sellers.json.</p></div>`}
+    <span class="label">How sellers are set up</span>
+    <div class="setup">
+      <div class="setup-item"><span class="ico">${icons.layers}</span><div><strong>Unchanged Kite x402 template</strong><p>Each seller is the Kite Express wrapper with only environment settings.</p></div></div>
+      <div class="setup-item"><span class="ico">${icons.lock}</span><div><strong>One origin each</strong><p>The origin is the key of the seller record, so holding one seller never holds another.</p></div></div>
+      <div class="setup-item"><span class="ico">${icons.coin}</span><div><strong>0.001 pieUSD per call</strong><p>Kite testnet only. The probe checks the price and network before any payment.</p></div></div>
+    </div>`;
+
+  sprinkle(root.querySelector(".app-hero"), 12, { side: "right" });
 }

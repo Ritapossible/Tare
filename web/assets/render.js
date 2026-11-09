@@ -158,6 +158,75 @@ export const PREVIEW_RECEIPTS = [
   { id: "p3", origin: "seller-b", status: "clean", claims: { claimed_count: 200, unique: null }, count: 200, unique_count: 200, failed: [] },
 ];
 
+// Everything the Sellers page knows about one seller, derived from receipts (no network).
+export function sellerSummary(state, key) {
+  const url = state?.sellers?.[key] ?? null;
+  let origin = null;
+  try {
+    origin = url ? new URL(url).origin : null;
+  } catch {
+    origin = null;
+  }
+  const mine = origin ? (state?.receipts ?? []).filter((r) => r.origin === origin) : [];
+  const count = (s) => mine.filter((r) => r.status === s).length;
+  const judged = mine.filter((r) => r.status === "clean" || r.status === "dispute" || r.status === "unverifiable");
+  const hold = origin ? state?.blocklist?.[origin] ?? null : null;
+  return {
+    key,
+    url,
+    origin,
+    hold,
+    holdReceipt: hold ? mine.find((r) => r.id === hold.receipt_id) ?? null : null,
+    verified: count("clean"),
+    disputes: count("dispute") + count("unverifiable"),
+    stopped: count("refused"),
+    lastCheck: judged[judged.length - 1] ?? null,
+    promise: state?.seller_labels?.[key] ?? null,
+  };
+}
+
+export function sellerProfileCard(s, icons = {}) {
+  const name = `Seller ${String(s.key).toUpperCase()}`;
+  let banner;
+  if (!s.url) banner = `<div class="record-banner tone-muted-bg"><strong>Not deployed yet</strong><span>No URL in sellers.json.</span></div>`;
+  else if (s.hold)
+    banner = `<div class="record-banner bad"><strong>Held · ${esc(s.hold.reason)}</strong><span>The next buy stops before kpass.${
+      s.holdReceipt ? ` <a href="/app/receipt?id=${encodeURIComponent(s.holdReceipt.id)}">See the receipt</a>` : ""
+    }</span></div>`;
+  else banner = `<div class="record-banner ok"><strong>In good standing</strong><span>${s.verified ? "Every check so far matched the promise." : "No failed check on record."}</span></div>`;
+
+  const lc = s.lastCheck;
+  const uniq = lc?.claims?.unique === true;
+  const delivered = lc ? (uniq ? lc.unique_count : lc.count) : null;
+  const last = lc
+    ? `<a class="last-check" href="/app/receipt?id=${encodeURIComponent(lc.id)}">
+        <span class="k">Last check</span>
+        <span class="lc-nums"><span class="big">${esc(lc.claims?.claimed_count ?? "-")}</span><span class="arrow" aria-hidden="true">→</span><span class="big ${lc.failed?.length ? "tone-bad" : ""}">${esc(delivered ?? "-")}</span></span>
+        <span class="sub"><span>promised → delivered${uniq ? " (unique)" : ""}</span>${statusChip(lc.status)}</span>
+      </a>`
+    : `<div class="last-check empty-check"><span class="k">Last check</span><span class="sub">No check ${s.url ? "recorded" : "published"} yet.</span></div>`;
+
+  return `<article class="seller seller-${esc(s.key)} profile">
+    <div class="seller-top"><span class="seller-name">${esc(name)}</span>${recordChip(s.hold, Boolean(s.url))}</div>
+    ${banner}
+    ${s.promise ? `<p class="prose">${esc(s.promise)}</p>` : ""}
+    <div class="track">
+      <div class="t ${s.verified ? "t-ok" : "t-zero"}"><span class="n">${s.verified}</span><span class="l">Verified</span></div>
+      <div class="t ${s.disputes ? "t-bad" : "t-zero"}"><span class="n">${s.disputes}</span><span class="l">Disputes</span></div>
+      <div class="t ${s.stopped ? "t-muted" : "t-zero"}"><span class="n">${s.stopped}</span><span class="l">Stopped</span></div>
+    </div>
+    ${last}
+    <details class="conn">
+      <summary>Connection details ${icons.chevron ?? ""}</summary>
+      <dl class="facts">
+        <div><dt>Origin · seller record key</dt><dd><span class="hash">${esc(s.origin ?? "-")}</span></dd></div>
+        <div><dt>Buyer URL</dt><dd><span class="hash">${esc(s.url ?? "not set in sellers.json")}</span></dd></div>
+        <div><dt>Price</dt><dd>0.001 pieUSD per call · Kite testnet</dd></div>
+      </dl>
+    </details>
+  </article>`;
+}
+
 // User-facing name for the internal blocklist: the seller record.
 export function recordCell(entry) {
   return entry ? `<span class="tone-bad">held · ${esc(entry.reason)}</span>` : `<span class="faint">in good standing</span>`;

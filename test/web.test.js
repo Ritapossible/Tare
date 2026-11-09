@@ -88,3 +88,29 @@ test("preview cards never show a hash and are not links", () => {
     assert.ok(!html.includes("<a "), "preview must not link to a receipt");
   }
 });
+
+import { sellerSummary, sellerProfileCard } from "../web/assets/render.js";
+
+test("seller summary counts outcomes and links the hold to its receipt", () => {
+  const state = {
+    sellers: { a: "https://a.test/v1/a.json", b: null },
+    seller_labels: { a: "Delivered 1240 <b>records</b>" },
+    blocklist: { "https://a.test": { reason: "dispute", receipt_id: "r1" } },
+    receipts: [
+      { id: "r1", origin: "https://a.test", status: "dispute", claims: { claimed_count: 1240, unique: true }, count: 1240, unique_count: 860, failed: ["count"] },
+      { id: "r2", origin: "https://a.test", status: "refused", failed: [] },
+      { id: "r9", origin: "https://other.test", status: "clean", failed: [] },
+    ],
+  };
+  const s = sellerSummary(state, "a");
+  assert.deepEqual([s.verified, s.disputes, s.stopped], [0, 1, 1]);
+  assert.equal(s.holdReceipt.id, "r1");
+  assert.equal(s.lastCheck.id, "r1");
+  const html = sellerProfileCard(s);
+  assert.match(html, /Held · dispute/);
+  assert.match(html, /href="\/app\/receipt\?id=r1"/);
+  assert.ok(!html.includes("<b>"), "seller promise must be escaped");
+  const b = sellerProfileCard(sellerSummary(state, "b"));
+  assert.match(b, /Not deployed yet/);
+  assert.match(b, /No check published yet/);
+});
