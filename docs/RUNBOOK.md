@@ -58,8 +58,8 @@ Follow `sellers/README.md` exactly: two Render web services, root directory `sel
 
 ```json
 {
-  "a": "https://<seller-a-host>/v1/Ritapossible/tare/02f239ca82d89911e9cd957d9cc5b45d7036f204/sellers/data/a.json",
-  "b": "https://<seller-b-host>/v1/Ritapossible/tare/02f239ca82d89911e9cd957d9cc5b45d7036f204/sellers/data/b.json"
+  "a": "https://<seller-a-host>/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
+  "b": "https://<seller-b-host>/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/b.json"
 }
 ```
 

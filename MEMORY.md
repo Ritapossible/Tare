@@ -32,6 +32,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-09 | Test 7 acknowledged as code-only; live injection resistance measured by `scripts/serv_eval.mjs` | a mocked SERV cannot prove model robustness |
 | 2026-11-09 | CI: GitHub Actions runs `npm ci`, generator `--check`, `npm test` on a clean checkout | the `.gitignore` bug passed local tests |
 | 2026-11-09 | Deferred to Day 4+: claims from the 402 `description` (#6), `count_qualifier` (#7), dispute evidence export (#8), explorer links (#9), `tareFetch` export (#11) | from the senior review; P1, after the live run |
+| 2026-11-09 | All commits authored by Rita (`124313160+Ritapossible@users.noreply.github.com`), Claude credited via Co-Authored-By; history rewritten once and force-pushed; payload pin moved `02f239c` → `2303e9e8a14d7801369977668f6067fb5b49ef17` | owner asked to appear as the repo's contributor; noreply email always links to the GitHub account and keeps the personal email private |
 | 2026-11-08 | Kite track, not Open | The capped Passport session is the spending-limit primitive the Kite track is about |
 | 2026-11-08 | Pay first, verify after, refuse the *next* payment | x402 returns the body only after payment; there is nothing to count before paying |
 | 2026-11-08 | Idempotency key = origin + request_id, created before `execute`; `pending` written before paying | body hash is only known after payment; pending record prevents a double pay on crash/retry |
