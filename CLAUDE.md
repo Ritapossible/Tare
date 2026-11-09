@@ -17,7 +17,8 @@ fact by running something, add it to `MEMORY.md`. When you finish a plan item, t
 6. **Never automate the passkey approval.**
 7. **Testnet only.** No mainnet, no USDC, no live card. Never write "mainnet" in user-facing copy.
 8. No graph drawing, no chart, no `gr_` / graph-sharding API calls.
-9. Do not build the reputation feed / dispute lookup. Scope guard is in `PLAN.md`.
+9. Shared seller records are in scope **only after the live-run gate in `PLAN.md` passes**, and only
+   as opt-in feeds the operator chooses to trust. Never a global blacklist. Scope guard is in `PLAN.md`.
 10. Do not include any AI model identifier in commits, code comments or docs other than the SERV
     model id `gpt-5.4-mini-serv-multipath`.
 

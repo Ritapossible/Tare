@@ -246,8 +246,9 @@ Test 7 only proves the code ignores the prose; real injection resistance is meas
 - README: what Tare is (two sentences); how to create the SERV key and that the $5 credit pays SERV
   inference only; the Kite commands; one test command; three "do X, see Y" lines; model id; the
   statement that **code, not SERV, counts and decides**.
-- Write-up (`docs/WRITEUP.md`): how SERV is used. One sentence on the future: a later version could
-  sell a dispute lookup over x402. **Not built.**
+- Write-up (`docs/WRITEUP.md`): what Tare does, how SERV Reasoning powers it, the track (Kite), what was
+  built during the hackathon, live `serv_eval` numbers, and shared seller records with their limits.
+- X post tags **@openservai**. Data collection is enabled in the OpenServ org settings before submitting.
 - Video < 90 s: (1) pay A — 1240 claimed vs 860 unique, the testnet hash, dispute; (2) buy A again —
   refused, no new hash; (3) pay B — clean, testnet hash. Never say the count ran inside SERV. Never say mainnet.
 - Submit repo, video, write-up, X post at https://openserv.typeform.com/submissions02.
