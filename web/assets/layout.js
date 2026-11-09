@@ -92,7 +92,20 @@ export function sprinkle(el, count = 26) {
   }
 }
 
+// A refresh always starts at the top of the page. Following a link to a section (/#faq) still
+// lands on that section; only a reload resets, and it drops the stale #hash from the address bar.
+function startAtTopOnReload() {
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  const nav = performance.getEntriesByType?.("navigation")?.[0];
+  if (nav?.type !== "reload") return;
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  toTop();
+  window.addEventListener("load", toTop, { once: true });
+}
+
 export function mountLayout(kind = "site") {
+  startAtTopOnReload();
   const header = document.querySelector("[data-nav]");
   if (header) header.innerHTML = nav(kind);
   const foot = document.querySelector("[data-footer]");
