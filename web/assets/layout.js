@@ -36,8 +36,10 @@ function nav(kind) {
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">${icons.menu}${icons.close}</button>
     <div class="mobile-menu" id="mobile-menu">
       ${links.map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}
-      <a class="btn btn-white" href="${REPO}" target="_blank" rel="noopener">View on GitHub</a>
-      ${kind === "app" ? "" : `<a class="btn btn-blue" href="/app">Open the console</a>`}
+      <div class="menu-actions">
+        ${kind === "app" ? "" : `<a class="btn btn-orange" href="/app">Open the console ${icons.arrow}</a>`}
+        <a class="btn btn-white" href="${REPO}" target="_blank" rel="noopener">${icons.github} View on GitHub</a>
+      </div>
     </div>
   </nav>`;
 }
@@ -113,17 +115,24 @@ export function mountLayout(kind = "site") {
 
   const navEl = document.querySelector(".nav");
   const btn = navEl?.querySelector(".menu-btn");
-  btn?.addEventListener("click", () => {
-    const open = navEl.classList.toggle("open");
+  const setOpen = (open) => {
+    navEl.classList.toggle("open", open);
+    document.documentElement.classList.toggle("menu-open", open);
     btn.setAttribute("aria-expanded", String(open));
     btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  };
+  btn?.addEventListener("click", () => setOpen(!navEl.classList.contains("open")));
+  navEl?.querySelectorAll(".mobile-menu a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && navEl?.classList.contains("open")) {
+      setOpen(false);
+      btn.focus();
+    }
   });
-  navEl?.querySelectorAll(".mobile-menu a").forEach((a) =>
-    a.addEventListener("click", () => {
-      navEl.classList.remove("open");
-      btn?.setAttribute("aria-expanded", "false");
-    }),
-  );
+  // Tap on the dimmed page closes the menu.
+  document.addEventListener("click", (e) => {
+    if (navEl?.classList.contains("open") && !navEl.contains(e.target)) setOpen(false);
+  });
   document.querySelectorAll("[data-sprinkle]").forEach((el) => sprinkle(el, Number(el.dataset.sprinkle) || 26));
   document.querySelectorAll("[data-icon]").forEach((el) => {
     el.innerHTML = icons[el.dataset.icon] ?? "";

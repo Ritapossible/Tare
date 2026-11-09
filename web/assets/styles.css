@@ -113,15 +113,21 @@ code, kbd, pre { font-family: var(--mono); font-size: 0.88em; }
 
 .mobile-menu {
   display: none; position: absolute; left: -1px; right: -1px; top: calc(100% + 8px);
-  padding: 14px; background: rgba(20, 20, 20, 0.97); border: 1px solid var(--border-2);
+  padding: 14px; background: #141414; border: 1px solid var(--border-2);
   border-radius: var(--radius); flex-direction: column; gap: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
 }
+.nav.open { box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.65); } /* dims the page behind the menu */
 .nav.open .mobile-menu { display: flex; }
-.mobile-menu a {
+.mobile-menu a:not(.btn) {
   text-align: center; text-decoration: none; font-weight: 600; font-size: 18px;
   padding: 15px; border-radius: var(--pill); background: var(--surface-2);
+  transition: background .15s;
 }
-.mobile-menu a.btn { margin-top: 4px; }
+.mobile-menu a:not(.btn):hover, .mobile-menu a:not(.btn):active { background: #242424; }
+.mobile-menu .menu-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--border); }
+.mobile-menu .btn { width: 100%; padding: 16px; font-size: 18px; }
+html.menu-open { overflow: hidden; }
 
 @media (min-width: 900px) {
   .nav-links, .nav-cta { display: flex; }
