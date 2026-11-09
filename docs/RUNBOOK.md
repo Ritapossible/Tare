@@ -8,7 +8,7 @@ Nothing here invents a hash. If a command does not print a transaction hash, wri
 ## 0. Get the code (2 min)
 
 ```
-git clone -b ccr-aaaa0a55-l7co6h https://github.com/Ritapossible/tare && cd tare
+git clone https://github.com/Ritapossible/tare && cd tare
 # or, if already cloned:  git pull
 npm ci
 cp .env.example .env        # paste your SERV_API_KEY into .env
