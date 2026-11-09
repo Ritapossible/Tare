@@ -27,19 +27,22 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 
 **Gate:** one real testnet hash from seller B exists and is pasted in the README.
 
-## Day 3 — Tue 10 Nov · Core logic + tests
-- [ ] 🤖 `check.js` + tests (shape, count, unique, fields, no_nulls)
-- [ ] 🤖 `serv.js` parse rule + retry + tests (string count, extra verdict, invalid ×2)
-- [ ] 🤖 `store.js` (atomic JSON) 
-- [ ] 🤖 `kpass.js` parser written against the real output captured on Day 2
-- [ ] 🤖 `buy.js` payment order + all 10 tests in SPEC.md
-- [ ] 🤖 `config.js` distinct-origin assertion + test
+## Day 3 — done early on Mon 9 Nov · Core logic + tests
+- [x] 🤖 `check.js` + tests (shape, count, unique, fields, no_nulls, fail-closed `unverifiable`)
+- [x] 🤖 `serv.js` parse rule + retry + tests (string count, extra verdict, invalid ×2, API error)
+- [x] 🤖 `store.js` (atomic JSON, kpass call counter)
+- [~] 🤖 `kpass.js`: spawn + provisional parser done; **rewrite parser against real output after the live run**
+- [x] 🤖 `buy.js` payment order + all 10 spec tests + P0 fixes (queue, pending lock, replay-first); mutation-checked
+- [x] 🤖 `config.js` distinct-origin assertion + test
+- [x] 🤖 CLI: `scripts/buy.mjs`, `reset.mjs`, `unblock.mjs`; live eval `scripts/serv_eval.mjs`; CI workflow; `docs/RUNBOOK.md`
 
 **Gate:** `npm test` green, all 10 spec tests present by name.
 
-## Day 4 — Wed 11 Nov · CLI + UI
-- [ ] 🤖 `scripts/buy.mjs`, `scripts/reset.mjs`
-- [ ] 🤖 `src/server.js`: one plain page, Buy A / Buy B buttons, receipts table
+## Live day — Tue 10 Nov · run `docs/RUNBOOK.md` (🧑), then parser rewrite + first end-to-end run (🤖)
+
+## Day 4 — Wed 11 Nov · UI + review P1 items
+- [ ] 🤖 `src/server.js`: one plain page, Buy A / Buy B buttons (request_id at render), receipts table, `kpass calls` counter
+- [ ] 🤖 Claims from the 402 `description` (#6) and `count_qualifier` (#7) — if the live run leaves time
 - [ ] 🧑 Live run: reset → buy A → buy A → buy B. Check the three rows.
 
 **Gate:** live run produces dispute (real hash), refused (no hash), clean (real hash).

@@ -49,11 +49,14 @@ src/
                  atomic write (tmp file + rename)
   buy.js         buy(url, { requestId, deps }) — the payment order from SPEC.md
   config.js      loads sellers.json, asserts distinct origins
+  tare.js        production wiring (real SERV, real kpass, file store, raw kpass log)
   server.js      local UI: GET / (receipts page), POST /buy?seller=a|b
 scripts/
   serv_check.mjs Step 0 SERV smoke test
   kite_check.md  Step 0 Kite commands for the human
-  buy.mjs        CLI: node scripts/buy.mjs <url> [--request-id X]
+  buy.mjs        CLI: node scripts/buy.mjs <a|b|url> [--request-id X]; raw kpass → data/kpass_raw.log
+  unblock.mjs    human override for one origin
+  serv_eval.mjs  live SERV accuracy + injection-safety eval
   reset.mjs      wipes data/store.json for a clean demo take
   seller_probe.mjs  no-payment 402 check: testnet pieUSD 0.001, distinct origins
 sellers/
@@ -71,7 +74,8 @@ Dependencies are kept tiny: `openai` (SDK, pointed at SERV) and Node 22 built-in
 
 ## Dependency injection
 
-`buy()` takes `deps = { kpass, serv, store, now, newId }`. Production wires the real modules; tests
+`createBuyer(deps)` takes `deps = { store, kpass, extract, promptSha256, now, newId }` and returns
+`buy(url, { requestId })`. Buys are chained on one promise queue, so they run strictly one at a time. Production wires the real modules; tests
 pass fakes that record calls. This is how tests prove "kpass not called" without network.
 
 ## Data model (`data/store.json`)
@@ -95,8 +99,9 @@ pass fakes that record calls. This is how tests prove "kpass not called" without
     "error": null,
     "created_at": "2026-11-…"
   }],
-  "blocklist": { "https://seller-a.example": { "receipt_id": "rcpt_…", "at": "…" } },
-  "idempotency": { "https://seller-a.example|…": "rcpt_…" }
+  "blocklist": { "https://seller-a.example": { "receipt_id": "rcpt_…", "reason": "dispute", "at": "…" } },
+  "idempotency": { "https://seller-a.example|…": "rcpt_…" },
+  "kpass_calls": 1
 }
 ```
 
@@ -120,13 +125,15 @@ Buyer URLs: `https://<seller-a-host>/v1/Ritapossible/tare/02f239ca82d89911e9cd95
 
 | Failure | Result | Paid? | Blocked? |
 |---|---|---|---|
+| Repeat idempotency key (checked first) | stored receipt, `replayed` | no (again) | unchanged |
 | Origin blocklisted | `refused` | no | already |
-| Repeat idempotency key | stored receipt | no (again) | unchanged |
+| Unresolved `pending` for origin | `refused` | no | no |
 | kpass error / non-200 | `failed` | no | no |
 | 200, no PAYMENT-RESPONSE | `paid_unverified` | unknown, no hash shown | no |
 | SERV invalid twice / API error | `paid_unchecked` | yes (real hash) | no |
 | Body not JSON / rows not array | `dispute` (`shape`) | yes | yes |
 | Any claim fails | `dispute` | yes | yes |
+| No count claim, nothing failed | `unverifiable` | yes | yes (human may unblock) |
 | All claims pass | `clean` | yes | no |
 
 ## Open questions (resolve in Step 0, then log in MEMORY.md)

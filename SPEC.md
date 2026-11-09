@@ -58,10 +58,12 @@ User message: `<prose>…</prose>` containing the seller's prose only. Any liter
 3. Type check:
    - `claimed_count`: integer (`Number.isInteger`) or `null`. A string such as `"1240"` is invalid.
    - `unique`, `no_nulls`: boolean or `null`.
-   - `fields`: array of non-empty strings, or `null`.
+   - `claimed_count` must also be `>= 0`.
+   - `fields`: array of non-empty strings, or `null`. An empty array is treated as `null`.
    - A missing key counts as `null`.
 4. Invalid JSON **or** a type failure = invalid response. Retry once with the same messages.
    A second invalid response stops with a visible error (`SERV_INVALID`).
+5. An API error (auth, balance, network) is not retried: `SERV_API`.
 
 ## Check (pure code)
 
@@ -82,32 +84,48 @@ Rules, all evaluated, every failure recorded by name:
 | `fields` | `fields !== null` and some row lacks one of the named fields as an own property |
 | `no_nulls` | `no_nulls === true` and some checked value is `null` or `""`. Checked keys = `fields` if given, otherwise every key of every row |
 
-Any failure ⇒ `dispute`. No failures ⇒ `clean`. The model cannot override this and is never asked.
+Verdict:
+
+- any failure ⇒ `dispute`
+- no failure and `claimed_count === null` ⇒ `unverifiable` (**fail closed**: a label with no count
+  claim cannot be verified, whether the seller said nothing or the model was steered into nulls)
+- otherwise ⇒ `clean`
+
+The model cannot override this and is never asked.
 
 ## Payment order
 
-1. `origin = new URL(url).origin`. If `origin` is blocklisted, return `refused`. **Do not call `kpass`.**
-2. Create `request_id` (or use the one passed in). Idempotency key = `origin + "|" + request_id`.
-   If the key exists, return the stored receipt (even if it is still `pending`). Do not pay again.
-   Otherwise write a `pending` receipt for the key **before** calling `kpass`.
-3. `kpass agent session execute --method GET --url <url>`. Read status, body, and the
+Buys run **one at a time** (an in-process queue), so two clicks can never race past these checks.
+
+1. `origin = new URL(url).origin` (http/https only). `request_id` is supplied by the caller (the UI
+   creates it when the page renders, so a double click reuses it) or generated.
+   Idempotency key = `origin + "|" + request_id`. If the key exists, return the stored receipt with
+   `replayed: true`. Do not pay again.
+2. If `origin` is blocklisted, store and return `refused`. **Do not call `kpass`.**
+3. If any receipt for `origin` is still `pending` (a crash mid-payment: unknown whether it settled),
+   store and return `refused`. A human resolves it.
+4. Write a `pending` receipt for the key **before** calling `kpass`. Increment `kpass_calls`.
+5. `kpass agent session execute --method GET --url <url>`. Read status, body, and the
    `PAYMENT-RESPONSE` settlement hash.
    - Non-200 or `kpass` error ⇒ `failed`, store the error, no hash.
    - 200 but no hash ⇒ `paid_unverified`. Stop. Do not dispute without a hash-backed payment record,
      do not invent a hash.
-4. Store `body_sha256` (sha256 of the raw body bytes). Run SERV on the prose only.
-   - SERV fails twice ⇒ `paid_unchecked`, keep the real hash, no block. Visible error.
-5. Run CHECK.
-   - `dispute`: blocklist `origin`; receipt stores hash, claims, count, unique_count, failed rules,
-     body hash, prompt hash.
+6. Store `body_sha256` (sha256 of the raw body bytes). If the body fails the shape check ⇒ `dispute`
+   on `shape` without calling SERV. Otherwise run SERV on the prose only.
+   - `SERV_INVALID` or `SERV_API` ⇒ `paid_unchecked`, keep the real hash, no block. Visible error.
+7. Run CHECK.
+   - `dispute` or `unverifiable`: blocklist `origin` with that reason; receipt stores hash, claims,
+     count, unique_count, failed rules, body hash, prompt hash.
    - `clean`: the same receipt, no block.
+
+`scripts/unblock.mjs <origin>` is the human override (e.g. after reviewing an `unverifiable` hold).
 
 Blocklist key is the seller **origin**, never a name the model returns. A clean seller is never
 blocklisted.
 
 ### Receipt statuses
 
-`pending` · `refused` · `failed` · `paid_unverified` · `paid_unchecked` · `clean` · `dispute`
+`pending` · `refused` · `failed` · `paid_unverified` · `paid_unchecked` · `clean` · `dispute` · `unverifiable`
 
 ## Sellers
 
@@ -169,6 +187,8 @@ The human approves the passkey. That click is never automated.
 
 One local page. One row per receipt:
 origin · claims · count · unique_count · failed rules · tx hash or `not paid` · blocklist status.
+A visible `kpass calls: N` counter (it stays put when a refused buy happens). The Buy buttons carry a
+`request_id` created when the page renders.
 A second buy of A shows `refused` and no new hash. Plain text, no chart.
 
 ## Tests (SERV and kpass mocked) — `npm test`
@@ -183,6 +203,11 @@ A second buy of A shows `refused` and no new hash. Plain text, no chart.
 8. Same `request_id` twice: one kpass call, one hash.
 9. kpass returns 200 with no hash: `paid_unverified`, no dispute, no invented hash.
 10. Seller config where A and B share an origin: the test fails.
+
+Additional required tests: fail-closed `unverifiable`; concurrent double click pays once; concurrent
+buys are serialized; an unresolved `pending` refuses; `pending` exists while kpass runs.
+Test 7 only proves the code ignores the prose; real injection resistance is measured live by
+`scripts/serv_eval.mjs` (results recorded in MEMORY.md).
 
 ## Repo deliverables
 

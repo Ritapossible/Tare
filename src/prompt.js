@@ -5,6 +5,8 @@ export const SERV_BASE_URL = "https://inference-api.openserv.ai/v1";
 export const SERV_MODEL = "gpt-5.4-mini-serv-multipath";
 export const SERV_REASONING_EFFORT = "low";
 export const SERV_MAX_OUTPUT_TOKENS = 120;
+// Output-cap parameter name. SERV's docs don't say which one it accepts; confirmed by serv_check.
+export const SERV_CAP_PARAM = process.env.SERV_CAP_PARAM || "max_completion_tokens";
 
 // Fixed system prompt. Do not edit casually: its hash is shown in the UI and README,
 // and every receipt records the hash it was checked under.

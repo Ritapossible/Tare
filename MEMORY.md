@@ -5,7 +5,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Status
 
-- **Phase:** Day 1. Docs, `package.json`, `src/prompt.js`, `scripts/serv_check.mjs` done. Waiting on the human: real SERV key run + kpass setup.
+- **Phase:** Day 3 core built against fakes (2026-11-09): check, serv, store, buy, config, provisional kpass, CLI, CI. 70 tests pass. Tomorrow (Tue 10 Nov) is the live run: `docs/RUNBOOK.md`.
 - **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
 - **Seller URLs:** not deployed yet. Code and guide ready (`sellers/README.md`); `sellers.json` holds nulls.
@@ -21,6 +21,17 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-08 | `scripts/seller_probe.mjs` must pass before any kpass call | template silently defaults to mainnet if KITE_NETWORK is unset |
 | 2026-11-08 | `serv_check.mjs` defaults to `max_completion_tokens`; `--cap-param=max_tokens` switches | SERV docs don't say which it accepts; the 400 error message tells us |
 | 2026-11-08 | `openai@4.104.0` is the only dependency | per CLAUDE.md |
+| 2026-11-09 | **Fail closed:** no count claim + nothing failed ⇒ `unverifiable`, origin held (blocklist reason `unverifiable`); `scripts/unblock.mjs` is the human override | review found a seller could pass by making no claims or steering SERV to nulls |
+| 2026-11-09 | Buys run on one in-process promise queue; store mutations are synchronous read-modify-write | double clicks and overlapping UI buys cannot race or lose writes |
+| 2026-11-09 | Idempotency replay is checked **before** the blocklist; UI creates `request_id` at page render | same request returns the same result; a double click reuses one id |
+| 2026-11-09 | Any `pending` receipt for an origin refuses new buys to it | a crash mid-payment leaves an unknown settlement state; never pay twice into the unknown |
+| 2026-11-09 | Shape failure skips SERV; SERV API errors are not retried (`SERV_API`); invalid output retried once (`SERV_INVALID`) | no wasted calls; one retry rule only for bad output |
+| 2026-11-09 | `claimed_count` must be >= 0; empty `fields` array ⇒ null | tighter parse rule |
+| 2026-11-09 | `store.kpass_calls` counter, shown in CLI (and UI later) | proves "refused before kpass" on screen |
+| 2026-11-09 | `src/kpass.js` parser is PROVISIONAL (JSON or HTTP-dump; hash only if it is 0x + 64 hex, bare or base64 JSON `transaction`/`txHash`) | real output not captured yet; never fabricates |
+| 2026-11-09 | Test 7 acknowledged as code-only; live injection resistance measured by `scripts/serv_eval.mjs` | a mocked SERV cannot prove model robustness |
+| 2026-11-09 | CI: GitHub Actions runs `npm ci`, generator `--check`, `npm test` on a clean checkout | the `.gitignore` bug passed local tests |
+| 2026-11-09 | Deferred to Day 4+: claims from the 402 `description` (#6), `count_qualifier` (#7), dispute evidence export (#8), explorer links (#9), `tareFetch` export (#11) | from the senior review; P1, after the live run |
 | 2026-11-08 | Kite track, not Open | The capped Passport session is the spending-limit primitive the Kite track is about |
 | 2026-11-08 | Pay first, verify after, refuse the *next* payment | x402 returns the body only after payment; there is nothing to count before paying |
 | 2026-11-08 | Idempotency key = origin + request_id, created before `execute`; `pending` written before paying | body hash is only known after payment; pending record prevents a double pay on crash/retry |
