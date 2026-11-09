@@ -61,7 +61,7 @@ export function createBuyer(deps) {
     // 2. Blocklisted origin: refuse before kpass.
     const blocked = store.blockEntry(origin);
     if (blocked) {
-      return store.put({ ...base, status: "refused", reason: `blocklisted (${blocked.reason})` });
+      return store.put({ ...base, status: "refused", reason: `seller held (${blocked.reason})` });
     }
 
     // 3. An unresolved pending payment to this origin (e.g. a crash mid-payment): we do not know

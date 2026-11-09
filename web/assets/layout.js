@@ -4,8 +4,8 @@ import { icons } from "./icons.js";
 export const REPO = "https://github.com/Ritapossible/Tare";
 
 const SITE_LINKS = [
+  ["Why it's different", "/#different"],
   ["How it works", "/#how"],
-  ["Who decides", "/#roles"],
   ["The demo", "/#demo"],
   ["FAQ", "/#faq"],
   ["Docs", "/docs"],
@@ -49,7 +49,7 @@ function footer() {
       <div class="footer-grid">
         <div>
           <a class="brand" href="/">${icons.logo}<span>Tare</span></a>
-          <p class="dim" style="max-width:42ch;margin-top:18px">A buyer agent that checks what it paid for. Built for SERV Hackathon 02, Kite track. Kite testnet and faucet pieUSD only.</p>
+          <p class="dim" style="max-width:42ch;margin-top:18px">Delivery verification for agents that pay over x402. Built for SERV Hackathon 02, Kite track. Kite testnet and faucet pieUSD only.</p>
         </div>
         <div>
           <h4>Product</h4>
@@ -70,7 +70,7 @@ function footer() {
           </ul>
         </div>
       </div>
-      <p class="small">SERV reads the label. Code counts and decides. Kite Passport pays. Every hash shown here was returned by kpass.</p>
+      <p class="small">SERV reads the promise. Code verifies and records. Kite Passport pays. Every hash shown here was returned by kpass.</p>
       <div class="footer-word" aria-hidden="true">Tare<span>.</span></div>
     </div>
   </footer>`;

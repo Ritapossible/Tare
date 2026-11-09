@@ -43,14 +43,15 @@ const tare = createTare({
 
 const r = await tare.buy(url, { requestId });
 const show = (k, v) => console.log(`${k.padEnd(12)}: ${v}`);
-show("seller", r.origin);
+show("origin", r.origin);
 show("status", r.status + (r.replayed ? " (replayed, no new payment)" : ""));
-show("claims", r.claims ? JSON.stringify(r.claims) : "-");
-show("counted", r.count ?? "-");
+show("promised", r.claims ? JSON.stringify(r.claims) : "-");
+show("delivered", r.count ?? "-");
 show("unique", r.unique_count ?? "-");
 show("failed", r.failed?.length ? r.failed.join(", ") : "-");
 show("tx hash", r.tx_hash ?? "not paid");
-show("blocklist", tare.store.blockEntry(r.origin) ? `blocked (${tare.store.blockEntry(r.origin).reason})` : "not blocked");
+const record = tare.store.blockEntry(r.origin);
+show("record", record ? `held (${record.reason})` : "in good standing");
 if (r.reason) show("reason", r.reason);
 if (r.error) show("error", r.error);
 show("kpass calls", tare.store.kpassCalls());

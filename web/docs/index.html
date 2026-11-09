@@ -36,7 +36,8 @@
         <p class="lede">Everything needed to go from a clone to a disputed seller, a refused payment and a clean one, on Kite testnet.</p>
 
         <h2 id="what">What Tare is</h2>
-        <p>Tare is a buyer agent that pays x402 data sellers with Kite Passport, reads each seller's own description of its delivery with SERV Reasoning, and checks that description against the delivered rows in code. A seller whose claims fail is blocklisted by origin, and the next buy is refused before any payment.</p>
+        <p>Tare is delivery verification for agents that pay over x402. It pays a data seller with Kite Passport, reads the seller's own promise about the delivery with SERV Reasoning, and checks that promise against the delivered rows in code. Every check becomes a receipt with evidence, and every seller has a record: a seller whose claims fail is <strong>held</strong>, and the agent stops buying from it before any payment.</p>
+        <p><strong>Not a spending policy.</strong> A spending policy decides before paying, from the amount, merchant and budget. Tare checks after delivery, from the rows. Kite Passport's capped session is the spending limit; Tare verifies what it bought.</p>
         <p><strong>Code, not SERV, counts and decides.</strong> The model id is <code>gpt-5.4-mini-serv-multipath</code>; it only extracts claims.</p>
 
         <h2 id="quickstart">Quick start</h2>
@@ -75,9 +76,9 @@ kpass agent session create --task-summary "tare receipt check" \
         <h2 id="console">Console</h2>
         <p><code>npm run app</code> serves this site with a live API on <code>127.0.0.1:4020</code>. The Buy buttons only accept the sellers in <code>sellers.json</code>; the browser cannot send an arbitrary URL. From the command line:</p>
 <pre>node scripts/reset.mjs        # clean slate for a demo take
-node scripts/buy.mjs a        # dispute, blocklisted
-node scripts/buy.mjs a        # refused, kpass not called
-node scripts/buy.mjs b        # clean
+node scripts/buy.mjs a        # dispute, seller held
+node scripts/buy.mjs a        # stopped, kpass not called
+node scripts/buy.mjs b        # verified (status: clean)
 node scripts/publish.mjs      # copy the run to web/data/state.json for the hosted site</pre>
 
         <h2 id="rules">Rules</h2>
@@ -91,19 +92,19 @@ node scripts/publish.mjs      # copy the run to web/data/state.json for the host
             <tr><td><code>no_nulls</code></td><td>"No nulls" is claimed and a checked value is <code>null</code> or empty.</td></tr>
           </tbody>
         </table>
-        <p>Any failure is a dispute. No failure but no count claim is <strong>unverifiable</strong>: the seller is held, because a label that claims nothing cannot be checked.</p>
+        <p>Any failure is a dispute. No failure but no count claim is <strong>unverifiable</strong>: the seller is held, because a promise that claims nothing cannot be checked. A human can release a hold with <code>node scripts/unblock.mjs &lt;origin&gt;</code>.</p>
 
         <h2 id="statuses">Statuses</h2>
         <table>
-          <thead><tr><th>Status</th><th>Paid</th><th>Blocked</th><th>Meaning</th></tr></thead>
+          <thead><tr><th>Status</th><th>Shown as</th><th>Paid</th><th>Seller record</th><th>Meaning</th></tr></thead>
           <tbody>
-            <tr><td>clean</td><td>yes</td><td>no</td><td>Every claim matched.</td></tr>
-            <tr><td>dispute</td><td>yes</td><td>yes</td><td>A claim failed.</td></tr>
-            <tr><td>unverifiable</td><td>yes</td><td>yes</td><td>No count claim to check.</td></tr>
-            <tr><td>refused</td><td>no</td><td>—</td><td>Blocklisted origin or an unresolved pending payment.</td></tr>
-            <tr><td>paid_unchecked</td><td>yes</td><td>no</td><td>SERV failed twice or errored.</td></tr>
-            <tr><td>paid_unverified</td><td>?</td><td>no</td><td>kpass returned no settlement hash.</td></tr>
-            <tr><td>failed</td><td>no</td><td>no</td><td>kpass error or non-200.</td></tr>
+            <tr><td>clean</td><td>Verified</td><td>yes</td><td>in good standing</td><td>Every claim matched.</td></tr>
+            <tr><td>dispute</td><td>Dispute</td><td>yes</td><td>held</td><td>A claim failed.</td></tr>
+            <tr><td>unverifiable</td><td>Unverifiable</td><td>yes</td><td>held</td><td>No count claim to check.</td></tr>
+            <tr><td>refused</td><td>Stopped</td><td>no</td><td>—</td><td>The seller is held, or a payment to it is still pending.</td></tr>
+            <tr><td>paid_unchecked</td><td>Paid, unchecked</td><td>yes</td><td>unchanged</td><td>SERV failed twice or errored.</td></tr>
+            <tr><td>paid_unverified</td><td>Paid, no hash</td><td>?</td><td>unchanged</td><td>kpass returned no settlement hash.</td></tr>
+            <tr><td>failed</td><td>Failed</td><td>no</td><td>unchanged</td><td>kpass error or non-200.</td></tr>
           </tbody>
         </table>
 

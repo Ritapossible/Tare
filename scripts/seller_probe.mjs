@@ -69,7 +69,7 @@ for (const url of urls) {
 if (urls.length > 1) {
   const origins = new Set(urls.map((x) => new URL(x).origin));
   if (origins.size !== urls.length) {
-    console.log("\nSellers share an origin. The blocklist is keyed by origin, so this would block both.");
+    console.log("\nSellers share an origin. Seller records are keyed by origin, so holding one seller would hold both.");
     ok = false;
   }
 }

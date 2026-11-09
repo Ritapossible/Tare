@@ -37,7 +37,7 @@ test("spec 2: second buy of A is refused and never reaches kpass", async () => {
   const r = await t.buy(A_URL);
   assert.equal(r.status, "refused");
   assert.equal(r.tx_hash, null);
-  assert.match(r.reason, /blocklisted/);
+  assert.match(r.reason, /seller held/);
   assert.equal(t.kpass.calls.length, 1);
   assert.equal(t.store.kpassCalls(), 1);
 });
@@ -154,7 +154,7 @@ test("buys are serialized: concurrent buys of A — the second sees the blocklis
   const [r1, r2] = await Promise.all([t.buy(A_URL), t.buy(A_URL)]);
   assert.equal(r1.status, "dispute");
   assert.equal(r2.status, "refused");
-  assert.match(r2.reason, /blocklisted \(dispute\)/);
+  assert.match(r2.reason, /seller held \(dispute\)/);
   assert.equal(t.kpass.calls.length, 1);
 });
 

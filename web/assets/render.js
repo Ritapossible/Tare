@@ -6,13 +6,13 @@ export function esc(value) {
 }
 
 export const STATUS = {
-  clean: { label: "Clean", tone: "ok", note: "Every claim matched the delivery." },
-  dispute: { label: "Dispute", tone: "bad", note: "A claim failed. The origin is blocklisted." },
-  unverifiable: { label: "Unverifiable", tone: "warn", note: "The label made no count claim. The origin is held." },
-  refused: { label: "Refused", tone: "muted", note: "Stopped before kpass. Nothing was paid." },
+  clean: { label: "Verified", tone: "ok", note: "Every claim matched the delivery. The seller stays in good standing." },
+  dispute: { label: "Dispute", tone: "bad", note: "A claim failed against the delivery. The seller is now held." },
+  unverifiable: { label: "Unverifiable", tone: "warn", note: "The promise made no count claim to check. The seller is now held." },
+  refused: { label: "Stopped", tone: "muted", note: "Stopped before kpass. Nothing was paid." },
   failed: { label: "Failed", tone: "muted", note: "kpass did not complete a payment." },
   paid_unverified: { label: "Paid, no hash", tone: "warn", note: "kpass returned no PAYMENT-RESPONSE hash, so the delivery was not judged." },
-  paid_unchecked: { label: "Paid, unchecked", tone: "warn", note: "Paid, but SERV could not read the label. Not judged, not blocked." },
+  paid_unchecked: { label: "Paid, unchecked", tone: "warn", note: "Paid, but SERV could not read the promise. Not checked; the seller record is unchanged." },
   pending: { label: "Pending", tone: "warn", note: "Payment started and did not finish." },
 };
 
@@ -114,8 +114,18 @@ export function receiptRow(r, state) {
   <td data-k="Counted"><span class="num">${r.count ?? "—"}</span>${r.unique_count != null ? `<div class="faint">${esc(r.unique_count)} unique</div>` : ""}</td>
   <td data-k="Failed">${failedTags(r.failed)}</td>
   <td data-k="Tx hash">${txCell(r.tx_hash)}</td>
-  <td data-k="Blocklist">${blocked ? `<span class="tone-bad">blocked</span>` : `<span class="faint">not blocked</span>`}</td>
+  <td data-k="Seller record">${recordCell(blocked)}</td>
 </tr>`;
+}
+
+// User-facing name for the internal blocklist: the seller record.
+export function recordCell(entry) {
+  return entry ? `<span class="tone-bad">held · ${esc(entry.reason)}</span>` : `<span class="faint">in good standing</span>`;
+}
+
+export function recordChip(entry, hasUrl = true) {
+  if (entry) return `<span class="chip tone-bad">held · ${esc(entry.reason)}</span>`;
+  return hasUrl ? `<span class="chip tone-ok">in good standing</span>` : `<span class="chip tone-muted">not deployed</span>`;
 }
 
 export function formatTime(iso) {

@@ -1,4 +1,5 @@
-// Human override: remove one origin from the blocklist (e.g. after reviewing an "unverifiable" hold).
+// Human override: release a held seller (e.g. after reviewing an "unverifiable" hold).
+// Internally this removes the origin from the store's blocklist.
 //   node scripts/unblock.mjs https://seller-host.example
 import { fileStore } from "../src/store.js";
 import { STORE_PATH } from "../src/tare.js";
@@ -10,4 +11,4 @@ if (!arg) {
 }
 const origin = new URL(arg).origin;
 const removed = fileStore(STORE_PATH).unblock(origin);
-console.log(removed ? `unblocked ${origin}` : `${origin} was not blocked`);
+console.log(removed ? `released ${origin}: back in good standing` : `${origin} was not held`);

@@ -252,6 +252,25 @@ header[data-nav] + main > .hero:first-child { margin-top: -96px; }
 .role-code { background: var(--text); }
 .role-kite { background: var(--orange); }
 
+/* not a spending policy */
+.versus { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 860px) { .versus { grid-template-columns: 1fr 1fr; } }
+.versus-card { border-radius: var(--radius); padding: 30px 28px; display: flex; flex-direction: column; gap: 18px; }
+.versus-card .tag { font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; }
+.versus-card h3 { font-size: clamp(28px, 3.2vw, 38px); }
+.versus-card dl { margin: 0; display: grid; gap: 0; }
+.versus-card dl div { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 14px 0; border-top: 1px solid; }
+.versus-card dt { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding-top: 3px; }
+.versus-card dd { margin: 0; font-weight: 600; }
+.versus-policy { background: var(--surface); border: 1px solid var(--border); }
+.versus-policy .tag, .versus-policy dt { color: var(--faint); }
+.versus-policy dd { color: var(--muted); }
+.versus-policy dl div { border-color: var(--border); }
+.versus-tare { background: var(--blue); color: #061019; }
+.versus-tare .tag, .versus-tare dt { color: rgba(6, 16, 25, 0.7); }
+.versus-tare dl div { border-color: rgba(6, 16, 25, 0.2); }
+@media (max-width: 520px) { .versus-card dl div { grid-template-columns: 1fr; gap: 4px; } }
+
 /* demo receipts */
 .demo { display: grid; gap: 14px; }
 .demo-row {
@@ -383,7 +402,7 @@ header[data-nav] + main > .hero:first-child { margin-top: -96px; }
 .seller-name { font-family: var(--display); font-weight: 800; font-size: 28px; letter-spacing: -0.02em; }
 .seller .origin { font-family: var(--mono); font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
 .seller .prose { margin: 0; padding: 14px 16px; border-radius: 12px; background: var(--bg-2); border: 1px dashed var(--border-2); color: var(--muted); font-size: 15px; }
-.seller .prose::before { content: "label: "; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+.seller .prose::before { content: "promise: "; font-family: var(--mono); font-size: 12px; color: var(--faint); }
 .seller-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
 .table-wrap { border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; background: var(--surface); }
@@ -399,6 +418,11 @@ table.receipts { width: 100%; border-collapse: collapse; font-size: 15px; }
 .receipts a.row-link { text-decoration: none; font-weight: 600; }
 .receipts a.row-link:hover { color: var(--orange); }
 .hash { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+@media (min-width: 860px) {
+  .receipts td .hash { white-space: nowrap; }
+  .receipts td .faint.hash { display: block; max-width: 230px; overflow: hidden; text-overflow: ellipsis; }
+  .receipts td[data-k="Seller record"] { white-space: nowrap; }
+}
 .num { font-family: var(--display); font-weight: 800; font-size: 20px; }
 .failed-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .rule-tag { font-family: var(--mono); font-size: 12px; padding: 3px 8px; border-radius: 6px; background: rgba(249, 115, 22, 0.14); color: var(--orange); }

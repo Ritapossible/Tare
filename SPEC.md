@@ -14,6 +14,23 @@ any claim fails.
 
 Line: **"The label is not the delivery."**
 
+## Positioning and terms
+
+Tare is **delivery verification**, not a spending policy. A spending policy decides before paying
+(amount, merchant, budget). Tare checks after delivery (claims vs rows). Kite Passport's capped
+session is the spending limit; Tare verifies what it bought.
+
+| User-facing term | Internal name | Meaning |
+|---|---|---|
+| promise | prose / label | the seller's own description of its delivery |
+| seller record: held · in good standing | `blocklist` entry / none | held = a dispute or unverifiable check; the next buy stops before kpass |
+| Verified | status `clean` | every claim matched |
+| Stopped | status `refused` | stopped before kpass |
+| release | `scripts/unblock.mjs` | human removes a hold |
+
+Internal names stay as they are (store schema, tests, rules in CLAUDE.md). Everything a person reads
+(web pages, CLI output, receipt reasons, docs) uses the user-facing terms.
+
 ## Roles
 
 | Component | May do | May not do |
