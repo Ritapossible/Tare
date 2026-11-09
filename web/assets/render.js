@@ -118,6 +118,46 @@ export function receiptRow(r, state) {
 </tr>`;
 }
 
+// Mobile receipt card: leads with promised → delivered. `preview` cards (empty published console)
+// carry no hash and say so.
+export function receiptCard(r, state, { preview = false } = {}) {
+  const tone = (STATUS[r.status] ?? { tone: "muted" }).tone;
+  const name = sellerName(r.origin, state?.sellers);
+  const cc = claimedCount(r);
+  const uniq = r?.claims?.unique === true;
+  const delivered = uniq ? r.unique_count : r.count;
+  const judged = r.count != null;
+  const blocked = state?.blocklist?.[r.origin];
+  const tag = preview ? "div" : "a";
+  const href = preview ? "" : ` href="/app/receipt?id=${encodeURIComponent(r.id)}"`;
+  const nums = judged
+    ? `<div class="rcard-nums">
+        <div><span class="k">Promised</span><span class="big">${cc ?? "-"}</span></div>
+        <span class="rcard-arrow" aria-hidden="true">→</span>
+        <div><span class="k">Delivered</span><span class="big ${r.failed?.length ? "tone-bad" : ""}">${delivered ?? "-"}</span>${uniq ? `<span class="sub">unique of ${esc(r.count)}</span>` : ""}</div>
+      </div>`
+    : `<p class="rcard-note">${esc((STATUS[r.status] ?? {}).note ?? "")}</p>`;
+  const hash = preview
+    ? `<span class="faint">${r.status === "refused" ? "not paid" : "testnet hash after a live run"}</span>`
+    : txCell(r.tx_hash);
+  return `<${tag} class="rcard bar-${tone}${preview ? " is-preview" : ""}"${href}>
+    <div class="rcard-top"><span class="rcard-seller">${esc(name)}</span>${statusChip(r.status)}</div>
+    ${nums}
+    ${r.failed?.length ? `<div class="rcard-failed">${failedTags(r.failed)}</div>` : ""}
+    <div class="rcard-foot">
+      <div><span class="k">Tx hash</span>${hash}</div>
+      <div><span class="k">Seller record</span>${preview ? (r.status === "clean" ? `<span class="faint">in good standing</span>` : `<span class="tone-bad">held · dispute</span>`) : recordCell(blocked)}</div>
+    </div>
+  </${tag}>`;
+}
+
+// What a run looks like, from the committed seller payloads. No hashes.
+export const PREVIEW_RECEIPTS = [
+  { id: "p1", origin: "seller-a", status: "dispute", claims: { claimed_count: 1240, unique: true }, count: 1240, unique_count: 860, failed: ["count", "unique", "no_nulls"] },
+  { id: "p2", origin: "seller-a", status: "refused", failed: [] },
+  { id: "p3", origin: "seller-b", status: "clean", claims: { claimed_count: 200, unique: null }, count: 200, unique_count: 200, failed: [] },
+];
+
 // User-facing name for the internal blocklist: the seller record.
 export function recordCell(entry) {
   return entry ? `<span class="tone-bad">held · ${esc(entry.reason)}</span>` : `<span class="faint">in good standing</span>`;

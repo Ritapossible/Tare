@@ -60,3 +60,31 @@ test("the committed published state contains no hash that kpass did not return",
   assert.doesNotThrow(() => validateForPublish(state));
   assert.equal(state.mode, "published");
 });
+
+import { receiptCard, PREVIEW_RECEIPTS } from "../web/assets/render.js";
+
+test("receipt card leads with promised → delivered (unique when claimed)", () => {
+  const html = receiptCard(
+    { id: "r1", origin: "https://a.test", status: "dispute", claims: { claimed_count: 1240, unique: true }, count: 1240, unique_count: 860, failed: ["count"], tx_hash: H },
+    { sellers: { a: "https://a.test/v1/a.json" }, blocklist: { "https://a.test": { reason: "dispute" } } },
+  );
+  assert.match(html, /<span class="big">1240<\/span>/);
+  assert.match(html, /tone-bad">860<\/span><span class="sub">unique of 1240/);
+  assert.match(html, /href="\/app\/receipt\?id=r1"/);
+  assert.match(html, /held · dispute/);
+});
+
+test("receipt card escapes seller- and model-controlled values", () => {
+  const evil = "<img src=x onerror=alert(1)>";
+  const html = receiptCard({ id: `"><script>`, origin: "https://a.test", status: evil, claims: { claimed_count: 1 }, count: 1, unique_count: 1, failed: [evil], tx_hash: evil }, { sellers: {}, blocklist: {} });
+  assert.ok(!html.includes("<img") && !html.includes("<script>"), html);
+});
+
+test("preview cards never show a hash and are not links", () => {
+  const state = { sellers: { a: "https://seller-a/x", b: "https://seller-b/x" }, blocklist: {} };
+  for (const r of PREVIEW_RECEIPTS) {
+    const html = receiptCard({ ...r, origin: r.origin === "seller-a" ? "https://seller-a" : "https://seller-b" }, state, { preview: true });
+    assert.ok(!/0x[0-9a-fA-F]{8}/.test(html), html);
+    assert.ok(!html.includes("<a "), "preview must not link to a receipt");
+  }
+});

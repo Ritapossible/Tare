@@ -1,8 +1,9 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS } from "./render.js";
 import { icons } from "./icons.js";
+import { sprinkle } from "./layout.js";
 
 const EMPTY = { mode: "published", generated_at: null, sellers: {}, seller_labels: {}, receipts: [], blocklist: {}, kpass_calls: 0, prompt_sha256: null, model: "gpt-5.4-mini-serv-multipath" };
 
@@ -73,40 +74,56 @@ export async function mountConsole(root) {
         const label = state.seller_labels?.[key];
         const disabled = !live || !url || inFlight.has(key);
         const btnText = inFlight.has(key) ? "Paying…" : block ? `Buy again (seller held)` : `Buy from Seller ${key.toUpperCase()}`;
-        return `<article class="seller">
+        return `<article class="seller seller-${esc(key)}">
           <div class="seller-top"><span class="seller-name">Seller ${esc(key.toUpperCase())}</span>${recordChip(block, Boolean(url))}</div>
           <div class="origin">${esc(origin ?? "no URL in sellers.json yet")}</div>
           ${label ? `<p class="prose">${esc(label)}</p>` : ""}
-          <div class="seller-actions">
-            <button class="btn ${block ? "btn-ghost" : key === "a" ? "btn-orange" : "btn-blue"} btn-sm" data-buy="${esc(key)}" ${disabled ? "disabled" : ""}>${esc(btnText)}</button>
-            <span class="faint" style="font-size:13px">0.001 testnet pieUSD</span>
-          </div>
+          ${
+            live
+              ? `<div class="seller-actions">
+            <button class="btn ${block ? "btn-ghost" : key === "a" ? "btn-orange" : "btn-blue"}" data-buy="${esc(key)}" ${disabled ? "disabled" : ""}>${esc(btnText)}</button>
+            <span class="faint price">0.001 testnet pieUSD per call</span>
+          </div>`
+              : `<p class="local-note">${icons.lock}Buying runs on the operator's machine · 0.001 testnet pieUSD per call</p>`
+          }
         </article>`;
       })
       .join("");
 
+    const disputes = state.receipts.filter((r) => r.status === "dispute").length;
+    const previewState = { sellers: { a: "https://seller-a/x", b: "https://seller-b/x" }, blocklist: {} };
+    const preview = PREVIEW_RECEIPTS.map((r) => ({ ...r, origin: r.origin === "seller-a" ? "https://seller-a" : "https://seller-b" }));
+
     root.innerHTML = `
-      <div class="app-head">
-        <div><span class="label">Console</span><h1>Receipts</h1></div>
+      <div class="app-hero pixels">
+        <div class="app-hero-text">
+          <span class="label">Console</span>
+          <h1 class="display">Receipts, <span class="stamp stamp-blue">checked.</span></h1>
+          <p>Promised vs delivered, for every seller Tare paid.</p>
+        </div>
         ${modeBadge(state)}
       </div>
       ${modeNotice(state)}
       <div class="stats">
-        <div class="stat"><div class="k">kpass calls</div><div class="v" data-testid="kpass-calls">${esc(state.kpass_calls)}</div><div class="s">payments attempted</div></div>
-        <div class="stat"><div class="k">Receipts</div><div class="v">${state.receipts.length}</div><div class="s">${paid} with a settlement hash</div></div>
-        <div class="stat"><div class="k">Held sellers</div><div class="v">${blocked}</div><div class="s">stopped before kpass</div></div>
-        <div class="stat"><div class="k">Disputes</div><div class="v">${state.receipts.filter((r) => r.status === "dispute").length}</div><div class="s">promises that failed</div></div>
+        <div class="stat stat-kpass"><div class="k">kpass calls</div><div class="v" data-testid="kpass-calls">${esc(state.kpass_calls)}</div><div class="s">payments attempted</div></div>
+        <div class="stat stat-receipts"><div class="k">Receipts</div><div class="v">${state.receipts.length}</div><div class="s">${paid} with a settlement hash</div></div>
+        <div class="stat stat-held"><div class="k">Held sellers</div><div class="v ${blocked ? "tone-bad" : ""}">${blocked}</div><div class="s">stopped before kpass</div></div>
+        <div class="stat stat-disputes"><div class="k">Disputes</div><div class="v ${disputes ? "tone-bad" : ""}">${disputes}</div><div class="s">promises that failed</div></div>
       </div>
-      ${sellerCards ? `<div class="sellers">${sellerCards}</div>` : ""}
-      <div class="table-wrap">
-        ${
-          receipts.length
-            ? `<table class="receipts"><thead><tr><th>Seller</th><th>Status</th><th>Promised</th><th>Delivered</th><th>Failed checks</th><th>Tx hash</th><th>Seller record</th></tr></thead>
-               <tbody>${receipts.map((r) => receiptRow(r, state)).join("")}</tbody></table>`
-            : `<div class="empty"><h3>No receipts yet</h3><p>${live ? "Buy from Seller A, then Seller A again, then Seller B." : "No run has been published yet. Hashes appear here only after kpass returns them."}</p></div>`
-        }
-      </div>`;
+      ${sellerCards ? `<span class="label">Sellers</span><div class="sellers">${sellerCards}</div>` : ""}
+      <span class="label">Receipts</span>
+      ${
+        receipts.length
+          ? `<div class="rcards">${receipts.map((r) => receiptCard(r, state)).join("")}</div>
+             <div class="table-wrap desktop-only"><table class="receipts"><thead><tr><th>Seller</th><th>Status</th><th>Promised</th><th>Delivered</th><th>Failed checks</th><th>Tx hash</th><th>Seller record</th></tr></thead>
+             <tbody>${receipts.map((r) => receiptRow(r, state)).join("")}</tbody></table></div>`
+          : live
+            ? `<div class="empty card"><h3>No receipts yet</h3><p>Buy from Seller A, then Seller A again, then Seller B.</p></div>`
+            : `<div class="preview-head"><h3>What a run looks like</h3><p>No run has been published yet. This preview uses the real seller payloads; hashes appear only after kpass returns them.</p></div>
+               <div class="rcards always">${preview.map((r) => receiptCard(r, previewState, { preview: true })).join("")}</div>`
+      }`;
 
+    sprinkle(root.querySelector(".app-hero"), 12, { side: "right" });
     root.querySelectorAll("[data-buy]").forEach((b) => b.addEventListener("click", () => buy(b.dataset.buy)));
   };
 

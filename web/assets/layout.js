@@ -78,15 +78,16 @@ function footer() {
   </footer>`;
 }
 
-export function sprinkle(el, count = 26) {
+export function sprinkle(el, count = 26, { side = "both" } = {}) {
   if (!el) return;
   const colors = ["#f97316", "#1d9bf0", "#c2410c", "#56b4ec"];
   for (let i = 0; i < count; i++) {
     const s = document.createElement("span");
     s.className = "sprinkle";
     // Keep sprinkles in the side margins so they never sit on text.
-    const side = Math.random() < 0.5 ? Math.random() * 12 : 86 + Math.random() * 12;
-    s.style.left = `${side.toFixed(1)}%`;
+    const right = side === "right" || (side === "both" && Math.random() >= 0.5);
+    const x = right ? 86 + Math.random() * 12 : Math.random() * 12;
+    s.style.left = `${x.toFixed(1)}%`;
     s.style.top = `${Math.round(Math.random() * 96)}%`;
     s.style.background = colors[i % colors.length];
     s.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
