@@ -77,7 +77,17 @@ Morning:
       code checks it against the row timestamps. Stale data sold as fresh is the common real failure.
       New prompt ⇒ new prompt hash; update SPEC parse rule and tests.
 - [ ] 🧑 Re-run `node scripts/serv_eval.mjs` with the new claims; paste the output
+- [ ] 🤖 **Promise shown word for word** on the receipt page, next to the claims SERV extracted from it,
+      so every verdict is visibly grounded in the seller's own sentence (escaped; display only, the
+      decision path is unchanged)
+- [ ] 🤖 **Copy lines** on the landing page and in the write-up (no attribution to anyone):
+      "Your agent shops inside a capped, time-limited session and never holds a private key. Tare
+      checks what it brought home." · "Pay per record? Then someone has to count the records." ·
+      describe Tare as an **independent** check of what a seller delivered
 Afternoon:
+- [ ] 🤖 **SERV Prompt Guard**: read its docs; enable it on the claim-extraction call only if it fits
+      the documented API and keeps the system prompt + `<prose>` contract. Re-run `serv_eval` with and
+      without it and keep whichever is safer; record the numbers in MEMORY.md. No undocumented APIs.
 - [ ] 🤖 **Real-seller probe**: run the no-payment 402 probe and the description check against real
       public x402 services (start with those listed in `gokite-ai/kite-x402-services`). Report what was
       found, honest or not; never claim a mismatch that was not observed.
