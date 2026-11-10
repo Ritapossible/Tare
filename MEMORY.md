@@ -5,7 +5,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Status
 
-- **Phase:** Live run 2026-11-10. Steps 1-2 PASSED (SERV). Step 3: Kite account created (ritaextracrypto@gmail.com), CLI logged in, sandbox ON, wallet 0x9Ef47eA89403c6a2637271B655b0C5b99c68C447. **BLOCKED: no way yet to get testnet pieUSD** (see facts). Sellers not deployed.
+- **Phase:** Live run 2026-11-10. SERV steps PASSED. Kite: prod account + sandbox ON; wallet 0x9Ef47eA89403c6a2637271B655b0C5b99c68C447 **funded with 10 testnet pieUSD** (on-chain). Next: sellers deployed on Render (owner), then a passkey-approved sandbox session and the first payment.
 - **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
 - **Seller URLs:** not deployed yet. Code and guide ready (`sellers/README.md`); `sellers.json` holds nulls.
@@ -91,6 +91,8 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 - 2026-11-10 On-chain check: Kite testnet RPC chain id 0x940 (2368); pieUSD balance of 0x9Ef47eA89403c6a2637271B655b0C5b99c68C447 = 0.
 - 2026-11-10 **pieUSD is being distributed on Kite testnet:** explorer (testnet.kitescan.ai API) shows sender `0x1315a1e8832f72dd77cce24427b8df7c9aee7836` behind most of the last 400 transfers: 103+28 drops of 5 pieUSD and 37+16 of 100 pieUSD, latest 2026-11-10 03:14 UTC; one recipient made 0.3 / 0.02 x402-sized payments minutes after its drop. Source of those drops unknown.
 - 2026-11-10 **Staging Passport** (passport.staging.gokite.ai): account created for ritaextracrypto@gmail.com in an isolated config folder (prod login untouched), but its faucet is disabled for every token ("faucet is disabled"). **Dev** backend (passport.dev.gokite.ai) is reachable; not tried.
+- 2026-11-10 **How testnet pieUSD was obtained:** the **dev** Passport backend's faucet works. Account created on dev (passport.dev.gokite.ai) with ritaextracrypto@gmail.com in an isolated config folder; `kpass faucet drop --recipient <prod wallet> --token pieUSD --base-url https://passport.dev.gokite.ai` → "Dropped 5 PIEUSD" (run twice). On-chain `balanceOf` on Kite testnet then read **10.0 pieUSD**. Prod faucet: disabled ("production"); staging faucet: disabled for all tokens.
+- 2026-11-10 `kpass wallet balance` (sandbox mode) lists only USDC/PYUSD/USDG and never shows pieUSD; use the token contract's `balanceOf` on rpc-testnet.gokite.ai as the source of truth. `wallet address --chain kite` is rejected by the flag check, though the unfiltered list includes kite.
 - 2026-11-10 Testnet Ozone (testnet.gokite.ai) is gone (no DNS); it was an older campaign whose faucet gave KITE only.
 - 2026-11-10 pieUSD testnet contract (0x3812…621A, total supply 1,000,000) has `mint(address,uint256)` gated by `Ownable`: a dry-run `eth_call` mint from a random address reverts `OwnableUnauthorizedAccount` (0x118cdaa7); from the owner `0xcff44fa0c670644068f8b2bdab3160a9671cff52` it would succeed. No public mint/faucet function. Only Kite/Pieverse can supply testnet pieUSD.
 

@@ -59,6 +59,9 @@ kpass --version
 kpass sandbox on
 kpass wallet address
 kpass faucet drop --recipient <address from above> --token pieUSD
+# kpass 6.13.1: the production faucet is disabled. What worked on 10 Nov: a separate account on the
+# dev backend, then: kpass faucet drop --recipient <prod wallet> --token pieUSD --base-url https://passport.dev.gokite.ai
+# (run with a separate HOME so the prod login is not overwritten). Check with balanceOf on rpc-testnet.gokite.ai.
 kpass agent register --type service-tester
 kpass agent session create --task-summary "tare receipt check" --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h
 # open the printed approval URL and approve with your passkey (a phone works)
