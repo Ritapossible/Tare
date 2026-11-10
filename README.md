@@ -2,22 +2,31 @@
 
 **The label is not the delivery.**
 
-Spending policies decide whether an agent may pay. **Tare checks what it got.** It pays x402 data
+Spending policies decide whether an agent may pay. **Tare checks what it got.** Tare is an independent check
+of what an x402 data seller delivered. It pays x402 data
 sellers on Kite testnet, reads each seller's own promise about its delivery with SERV Reasoning,
 verifies that promise against the delivered rows in code, and keeps a record of every seller that
 over-promised, so the agent stops buying from it.
 
-> Status: in development for SERV Hackathon 02 (Kite track). Sections marked _TODO_ are filled in
-> as the build lands.
+> Built for SERV Hackathon 02 (Kite track). Pay per record? Then someone has to count the records.
 
 ## How it works
 
 1. Tare pays a seller over x402 on Kite testnet and receives the body plus a settlement hash
    (see [Payment rail](#payment-rail): Kite Passport, or a capped testnet key when Passport cannot pay).
-2. SERV Reasoning (`gpt-5.4-mini-serv-multipath`) reads **only the seller's prose** and extracts
-   four claims: `claimed_count`, `unique`, `fields`, `no_nulls`.
-3. **Code, not SERV, counts the rows and decides.** Any failed claim ⇒ dispute ⇒ the seller is
-   held on its seller record, and the next buy stops before any payment is attempted.
+   Before paying, Tare reads the seller's 402 advertisement (`resource.description`), the promise made
+   before any money moves.
+2. SERV Reasoning (`gpt-5.4-mini-serv-multipath`) reads **only the seller's own words** (the 402
+   advertisement and the delivery note, never the rows) and extracts four claims: `claimed_count`,
+   `unique`, `fields`, `no_nulls`. A second, separate prompt reads a time window (`max_age_hours`) only
+   when the seller mentions time. Code drops a `fields` claim the text does not support.
+3. **Code, not SERV, counts the rows and decides.** It counts rows, distinct ids, fields, empty values
+   and timestamp ages. Any failed claim ⇒ dispute ⇒ the seller is held on its seller record, and the
+   next buy stops before any payment is attempted. A broken advertised claim shows as
+   `advertised:<rule>`. Both promises are kept word for word on the receipt.
+
+With Kite Passport, your agent shops inside a capped, time-limited session and never holds a private
+key. Tare checks what it brought home.
 
 See [SPEC.md](SPEC.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -30,8 +39,12 @@ See [SPEC.md](SPEC.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 4. Check it: `npm install && node scripts/serv_check.mjs`. It makes one completion and prints the raw
    content, `finish_reason` and `usage`, or the error and exits non-zero.
 
-System prompt sha256: `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
-(source: [`src/prompt.js`](src/prompt.js)).
+System prompt sha256: `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`;
+freshness prompt sha256: `b7089fef4ceba1244340c9c975202a8630356e20298c6d3fa0b81fe59facaa1c`
+(source: [`src/prompt.js`](src/prompt.js)). Live eval (`node scripts/serv_eval.mjs`, 10 Nov):
+accuracy 8/9 on honest texts, safety 6/6 on injection attempts (no manipulated text got seller A
+verified). The one miss: SERV refused the text "Here is your data.", which Tare records as paid but
+unchecked.
 
 ## Payment rail
 
@@ -116,7 +129,17 @@ payments need a human passkey on the operator's machine.
 npm test
 ```
 
-## Try it _(TODO)_
+SERV and the payment rail are injected fakes in tests; `npm test` never touches the network.
+
+## Try it
+
+```
+npm run app   # then use the console at http://127.0.0.1:4020, or the CLI:
+node scripts/reset.mjs
+node scripts/buy.mjs <seller A url>
+node scripts/buy.mjs <seller A url>
+node scripts/buy.mjs <seller B url>
+```
 
 - Do: buy seller A. See: 1240 claimed, 860 unique, verdict dispute, a testnet hash, seller A held.
 - Do: buy seller A again. See: stopped, `not paid`, no payment attempted.

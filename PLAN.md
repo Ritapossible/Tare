@@ -80,7 +80,7 @@ Morning:
 - [x] 🤖 **Promise shown word for word** on the receipt page, next to the claims SERV extracted from it,
       so every verdict is visibly grounded in the seller's own sentence (escaped; display only, the
       decision path is unchanged)
-- [ ] 🤖 **Copy lines** on the landing page and in the write-up (no attribution to anyone):
+- [x] 🤖 **Copy lines** on the landing page and in the write-up (no attribution to anyone):
       "Your agent shops inside a capped, time-limited session and never holds a private key. Tare
       checks what it brought home." · "Pay per record? Then someone has to count the records." ·
       describe Tare as an **independent** check of what a seller delivered
@@ -94,12 +94,12 @@ Afternoon:
 - [ ] 🤖 **Library export**: `verify(promise, body)` and `tareFetch(url)` with a three-line "add Tare to
       your agent" section in the README and docs
 - [ ] 🤖 Fix whatever the live run surfaced; readable error text (SERV_INVALID, paid_unverified, kpass failed)
-- [ ] 🤖 README complete: two sentences, SERV key + $5 credit note, Kite commands, `npm test`, three "do X, see Y", model id, "code, not SERV, counts and decides"
-- [ ] 🤖 `docs/WRITEUP.md`: what Tare does, how SERV Reasoning powers it, which track (Kite), what was
+- [x] 🤖 README complete: two sentences, SERV key + $5 credit note, Kite commands, `npm test`, three "do X, see Y", model id, "code, not SERV, counts and decides"
+- [~] 🤖 `docs/WRITEUP.md` (drafted 10 Nov; real-seller probe + sourced figures still TODO): what Tare does, how SERV Reasoning powers it, which track (Kite), what was
       built during the hackathon, live `serv_eval` numbers, real-seller probe results, shared records
       and their limits; testnet is a hackathon rule and switching network is one setting
 - [ ] 🧑 Find 2-3 **sourced** figures on agent payments / x402 adoption for the write-up (no invented numbers)
-- [ ] 🤖 Draft X post (tags **@openservai**) and video script (< 90 s)
+- [x] 🤖 Draft X post (tags **@openservai**) and video script (< 90 s)
 
 ## Day 6 — Fri 13 Nov · Record + stretch
 - [ ] 🧑 Record the video from a fresh `reset`: A dispute → A stopped → B verified → another agent

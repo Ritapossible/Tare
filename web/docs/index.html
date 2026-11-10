@@ -37,9 +37,9 @@
         <p class="lede">Everything needed to go from a clone to a disputed seller, a refused payment and a clean one, on Kite testnet.</p>
 
         <h2 id="what">What Tare is</h2>
-        <p>Tare is delivery verification for agents that pay over x402. It pays a data seller with Kite Passport, reads the seller's own promise about the delivery with SERV Reasoning, and checks that promise against the delivered rows in code. Every check becomes a receipt with evidence, and every seller has a record: a seller whose claims fail is <strong>held</strong>, and the agent stops buying from it before any payment.</p>
+        <p>Tare is an independent check of what an x402 data seller delivered. It pays a data seller over x402 on Kite testnet (with Kite Passport, or a capped testnet key while Passport cannot pay uncatalogued sellers), reads the seller's own promises with SERV Reasoning, both the 402 advertisement made before payment and the note that comes with the delivery, and checks that promise against the delivered rows in code. Every check becomes a receipt with evidence, and every seller has a record: a seller whose claims fail is <strong>held</strong>, and the agent stops buying from it before any payment.</p>
         <p><strong>Not a spending policy.</strong> A spending policy decides before paying, from the amount, merchant and budget. Tare checks after delivery, from the rows. Kite Passport's capped session is the spending limit; Tare verifies what it bought.</p>
-        <p><strong>Code, not SERV, counts and decides.</strong> The model id is <code>gpt-5.4-mini-serv-multipath</code>; it only extracts claims.</p>
+        <p><strong>Code, not SERV, counts and decides.</strong> The model id is <code>gpt-5.4-mini-serv-multipath</code>; it only extracts claims: four from the main prompt, and a time window (<code>max_age_hours</code>) from a second prompt that runs only when the seller mentions time. Code drops a <code>fields</code> claim the seller's text does not support.</p>
 
         <h2 id="quickstart">Quick start</h2>
 <pre>git clone https://github.com/Ritapossible/Tare && cd Tare
@@ -51,7 +51,7 @@ npm run app                     # console on http://127.0.0.1:4020</pre>
 
         <h2 id="serv">SERV key</h2>
         <p>Create a key at <a href="https://console.openserv.ai" target="_blank" rel="noopener">console.openserv.ai</a> and put it in <code>.env</code> as <code>SERV_API_KEY</code>. The $5 starter credit pays for SERV inference only; it never funds a payment.</p>
-        <p><code>node scripts/serv_eval.mjs</code> runs seven ordinary and five adversarial seller labels against the real model and reports accuracy and safety.</p>
+        <p><code>node scripts/serv_eval.mjs</code> runs nine ordinary and six adversarial seller texts against the real model and reports accuracy and safety. Last live run (10 Nov): accuracy 8/9, safety 6/6.</p>
 
         <h2 id="kite">Kite testnet</h2>
         <p>Run these once, in order. You approve the passkey yourself; Tare never automates it.</p>
@@ -91,6 +91,8 @@ node scripts/publish.mjs      # copy the run to web/data/state.json for the host
             <tr><td><code>unique</code></td><td>Uniqueness is claimed and some ids repeat.</td></tr>
             <tr><td><code>fields</code></td><td>Fields are named and some row lacks one.</td></tr>
             <tr><td><code>no_nulls</code></td><td>"No nulls" is claimed and a checked value is <code>null</code> or empty.</td></tr>
+            <tr><td><code>fresh</code></td><td>A time window is claimed and some row's <code>ts</code> is missing, unreadable, older than the window, or more than 5 minutes in the future.</td></tr>
+            <tr><td><code>advertised:&lt;rule&gt;</code></td><td>The same rules, applied to the claims in the seller's 402 advertisement. A missing advertisement is noted and never changes the verdict.</td></tr>
           </tbody>
         </table>
         <p>Any failure is a dispute. No failure but no count claim is <strong>unverifiable</strong>: the seller is held, because a promise that claims nothing cannot be checked. A human can release a hold with <code>node scripts/unblock.mjs &lt;origin&gt;</code>.</p>

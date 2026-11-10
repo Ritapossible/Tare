@@ -630,3 +630,6 @@ dl.facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
   background: var(--bg-2); font-size: 17px; line-height: 1.5; color: var(--text);
 }
 .promise-inline { font-size: 15px; margin-bottom: 12px; }
+
+/* one-line punchline under a lede */
+.lede.punch { margin-top: 18px; font-size: clamp(19px, 2vw, 24px); line-height: 1.4; }

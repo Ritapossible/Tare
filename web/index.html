@@ -30,7 +30,7 @@
         </h1>
         <p class="lede">
           Spending policies decide whether an agent may pay. <strong>Tare checks what it got.</strong>
-          It reads what a data seller <span class="hl hl-b">promised</span>, verifies what actually
+          An independent check of x402 data deliveries: it reads what a data seller <span class="hl hl-b">promised</span>, verifies what actually
           <span class="hl hl-o">arrived</span>, and keeps an evidence-backed record of every seller that over-promised.
         </p>
         <div class="hero-cta">
@@ -63,6 +63,7 @@
           compares that description to the rows. Budgets and allowlists cannot help: they never
           <span class="u">look at what came back</span>.
         </p>
+        <p class="lede punch"><strong>Pay per record? Then someone has to count the records.</strong></p>
       </div>
     </section>
 
@@ -74,8 +75,8 @@
           <h2>Before the payment<br /><span class="grey">vs after the delivery.</span></h2>
           <p class="lede">
             Spending limits answer <strong>"may I pay?"</strong> Tare answers <strong>"did I get it?"</strong>
-            They are two halves of safe agent commerce. Kite Passport already caps the spend. Tare adds the half
-            nobody checks.
+            They are two halves of safe agent commerce. With Kite Passport, your agent shops inside a capped,
+            time-limited session and never holds a private key. <strong>Tare checks what it brought home.</strong>
           </p>
         </div>
         <div class="versus">
@@ -96,7 +97,7 @@
               <div><dt>Looks at</dt><dd>The seller's claims and the rows it sent</dd></div>
               <div><dt>Question</dt><dd>Did we get what the seller promised?</dd></div>
               <div><dt>Sees the delivery</dt><dd>Every row, counted in code</dd></div>
-              <div><dt>Catches</dt><dd>Short, duplicated or empty deliveries</dd></div>
+              <div><dt>Catches</dt><dd>Short, duplicated, empty or stale deliveries</dd></div>
             </dl>
           </article>
         </div>
@@ -122,14 +123,14 @@
             <i class="step-bar" style="background:#1d9bf0"></i>
             <div class="n">02</div>
             <h3>Read the promise</h3>
-            <p>SERV Reasoning reads only the seller's prose and turns it into four claims: count, unique, fields, no nulls.</p>
+            <p>SERV Reasoning reads only the seller's own words, both its 402 advertisement and its delivery note, and turns them into claims: count, unique, fields, no nulls and, if a time window is named, freshness.</p>
             <span class="who who-serv">SERV Reasoning</span>
           </article>
           <article class="step">
             <i class="step-bar" style="background:#f6f6f4"></i>
             <div class="n">03</div>
             <h3>Verify</h3>
-            <p>Plain code counts the rows, the distinct ids, the fields and the empty values, and checks each claim. The rows never reach the model.</p>
+            <p>Plain code counts the rows, the distinct ids, the fields, the empty values and the age of each timestamp, and checks each claim. The rows never reach the model.</p>
             <span class="who who-code">Tare code</span>
           </article>
           <article class="step">
@@ -155,13 +156,13 @@
           <article class="role role-serv">
             <span class="tag">SERV Reasoning</span>
             <h3>Reads the promise</h3>
-            <ul class="can"><li>Extracts four typed claims from the prose</li><li>Treats the prose as untrusted data</li></ul>
+            <ul class="can"><li>Extracts typed claims from the seller's words</li><li>Treats the prose as untrusted data</li></ul>
             <ul class="cannot"><li>Never sees the rows</li><li>Never returns a verdict</li><li>Never pays</li></ul>
           </article>
           <article class="role role-code">
             <span class="tag">Tare code</span>
             <h3>Verifies and records</h3>
-            <ul class="can"><li>Counts rows, unique ids, fields, nulls</li><li>Checks every claim against the rows</li><li>Keeps each seller's record</li></ul>
+            <ul class="can"><li>Counts rows, unique ids, fields, nulls, ages</li><li>Checks every claim against the rows</li><li>Keeps each seller's record</li></ul>
             <ul class="cannot"><li>Never asks the model for a verdict</li><li>Never invents a hash</li></ul>
           </article>
           <article class="role role-kite">
@@ -274,7 +275,11 @@ npm run app</pre>
           </details>
           <details>
             <summary>Does SERV decide anything?<span data-icon="chevron"></span></summary>
-            <div class="answer"><p>No. SERV Reasoning (<code>gpt-5.4-mini-serv-multipath</code>) only turns the seller's prose into four typed claims. Counting, checking, recording and paying are all plain code. Any extra field the model returns, such as a "verdict", is dropped unread.</p></div>
+            <div class="answer"><p>No. SERV Reasoning (<code>gpt-5.4-mini-serv-multipath</code>) only turns the seller's words into typed claims: four from one prompt, and a time window from a second prompt that runs only when the seller mentions time. Code drops a claim the text does not support. Counting, checking, recording and paying are all plain code. Any extra field the model returns, such as a "verdict", is dropped unread.</p></div>
+          </details>
+          <details>
+            <summary>Which promise does Tare check?<span data-icon="chevron"></span></summary>
+            <div class="answer"><p>Both of the seller's own. Before paying, Tare reads the description in the seller's 402 response, the promise made before any money moves. After paying, it reads the note that came with the delivery. Each is checked against the same rows, and both are shown word for word on the receipt. A broken advertised claim shows as <code>advertised:count</code>, <code>advertised:unique</code> and so on.</p></div>
           </details>
           <details>
             <summary>Why check after paying instead of before?<span data-icon="chevron"></span></summary>
