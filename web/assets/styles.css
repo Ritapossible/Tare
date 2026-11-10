@@ -618,3 +618,15 @@ dl.facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
 }
 .rec-row:hover { border-color: var(--border-2); }
 @media (max-width: 520px) { .check-row { flex-direction: column; } .check-row .btn { width: 100%; } }
+
+/* the promise, word for word */
+.promise-card { margin-bottom: 16px; }
+.promise { margin: 0 0 14px; }
+.promise figcaption { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-bottom: 8px; }
+.promise figcaption .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); }
+.promise figcaption .faint { font-size: 13px; }
+.promise blockquote, .promise-inline {
+  margin: 0; padding: 14px 18px; border-left: 4px solid var(--orange); border-radius: 0 12px 12px 0;
+  background: var(--bg-2); font-size: 17px; line-height: 1.5; color: var(--text);
+}
+.promise-inline { font-size: 15px; margin-bottom: 12px; }

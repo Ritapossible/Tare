@@ -23,6 +23,8 @@ function evidence(r) {
     body_sha256: r.body_sha256 ?? null,
     prompt_sha256: r.prompt_sha256 ?? null,
     payment_rail: r.payment_rail ?? null,
+    promise: r.promise ?? null,
+    advertised: r.advertised ?? null,
     checked_at: r.created_at ?? null,
   };
 }

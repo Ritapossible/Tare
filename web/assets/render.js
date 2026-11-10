@@ -107,6 +107,14 @@ export function ruleRows(r) {
     measured: !c?.fields || !judged ? "-" : failed.has("fields") ? "missing in some rows" : "present in every row",
     result: result("fields", Boolean(c?.fields)),
   });
+  if (c?.max_age_hours != null || failed.has("fresh")) {
+    rows.push({
+      rule: "fresh",
+      claimed: c?.max_age_hours != null ? `within ${c.max_age_hours} h` : "not claimed",
+      measured: r?.oldest_age_hours != null ? `oldest record ${r.oldest_age_hours} h old` : "no usable timestamps",
+      result: result("fresh", c?.max_age_hours != null),
+    });
+  }
   rows.push({
     rule: "no_nulls",
     claimed: c?.no_nulls === true ? "no nulls" : "not claimed",
@@ -114,6 +122,28 @@ export function ruleRows(r) {
     result: result("no_nulls", c?.no_nulls === true),
   });
   return rows;
+}
+
+// Checks of the seller's 402 advertisement (made before payment), as separate rows.
+export function advertisedRows(r) {
+  const c = r?.advertised_claims;
+  if (!c) return [];
+  const failed = new Set((r.failed ?? []).filter((f) => f.startsWith("advertised:")).map((f) => f.slice(11)));
+  const rows = [];
+  if (c.claimed_count != null) rows.push({ rule: "advertised:count", claimed: `${c.claimed_count}${c.unique === true ? " unique" : ""} records`, result: failed.has("count") ? "fail" : "pass" });
+  if (c.unique === true) rows.push({ rule: "advertised:unique", claimed: "all ids unique", result: failed.has("unique") ? "fail" : "pass" });
+  if (c.fields) rows.push({ rule: "advertised:fields", claimed: c.fields.join(", "), result: failed.has("fields") ? "fail" : "pass" });
+  if (c.no_nulls === true) rows.push({ rule: "advertised:no_nulls", claimed: "no nulls", result: failed.has("no_nulls") ? "fail" : "pass" });
+  if (c.max_age_hours != null) rows.push({ rule: "advertised:fresh", claimed: `within ${c.max_age_hours} h`, result: failed.has("fresh") ? "fail" : "pass" });
+  return rows;
+}
+
+// The seller's own words, verbatim and escaped: what it said in the delivery and in its 402.
+export function promiseHTML(r) {
+  const block = (label, text, sub) =>
+    text ? `<figure class="promise"><figcaption><span class="k">${esc(label)}</span><span class="faint">${esc(sub)}</span></figcaption><blockquote>${esc(text)}</blockquote></figure>` : "";
+  const html = block("In the delivery", r?.promise, "the seller's prose, read by SERV") + block("In the 402 advertisement", r?.advertised, "made before any money moved");
+  return html || `<p class="dim">No promise text recorded for this receipt.</p>`;
 }
 
 export function failedTags(failed) {

@@ -1,7 +1,7 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML } from "./render.js";
 import { icons } from "./icons.js";
 import { sprinkle } from "./layout.js";
 
@@ -181,6 +181,7 @@ export async function mountReceipt(root) {
     ${back}
     <div class="verdict-hero"><h1 class="display">${esc(name)}</h1>${statusChip(r.status)}</div>
     <p class="lede" style="margin:-8px 0 32px">${esc(s.note)}</p>
+    <div class="card promise-card"><h2>The promise, word for word</h2>${promiseHTML(r)}</div>
     <div class="detail-grid">
       <div class="card">
         <h2>Promise vs delivery</h2>
@@ -193,6 +194,14 @@ export async function mountReceipt(root) {
             )
             .join("")}</tbody>
         </table>
+        ${
+          advertisedRows(r).length
+            ? `<h2 style="margin-top:26px">402 advertisement vs delivery</h2>
+        <table class="rules"><thead><tr><th>Check</th><th>Advertised</th><th>Result</th></tr></thead><tbody>${advertisedRows(r)
+          .map((x) => `<tr><td><code>${esc(x.rule)}</code></td><td>${esc(x.claimed)}</td><td class="res ${x.result === "pass" ? "res-pass" : "res-fail"}">${x.result}</td></tr>`)
+          .join("")}</tbody></table>`
+            : ""
+        }
         <p class="faint" style="font-size:14px;margin:18px 0 0">Claims were extracted by SERV from the seller's prose. Every measurement and every result was computed by Tare's code.</p>
         ${r.error ? `<div class="notice" style="margin:20px 0 0">${icons.info}<div><strong>Error:</strong> ${esc(r.error)}</div></div>` : ""}
         ${r.reason ? `<div class="notice" style="margin:20px 0 0">${icons.info}<div><strong>Reason:</strong> ${esc(r.reason)}</div></div>` : ""}

@@ -70,14 +70,14 @@ Goal: a person can use Tare, and honest sellers have a reason to care (evaluatio
 ## Day 5 — Thu 12 Nov · Real promises, real sellers, then the story
 Goal: show the problem instead of predicting it (evaluation: problem & demand 12/20, differentiation 11/15).
 Morning:
-- [ ] 🤖 **Promise from the 402 response**: read the seller's own `description` in PAYMENT-REQUIRED
+- [x] 🤖 **Promise from the 402 response**: read the seller's own `description` in PAYMENT-REQUIRED
       (made before any money moves) and check it against the delivery, alongside the body prose.
       Works on any x402 seller as it exists today, not only ours.
-- [ ] 🤖 **Freshness claim**: SERV extracts a claimed time window ("records from the last 24 hours");
+- [x] 🤖 **Freshness claim**: SERV extracts a claimed time window ("records from the last 24 hours");
       code checks it against the row timestamps. Stale data sold as fresh is the common real failure.
       New prompt ⇒ new prompt hash; update SPEC parse rule and tests.
-- [ ] 🧑 Re-run `node scripts/serv_eval.mjs` with the new claims; paste the output
-- [ ] 🤖 **Promise shown word for word** on the receipt page, next to the claims SERV extracted from it,
+- [x] 🧑 Re-run `node scripts/serv_eval.mjs` with the new claims; paste the output
+- [x] 🤖 **Promise shown word for word** on the receipt page, next to the claims SERV extracted from it,
       so every verdict is visibly grounded in the seller's own sentence (escaped; display only, the
       decision path is unchanged)
 - [ ] 🤖 **Copy lines** on the landing page and in the write-up (no attribution to anyone):

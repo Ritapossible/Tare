@@ -35,10 +35,11 @@ export function badgeSnippet(siteOrigin, record) {
 
 function evidenceHTML(e) {
   if (!e) return `<p class="dim">No receipt evidence published.</p>`;
+  const quote = e.promise ? `<blockquote class="promise-inline">${esc(e.promise)}</blockquote>` : "";
   const promised = e.promised?.claimed_count ?? "-";
   const uniq = e.promised?.unique === true;
   const delivered = e.delivered ? (uniq ? e.delivered.unique_count : e.delivered.count) : "-";
-  return `<div class="lc-nums"><span class="big">${esc(promised)}</span><span class="arrow" aria-hidden="true">→</span><span class="big ${e.failed?.length ? "tone-bad" : ""}">${esc(delivered)}</span></div>
+  return `${quote}<div class="lc-nums"><span class="big">${esc(promised)}</span><span class="arrow" aria-hidden="true">→</span><span class="big ${e.failed?.length ? "tone-bad" : ""}">${esc(delivered)}</span></div>
     <p class="sub"><span>promised → delivered${uniq ? " (unique)" : ""}</span>${statusChip(e.status)}</p>
     ${e.failed?.length ? `<div class="rcard-failed">${failedTags(e.failed)}</div>` : ""}
     <dl class="facts">

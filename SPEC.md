@@ -82,6 +82,18 @@ User message: `<prose>…</prose>` containing the seller's prose only. Any liter
    A second invalid response stops with a visible error (`SERV_INVALID`).
 5. An API error (auth, balance, network) is not retried: `SERV_API`.
 
+### Freshness, grounding and the 402 advertisement (added 10 Nov)
+
+- **Freshness** is read by a separate SERV call with its own prompt (`FRESHNESS_PROMPT`, one-field
+  strict schema `{max_age_hours}`), made only when the prose matches `TIME_WORDS`. The main prompt
+  stays the four claims above (hash unchanged). If the freshness call fails twice, freshness is simply
+  not checked and the receipt's `serv_notes` says so.
+- **Grounding (code):** a `fields` claim is dropped unless the prose talks about fields or columns.
+- **402 advertisement:** before paying, an unpaid GET reads `resource.description` from the seller's
+  PAYMENT-REQUIRED. After delivery, its claims (same SERV call) are checked against the same rows and
+  failures are recorded as `advertised:<rule>`. A missing or unreadable ad is noted (`ad_notes`) and
+  never changes the verdict. The receipt keeps both texts word for word (`promise`, `advertised`).
+
 ## Check (pure code)
 
 Input: `rows` (the paid array) and `claims`.
@@ -100,6 +112,8 @@ Rules, all evaluated, every failure recorded by name:
 | `unique` | `unique === true` and `unique_count !== count` |
 | `fields` | `fields !== null` and some row lacks one of the named fields as an own property |
 | `no_nulls` | `no_nulls === true` and some checked value is `null` or `""`. Checked keys = `fields` if given, otherwise every key of every row |
+| `fresh` | `max_age_hours` is set and some row's `ts` is missing, unparseable, older than the window, or more than 5 minutes in the future (measured at delivery time) |
+| `advertised:<rule>` | the same rules, applied to the claims in the seller's 402 description |
 
 Verdict:
 

@@ -3,7 +3,8 @@
 // The model's only influence is the four typed claim values. Whether a delivery is clean,
 // disputed or unverifiable is decided here and nowhere else.
 
-export const RULES = ["shape", "count", "unique", "fields", "no_nulls"];
+export const RULES = ["shape", "count", "unique", "fields", "no_nulls", "fresh"];
+const FUTURE_SKEW_MS = 5 * 60 * 1000;
 
 // Parse the paid body text into { prose, rows }. Returns null when the body does not have the
 // payload shape (JSON object with a string `prose` and an array-of-objects `rows`).
@@ -31,12 +32,25 @@ export function measure(rows) {
 
 const isEmpty = (v) => v === null || v === undefined || v === "";
 
+// Age in hours of the oldest row's `ts` relative to `now`; null if any row has no parseable ts.
+export function oldestAgeHours(rows, now) {
+  let oldest = 0;
+  for (const r of rows) {
+    const t = Date.parse(r?.ts);
+    if (!Number.isFinite(t)) return null;
+    oldest = Math.max(oldest, (now - t) / 3_600_000);
+  }
+  return Math.round(oldest * 10) / 10;
+}
+
 // rows: array of objects (already shape-checked). claims: output of serv.parseClaims.
-// Returns { count, unique_count, failed: [rule…], verdict: "clean" | "dispute" | "unverifiable" }.
-export function check(rows, claims) {
+// now: the delivery time in ms (the freshness rule measures row timestamps against it).
+// Returns { count, unique_count, oldest_age_hours, failed: [rule…], verdict }.
+export function check(rows, claims, { now = Date.now() } = {}) {
   const { count, unique_count } = measure(rows);
   const failed = [];
   const { claimed_count, unique, fields, no_nulls } = claims;
+  const max_age_hours = claims.max_age_hours ?? null;
 
   if (claimed_count !== null) {
     const measured = unique === true ? unique_count : count;
@@ -57,6 +71,16 @@ export function check(rows, claims) {
     if (bad) failed.push("no_nulls");
   }
 
+  // fresh: every row's `ts` must parse and fall within the claimed window (a little clock skew into
+  // the future is tolerated). A row without a usable ts cannot prove it is fresh.
+  if (max_age_hours !== null) {
+    const stale = rows.some((r) => {
+      const t = Date.parse(r?.ts);
+      return !Number.isFinite(t) || now - t > max_age_hours * 3_600_000 || t - now > FUTURE_SKEW_MS;
+    });
+    if (stale) failed.push("fresh");
+  }
+
   // Fail closed: a delivery whose label makes no count claim cannot be verified, whatever the
   // reason (the seller said nothing, or the model was steered into returning nulls).
   let verdict;
@@ -64,10 +88,10 @@ export function check(rows, claims) {
   else if (claimed_count === null) verdict = "unverifiable";
   else verdict = "clean";
 
-  return { count, unique_count, failed, verdict };
+  return { count, unique_count, oldest_age_hours: oldestAgeHours(rows, now), failed, verdict };
 }
 
 // For bodies that fail parseBody: a paid but unreadable delivery is a failed delivery.
 export function shapeFailure() {
-  return { count: null, unique_count: null, failed: ["shape"], verdict: "dispute" };
+  return { count: null, unique_count: null, oldest_age_hours: null, failed: ["shape"], verdict: "dispute" };
 }

@@ -21,6 +21,23 @@ export function loadEnv() {
 
 export const X402_KEY_PATH = "data/x402-testnet.key";
 
+// Unpaid GET to read the seller's own description from its 402 PAYMENT-REQUIRED header.
+export async function readAdvertisement(url, { fetchImpl = globalThis.fetch, timeoutMs = 20_000 } = {}) {
+  const res = await fetchImpl(url, { method: "GET", signal: AbortSignal.timeout(timeoutMs) });
+  if (res.status !== 402) return { description: null, note: `no 402 advertisement (HTTP ${res.status})` };
+  const header = res.headers.get("payment-required");
+  if (!header) return { description: null, note: "402 without a PAYMENT-REQUIRED header" };
+  let challenge;
+  try {
+    challenge = JSON.parse(Buffer.from(header, "base64").toString("utf8"));
+  } catch {
+    return { description: null, note: "PAYMENT-REQUIRED header is not base64 JSON" };
+  }
+  const d = challenge?.resource?.description ?? challenge?.accepts?.[0]?.description ?? null;
+  const description = typeof d === "string" && d.trim() ? d.trim().slice(0, 500) : null;
+  return { description, note: description ? null : "the 402 carries no description" };
+}
+
 // TARE_PAYMENT_RAIL: "kpass" (default, Kite Passport) or "x402-direct" (testnet key, Pieverse facilitator).
 export function createRail({ rail = process.env.TARE_PAYMENT_RAIL || "kpass", store, kpassBin, keyPath = X402_KEY_PATH } = {}) {
   if (rail === "x402-direct") {
@@ -46,6 +63,7 @@ export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail 
     paymentRail: rail,
     // TARE_FEEDS: comma-separated records.json URLs the operator chooses to trust (opt-in).
     feedCheck: feeds.length ? createFeedChecker({ feeds }) : null,
+    readAdvertisement: (u) => readAdvertisement(u),
   });
   return { store, buy: buyer.buy };
 }

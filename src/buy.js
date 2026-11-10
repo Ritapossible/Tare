@@ -26,7 +26,7 @@ export function originOf(url) {
 export function createBuyer(deps) {
   const now = deps.now ?? (() => new Date().toISOString());
   const newId = deps.newId ?? (() => randomUUID());
-  const { store, kpass, extract, promptSha256, paymentRail = null, feedCheck = null } = deps;
+  const { store, kpass, extract, promptSha256, paymentRail = null, feedCheck = null, readAdvertisement = null } = deps;
 
   // Buys run strictly one at a time, so two clicks can never race past the checks below.
   let queue = Promise.resolve();
@@ -58,6 +58,11 @@ export function createBuyer(deps) {
       reason: null,
       error: null,
       feed_notes: [],
+      promise: null, // the seller's prose, word for word (from the delivery)
+      advertised: null, // the seller's description in its 402 payment request (before payment)
+      advertised_claims: null,
+      ad_notes: [],
+      oldest_age_hours: null,
       created_at: now(),
     };
 
@@ -95,6 +100,18 @@ export function createBuyer(deps) {
           return store.put({ ...base, status: "refused", reason: where });
         }
         base.feed_notes.push(`${where}; this buy was allowed by the operator`);
+      }
+    }
+
+    // 3c. The seller's advertisement: the description in its 402 payment request, read with an
+    //     unpaid request before any money moves. Problems are noted, never fatal.
+    if (readAdvertisement) {
+      try {
+        const ad = await readAdvertisement(url);
+        base.advertised = ad?.description ?? null;
+        if (ad?.note) base.ad_notes.push(ad.note);
+      } catch (err) {
+        base.ad_notes.push(`advertisement unavailable: ${err?.message ?? err}`);
       }
     }
 
@@ -141,21 +158,42 @@ export function createBuyer(deps) {
     if (!body) {
       result = shapeFailure();
     } else {
-      let claims;
+      let claims, servNotes;
       try {
-        ({ claims } = await extract(body.prose));
+        ({ claims, notes: servNotes } = await extract(body.prose));
       } catch (err) {
         return finish({ status: "paid_unchecked", error: `${err.code ?? "SERV_ERROR"}: ${err.message}` });
       }
-      finish({ claims });
+      finish({ claims, promise: body.prose, serv_notes: servNotes ?? [] });
       // 7. Code decides.
-      result = check(body.rows, claims);
+      const at = Date.parse(receipt.created_at);
+      const nowMs = Number.isFinite(at) ? at : Date.now();
+      result = check(body.rows, claims, { now: nowMs });
+
+      // 7b. The advertisement is a promise too: check it against the same rows.
+      if (receipt.advertised) {
+        let adClaims = null;
+        try {
+          ({ claims: adClaims } = await extract(receipt.advertised));
+        } catch (err) {
+          finish({ ad_notes: [...receipt.ad_notes, `advertisement not read: ${err.code ?? "SERV_ERROR"}: ${err.message}`] });
+        }
+        if (adClaims) {
+          const ad = check(body.rows, adClaims, { now: nowMs });
+          const adFailed = ad.failed.map((f) => `advertised:${f}`);
+          const failed = [...result.failed, ...adFailed];
+          const anyCount = claims.claimed_count !== null || adClaims.claimed_count !== null;
+          finish({ advertised_claims: adClaims });
+          result = { ...result, failed, verdict: failed.length ? "dispute" : anyCount ? "clean" : "unverifiable" };
+        }
+      }
     }
 
     finish({
       status: result.verdict,
       count: result.count,
       unique_count: result.unique_count,
+      oldest_age_hours: result.oldest_age_hours ?? null,
       failed: result.failed,
     });
 

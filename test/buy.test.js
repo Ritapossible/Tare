@@ -72,7 +72,7 @@ test("spec 5: an extra verdict field from the model is ignored", async () => {
   const t = setup({ serv });
   const r = await t.buy(A_URL);
   assert.equal(r.status, "dispute");
-  assert.deepEqual(Object.keys(r.claims).sort(), ["claimed_count", "fields", "no_nulls", "unique"]);
+  assert.deepEqual(Object.keys(r.claims).sort(), ["claimed_count", "fields", "max_age_hours", "no_nulls", "unique"]);
 });
 
 test("spec 6: claimed_count as a string is rejected by the parse rule (retry, then error)", async () => {
