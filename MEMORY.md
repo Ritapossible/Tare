@@ -5,7 +5,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Status
 
-- **Phase:** Live run started 2026-11-10. Step 1 (SERV check) PASSED; Step 2 (SERV eval) done: safety 5/5, accuracy 5/7. Waiting on: Kite Passport login + sellers deployed (Steps 3-6).
+- **Phase:** Live run 2026-11-10. Steps 1-2 PASSED (SERV). Step 3: Kite account created (ritaextracrypto@gmail.com), CLI logged in, sandbox ON, wallet 0x9Ef47eA89403c6a2637271B655b0C5b99c68C447. **BLOCKED: no way yet to get testnet pieUSD** (see facts). Sellers not deployed.
 - **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
 - **Seller URLs:** not deployed yet. Code and guide ready (`sellers/README.md`); `sellers.json` holds nulls.
@@ -85,6 +85,10 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 - Hackathon judging: creativity, user readiness, revenue potential. SERV Reasoning required in every track.
 
 ## Facts learned (from running things)
+
+- 2026-11-10 **kpass 6.13.1 differs from the hackathon brief:** login is `signup init/exchange` (new account) or `login init/verify` (OTP); a click on the emailed link completes sign-up in the dashboard, after which `signup exchange` fails with "invalid signup exchange token" and plain `login` works. `sandbox` exists but is hidden from `--help`. Payments are `kpass session execute --url … --idempotency-key …` (not `agent session execute`); in sandbox the account allowance is unavailable, so a separate passkey-approved session is required (`session create --separate`).
+- 2026-11-10 **Faucet blocked:** with `sandbox on`, `kpass faucet drop --token pieUSD` → "Faucet is only available on staging/testnet environments. It is disabled on production." `--base-url https://passport.staging.gokite.ai` → "invalid auth session" (separate staging account; not pursued). `--base-url …/sandbox` → CLI aborted: "sandbox mode mismatch: server reported X-Kite-Mode=live … aborting to avoid acting on live data" (correct; not worked around). Public faucet faucet.gokite.ai gives 0.5 KITE (gas) to a connected browser wallet, no pieUSD visible.
+- 2026-11-10 On-chain check: Kite testnet RPC chain id 0x940 (2368); pieUSD balance of 0x9Ef47eA89403c6a2637271B655b0C5b99c68C447 = 0.
 
 - 2026-11-10 **SERV live (real key, via session proxy):** `max_completion_tokens` is accepted; a system message + `reasoning_effort: "low"` works; `response_format` `json_schema` strict is supported. Step 0 output: `{"claimed_count":1240,"unique":true,"fields":["id","ts"],"no_nulls":true}`, finish_reason stop, 86 completion tokens (50 reasoning), 247 prompt tokens.
 - 2026-11-10 **Without structured output** the model replied in prose 5 of 6 times ("Received: 1,240 unique records…").
