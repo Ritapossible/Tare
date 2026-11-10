@@ -88,7 +88,7 @@ Afternoon:
 - [ ] 🤖 **SERV Prompt Guard**: read its docs; enable it on the claim-extraction call only if it fits
       the documented API and keeps the system prompt + `<prose>` contract. Re-run `serv_eval` with and
       without it and keep whichever is safer; record the numbers in MEMORY.md. No undocumented APIs.
-- [ ] 🤖 **Real-seller probe**: run the no-payment 402 probe and the description check against real
+- [x] 🤖 **Real-seller probe** (10 Nov: `scripts/real_probe.mjs` on the public x402 discovery list; found SERV inventing claims ⇒ full code-side grounding; results in WRITEUP): run the no-payment 402 probe and the description check against real
       public x402 services (start with those listed in `gokite-ai/kite-x402-services`). Report what was
       found, honest or not; never claim a mismatch that was not observed.
 - [ ] 🤖 **Library export**: `verify(promise, body)` and `tareFetch(url)` with a three-line "add Tare to

@@ -4,15 +4,14 @@
 
 > Agents pay first. Nobody checks the goods.
 >
-> Tare pays x402 data sellers on Kite testnet, has @openservai SERV Reasoning read what the seller
-> promised, then counts what actually arrived, in code.
+> Tare pays x402 data sellers on Kite testnet. @openservai SERV reads what the seller promised; code
+> counts what arrived.
 >
-> Seller promised 1,240 unique records. Delivered 860. Disputed, held, never paid again.
+> Promised 1,240 unique records. Delivered 860. Disputed, and never paid again.
 >
-> The label is not the delivery.
 > https://tare-agent.vercel.app
 
-(Under 280 characters without the link line: check before posting. Attach a screenshot of the
+(267 characters counting the link as 23. Attach a screenshot of the
 seller A receipt. Add the video link once uploaded.)
 
 Short variant:

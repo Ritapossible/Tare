@@ -88,7 +88,17 @@ User message: `<prose>…</prose>` containing the seller's prose only. Any liter
   strict schema `{max_age_hours}`), made only when the prose matches `TIME_WORDS`. The main prompt
   stays the four claims above (hash unchanged). If the freshness call fails twice, freshness is simply
   not checked and the receipt's `serv_notes` says so.
-- **Grounding (code):** a `fields` claim is dropped unless the prose talks about fields or columns.
+- **Grounding (code):** every claim must be supported by the seller's own text or code drops it
+  (`ground()` in `src/serv.js`; the receipt's `serv_notes` lists dropped claims). Code never adds or
+  changes a claim.
+  - `claimed_count`: the text states that exact number (digits or number words, English/Spanish), not
+    as a bound or approximation ("up to 20", "10,000+", "~2", "about 200"), and not inside a price,
+    decimal, percentage, time or identifier ("$0.002", "7%", "23:59", "HIP-4"). A lone "one" is not a count.
+  - `unique`: the text says unique / distinct / no duplicates. `no_nulls`: it mentions nulls, empty,
+    missing or blank values.
+  - `fields`: the text talks about fields or columns, and every field name appears in it.
+  - `max_age_hours`: the text names that window explicitly ("last 24 hours", "this week", "today");
+    "latest", "real-time" or "~2 days" name none.
 - **402 advertisement:** before paying, an unpaid GET reads `resource.description` from the seller's
   PAYMENT-REQUIRED. After delivery, its claims (same SERV call) are checked against the same rows and
   failures are recorded as `advertised:<rule>`. A missing or unreadable ad is noted (`ad_notes`) and

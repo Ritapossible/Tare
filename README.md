@@ -42,9 +42,10 @@ See [SPEC.md](SPEC.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 System prompt sha256: `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`;
 freshness prompt sha256: `b7089fef4ceba1244340c9c975202a8630356e20298c6d3fa0b81fe59facaa1c`
 (source: [`src/prompt.js`](src/prompt.js)). Live eval (`node scripts/serv_eval.mjs`, 10 Nov):
-accuracy 8/9 on honest texts, safety 6/6 on injection attempts (no manipulated text got seller A
-verified). The one miss: SERV refused the text "Here is your data.", which Tare records as paid but
-unchecked.
+accuracy 7/9 on honest texts, safety 6/6 on injection attempts (no manipulated text got seller A
+verified). Both misses are SERV's: a content-filter refusal on "Here is your data." (recorded as paid
+but unchecked) and an unstable "this week" window. Every claim is grounded in the seller's own text
+in code; see [docs/WRITEUP.md](docs/WRITEUP.md) for the real-seller probe that made this necessary.
 
 ## Payment rail
 

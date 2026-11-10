@@ -75,6 +75,9 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-08 | Sellers = unchanged Kite `typescript-express` template; payload JSON served from a static upstream | the template is a paid proxy to `UPSTREAM_URL` |
 | 2026-11-08 | No shared reputation feed this week | second product; one sentence in the write-up |
 | 2026-11-08 | `scripts/reset.mjs` clears local store | needed to re-record the demo |
+| 2026-11-10 | Every claim is grounded in code (`ground()` in `src/serv.js`): count must be a number the text states exactly (digits or number words; not "up to", "10,000+", "~2", a price, percentage, time or identifier); unique/no_nulls need the words; each field must appear and the text must talk about fields; a time window must be stated explicitly and match. Dropped claims are noted on the receipt | the real-seller probe showed SERV inventing counts, "unique" and "no nulls" on real service descriptions; an invented claim would dispute an honest seller |
+| 2026-11-10 | Lone "one"/"una" is not a count | "in one call" became claimed_count 1 |
+| 2026-11-10 | Real-seller probe reads descriptions from the public x402 discovery list, never pays, never judges | the listed sellers are not on Kite testnet; without a delivery there is nothing to count |
 
 ## Facts learned (from docs)
 
@@ -133,6 +136,19 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   HTTP 401 with body `"Invalid API key"`; `serv_check.mjs` prints it and exits 1.
 - _Still to fill from a real-key run: raw content, finish_reason, usage, whether `max_completion_tokens`
   is accepted. Then kpass execute output format and PAYMENT-RESPONSE encoding._
+- 2026-11-10: **Real-seller probe** (`scripts/real_probe.mjs`): the public x402 discovery list held
+  33,245 resources. Of 1,000 read (408 hosts), all had a description; 11 named a number of items,
+  about 1 in 5 used time words, none used "unique" or "no nulls". On 30 sampled descriptions (one per
+  host), **before** full grounding SERV returned an exact count for 14 of 22 answers, almost all
+  invented (e.g. 5 for "Search 10,000+ gift card brands", `unique: true, no_nulls: true` everywhere,
+  sentences as field names). **After** grounding (final run): 1 count claimed then dropped by the
+  "~"/identifier fix, 0 fields, 0 windows; 19 nothing checkable; 21 texts had invented claims
+  dropped; SERV refused 7-9 of 30 (`SERV_INVALID`, content filter). "Up to N" read as exact: 0.
+- 2026-11-10: Real x402 deliveries are arbitrary JSON, not Tare's `{prose, rows}` shape, so Tare's
+  row checks apply to sellers that deliver rows; the advertisement read works on any x402 seller.
+- 2026-11-10: SERV freshness on "This week's export" is unstable: 168 in 2 of 3 calls, null in 1.
+  Live eval after grounding: accuracy 7/9 (misses: content-filter refusal on "Here is your data.",
+  freshness null once), safety 6/6.
 
 ## Open questions
 
