@@ -8,7 +8,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 - **Phase:** Live run 2026-11-10. SERV steps PASSED. Kite: prod account + sandbox ON; wallet 0x9Ef47eA89403c6a2637271B655b0C5b99c68C447 **funded with 10 testnet pieUSD** (on-chain). Next: sellers deployed on Render (owner), then a passkey-approved sandbox session and the first payment.
 - **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
-- **Seller URLs:** not deployed yet. Code and guide ready (`sellers/README.md`); `sellers.json` holds nulls.
+- **Seller URLs:** live on Render (free tier, Oregon): `https://tare-seller-a.onrender.com`, `https://tare-seller-b.onrender.com`; both pass `seller_probe` (eip155:2368, pieUSD, amount 1000000000000000, payTo 0x9Ef4…C447). `sellers.json` filled.
 
 ## Decisions
 

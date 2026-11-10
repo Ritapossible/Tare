@@ -20,8 +20,8 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 - [x] 🤖 `sellers/README.md`: deploy steps for the Kite Express template, twice
 - [x] 🤖 `sellers/wrapper/`: unchanged template copy; ran locally on testnet, 402 challenge verified
 - [x] 🤖 `scripts/seller_probe.mjs`: no-payment check that a seller charges testnet pieUSD 0.001 on distinct origins
-- [ ] 🧑 Create a seller wallet (PAY_TO), deploy seller A and seller B as two services on two hosts
-- [ ] 🧑 `node scripts/seller_probe.mjs <A url> <B url>` → both `RESULT : ok`
+- [x] 🧑 Create a seller wallet (PAY_TO), deploy seller A and seller B as two services on two hosts (Render, 10 Nov; PAY_TO = Passport wallet)
+- [x] 🧑 `node scripts/seller_probe.mjs <A url> <B url>` → both `RESULT : ok`
 - [ ] 🧑 `kpass agent session execute --method GET --url <seller B>` → copy the raw output and the hash
 - [ ] 🤖 Record real kpass output format in MEMORY.md; fill `sellers.json` (placeholder committed with nulls)
 
