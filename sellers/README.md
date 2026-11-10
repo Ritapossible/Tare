@@ -49,11 +49,12 @@ For **seller A**, then again for **seller B**:
    SERVICE_DESCRIPTION=<the seller's promise, see below>
    ```
 
-   `SERVICE_DESCRIPTION` is the promise the seller makes in its 402 response, before payment. Tare
-   reads it and checks it against the delivery (`advertised:*` rules):
+   `SERVICE_DESCRIPTION` is the seller's advertisement: the promise in its 402 response, made before
+   payment. Tare checks it against the delivery as a separate source (`advertised:*` rules). It is
+   deliberately different from the delivery note, as a real seller's pitch usually is:
 
-   - Seller A: `Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.`
-   - Seller B: `Delivered two hundred records, fields id and ts, no nulls.`
+   - Seller A: `Export of 1,240 records, fields id, ts and score.` (no `score` arrives: `advertised:fields` fails)
+   - Seller B: `200 records.` (true)
 
 6. Deploy. Render sets `PORT`; the template reads it.
 

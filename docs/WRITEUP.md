@@ -25,8 +25,10 @@ Tare is an independent check of what an x402 data seller delivered:
    attempted. Records are published as an opt-in feed, so another agent can be warned before it
    pays the same seller.
 
-With Kite Passport, your agent shops inside a capped, time-limited session and never holds a private
-key. Tare checks what it brought home.
+Tare works after the payment, whoever pays. Kite Passport can pay inside a capped, time-limited
+session without the agent holding a key, but it only pays sellers in Kite's catalog, and Tare's
+sellers are not listed yet. So the published run paid with a testnet-only key that Tare holds,
+capped at 0.05 per payment and 1 pieUSD in total.
 
 ## How SERV Reasoning powers it
 

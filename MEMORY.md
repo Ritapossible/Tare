@@ -85,6 +85,8 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-10 | File store caches the parsed JSON, keyed on mtime + size, and always hands out copies | audit 26; another process (unblock.mjs) can still change the store under a running console |
 | 2026-11-10 | Sellers page "Disputes" = status dispute only, same as the console; unverifiable holds show on the record banner | audit 19 |
 | 2026-11-10 | `scripts/resolve.mjs` resolves a pending payment: `not-paid` ⇒ failed; `paid <hash>` ⇒ paid_unchecked with `tx_hash_source: "operator"`, shown as "entered by the operator". The seller's record is never changed by a resolve | before this, a pending payment blocked its seller until a full reset; an operator-entered hash must never pass for one Tare received |
+| 2026-11-10 | Seller advertisements differ from the delivery notes: A "Export of 1,240 records, fields id, ts and score." (fails advertised:fields), B "200 records." (true). Live SERV read both identically on two calls each | an advertisement identical to the delivery note showed one check twice; a separate promise must be able to fail on its own |
+| 2026-11-10 | Copy no longer says the agent "never holds a private key" without qualification: the published run paid with Tare's capped testnet key | review: a judge reading only the top would think Passport paid |
 
 ## Facts learned (from docs)
 

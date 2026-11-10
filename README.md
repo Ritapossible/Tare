@@ -47,8 +47,10 @@ npm run app                   # live console on http://127.0.0.1:4020/app
 5. **Record.** Each buy becomes a receipt with the settlement hash, the body's sha256, the prompt's
    sha256 and both promises word for word. Seller records can be published for other agents.
 
-With Kite Passport, your agent shops inside a capped, time-limited session and never holds a private
-key. Tare checks what it brought home.
+Tare works after the payment, whoever pays. Kite Passport can pay inside a capped, time-limited
+session without the agent holding a key, but it only pays sellers in Kite's catalog, and Tare's
+sellers are not listed yet. So the published run paid with a testnet-only key that Tare holds,
+capped at 0.05 per payment and 1 pieUSD in total.
 
 Details: [SPEC.md](SPEC.md) (behaviour), [ARCHITECTURE.md](ARCHITECTURE.md) (structure),
 [docs/WRITEUP.md](docs/WRITEUP.md) (the hackathon write-up).

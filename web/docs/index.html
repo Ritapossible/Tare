@@ -81,13 +81,13 @@ kpass session create --separate --task-summary "tare receipt check" \
         </ul>
 
         <h2 id="sellers">Sellers</h2>
-        <p>Two sellers, each the unchanged Kite x402 Express template on its <strong>own origin</strong>, priced at 0.001 pieUSD. Each seller's promise is set as <code>SERVICE_DESCRIPTION</code>, so it appears in the 402 advertisement too. Deploy steps are in <code>sellers/README.md</code>. Before paying, check both without spending anything:</p>
+        <p>Two sellers, each the unchanged Kite x402 Express template on its <strong>own origin</strong>, priced at 0.001 pieUSD. Each seller's advertisement is set as <code>SERVICE_DESCRIPTION</code> and differs from its delivery note, so the two promises are checked as separate sources. Deploy steps are in <code>sellers/README.md</code>. Before paying, check both without spending anything:</p>
 <pre>node scripts/seller_probe.mjs "&lt;seller A url&gt;" "&lt;seller B url&gt;"</pre>
         <table>
-          <thead><tr><th>Seller</th><th>Promise (advertisement and delivery)</th><th>Delivery</th></tr></thead>
+          <thead><tr><th>Seller</th><th>402 advertisement / delivery note</th><th>Delivery</th></tr></thead>
           <tbody>
-            <tr><td>A</td><td>1,240 unique records, fields id and ts, no nulls</td><td>1,240 rows · 860 unique ids · 40 null ts</td></tr>
-            <tr><td>B</td><td>200 records, fields id and ts, no nulls</td><td>200 rows · 200 unique ids · no nulls</td></tr>
+            <tr><td>A</td><td>"Export of 1,240 records, fields id, ts and score." / "1,240 unique records, fields id and ts, no nulls"</td><td>1,240 rows · 860 unique ids · 40 null ts</td></tr>
+            <tr><td>B</td><td>"200 records." / "200 records, fields id and ts, no nulls"</td><td>200 rows · 200 unique ids · no nulls</td></tr>
           </tbody>
         </table>
 
