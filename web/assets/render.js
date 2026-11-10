@@ -44,7 +44,8 @@ export function txCell(hash, status) {
 // Full hash for the receipt detail page (same validation as txCell).
 export function settlementCell(r) {
   if (!isTxHash(r?.tx_hash)) return txCell(null, r?.status);
-  return `<span class="hash">${esc(r.tx_hash)}</span><button class="copy" data-copy="${esc(r.tx_hash)}">copy</button>`;
+  const by = r.tx_hash_source === "operator" ? ` <span class="faint">(entered by the operator from the explorer)</span>` : "";
+  return `<span class="hash">${esc(r.tx_hash)}</span><button class="copy" data-copy="${esc(r.tx_hash)}">copy</button>${by}`;
 }
 
 export function shortHash(h) {
@@ -310,3 +311,30 @@ export function receiptNotesHTML(r) {
   if (!notes.length) return "";
   return `<div><dt>Notes</dt><dd><ul class="notes">${notes.map(([k, n]) => `<li><span class="k">${esc(k)}</span> ${esc(n)}</li>`).join("")}</ul></dd></div>`;
 }
+
+// A plain sentence for a receipt that did not end in a verdict. The raw error stays on the receipt;
+// this says what happened to the money and what to do next.
+export function plainError(r) {
+  const e = String(r?.error ?? "");
+  switch (r?.status) {
+    case "pending":
+      return "Tare could not tell whether this payment settled. The seller is refused until a person checks the payer's wallet on the Kite testnet explorer and resolves the receipt (node scripts/resolve.mjs).";
+    case "paid_unverified":
+      return "The payment went through but no settlement hash came back, so Tare did not judge the delivery. The seller's record is unchanged.";
+    case "paid_unchecked":
+      if (/resolved by operator .*: settled on-chain/.test(e)) return "The payment settled on-chain (hash found by the operator on the explorer), but no delivery was received. The seller's record is unchanged.";
+      if (/^SERV_INVALID/.test(e)) return "Paid and delivered, but SERV did not return a readable answer (twice), so the seller's promise was not read. The seller's record is unchanged.";
+      if (/^SERV_API/.test(e)) return "Paid and delivered, but SERV could not be reached (key, credit or network), so the promise was not read. The seller's record is unchanged.";
+      return "Paid and delivered, but the promise could not be read. The seller's record is unchanged.";
+    case "failed":
+      if (/resolved by operator .*: no settlement/.test(e)) return "Checked on the explorer: this payment never settled. No money moved.";
+      if (/host_not_in_executable_catalog|payment_target_forbidden/.test(e)) return "Kite Passport refused to pay: this seller is not in Kite's service catalog. No payment was made.";
+      if (/Tare refused to sign/.test(e)) return "Tare refused to sign this payment: it was outside the spending caps or not testnet pieUSD. No payment was made.";
+      if (/HTTP \d+/.test(e)) return "The seller answered with an error and no settlement hash, so Tare treats this as not paid. The seller's record is unchanged.";
+      return "The payment did not complete and no settlement hash came back. The seller's record is unchanged.";
+    default:
+      if (/after settlement/.test(e)) return "Paid, but the seller returned an error instead of the data. The settlement hash is kept and the seller is held.";
+      return null;
+  }
+}
+

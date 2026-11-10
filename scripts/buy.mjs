@@ -8,7 +8,7 @@
 
 import { createTare, loadEnv, appendRawLog } from "../src/tare.js";
 import { loadSellers } from "../src/config.js";
-import { isTxHash, noHashLabel } from "../web/assets/render.js";
+import { isTxHash, noHashLabel, plainError } from "../web/assets/render.js";
 
 loadEnv();
 
@@ -46,7 +46,7 @@ if (!url) {
 const tare = createTare({ onKpassRaw: appendRawLog });
 
 const r = await tare.buy(url, { requestId, allowFeedHold });
-const show = (k, v) => console.log(`${k.padEnd(12)}: ${v}`);
+const show = (k, v) => console.log(`${k.padEnd(13)}: ${v}`);
 show("origin", r.origin);
 show("status", r.status + (r.replayed ? " (replayed, no new payment)" : ""));
 show("promised", r.claims ? JSON.stringify(r.claims) : "-");
@@ -57,6 +57,8 @@ show("tx hash", isTxHash(r.tx_hash) ? r.tx_hash : noHashLabel(r.status));
 const record = tare.store.blockEntry(r.origin);
 show("record", record ? `held (${record.reason})` : "in good standing");
 if (r.reason) show("reason", r.reason);
+const plain = plainError(r);
+if (plain) show("what happened", plain);
 if (r.error) show("error", r.error);
 for (const note of r.feed_notes ?? []) show("feed", note);
 show("payments", `${tare.store.kpassCalls()} attempted (rail: ${process.env.TARE_PAYMENT_RAIL || "kpass"})`);

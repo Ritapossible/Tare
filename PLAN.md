@@ -93,7 +93,7 @@ Afternoon:
       found, honest or not; never claim a mismatch that was not observed.
 - [x] 🤖 **Library export**: `verify(promise, body)` and `tareFetch(url)` with a three-line "add Tare to
       your agent" section in the README and docs
-- [ ] 🤖 Fix whatever the live run surfaced; readable error text (SERV_INVALID, paid_unverified, kpass failed)
+- [x] 🤖 Fix whatever the live run surfaced; readable error text (10 Nov: plainError() in CLI, toast and receipt page; scripts/resolve.mjs for pending payments) (SERV_INVALID, paid_unverified, kpass failed)
 - [x] 🤖 README complete: two sentences, SERV key + $5 credit note, Kite commands, `npm test`, three "do X, see Y", model id, "code, not SERV, counts and decides"
 - [x] 🤖 `docs/WRITEUP.md`: what Tare does, how SERV Reasoning powers it, which track (Kite), what was
       built during the hackathon, live `serv_eval` numbers, real-seller probe results, shared records

@@ -1,7 +1,7 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML, receiptNotesHTML } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML, receiptNotesHTML, plainError } from "./render.js";
 import { icons } from "./icons.js";
 import { sprinkle } from "./layout.js";
 
@@ -147,10 +147,12 @@ export async function mountConsole(root) {
       if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
       const r = body.receipt;
       const s = STATUS[r.status];
-      toast(`${statusChip(r.status)} <strong style="margin-left:8px">Seller ${esc(key.toUpperCase())}</strong> - ${esc(s?.note ?? r.status)} ${r.replayed ? "(replayed, no new payment)" : ""}`);
+      toast(`${statusChip(r.status)} <strong style="margin-left:8px">Seller ${esc(key.toUpperCase())}</strong> - ${esc(plainError(r) ?? s?.note ?? r.status)} ${r.replayed ? "(replayed, no new payment)" : ""}`);
       ids[key] = newRequestId(); // next click is a new purchase
     } catch (err) {
-      toast(`<strong>Buy failed:</strong> ${esc(err.message)}`);
+      // fetch() itself failing means the local console server is gone, not that a payment failed.
+      const msg = err instanceof TypeError ? "the local console server is not reachable. Is npm run app still running?" : err.message;
+      toast(`<strong>Buy failed:</strong> ${esc(msg)}`);
     } finally {
       inFlight.delete(key);
       state = await loadState();
@@ -203,7 +205,7 @@ export async function mountReceipt(root) {
             : ""
         }
         <p class="faint" style="font-size:14px;margin:18px 0 0">Claims were extracted by SERV from the seller's prose. Every measurement and every result was computed by Tare's code.</p>
-        ${r.error ? `<div class="notice" style="margin:20px 0 0">${icons.info}<div><strong>Error:</strong> ${esc(r.error)}</div></div>` : ""}
+        ${r.error ? `<div class="notice" style="margin:20px 0 0">${icons.info}<div>${plainError(r) ? `<strong>${esc(plainError(r))}</strong><br />` : ""}<span class="faint">Error: ${esc(r.error)}</span></div></div>` : ""}
         ${r.reason ? `<div class="notice" style="margin:20px 0 0">${icons.info}<div><strong>Reason:</strong> ${esc(r.reason)}</div></div>` : ""}
       </div>
       <div class="card">

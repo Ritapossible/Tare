@@ -20,6 +20,7 @@ function evidence(r) {
     delivered: r.count == null ? null : { count: r.count, unique_count: r.unique_count },
     failed: r.failed ?? [],
     tx_hash: TX.test(r.tx_hash ?? "") ? r.tx_hash : null, // only a real settlement hash
+    ...(r.tx_hash_source === "operator" ? { tx_hash_source: "operator" } : {}),
     body_sha256: r.body_sha256 ?? null,
     prompt_sha256: r.prompt_sha256 ?? null,
     payment_rail: r.payment_rail ?? null,
