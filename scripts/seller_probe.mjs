@@ -6,12 +6,34 @@
 //
 //   node scripts/seller_probe.mjs <seller url> [<seller url> …]
 
-const EXPECT = {
-  network: "eip155:2368",
-  asset: "0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A",
+import { fileURLToPath } from "node:url";
+import { KITE_TESTNET } from "../src/x402direct.js";
+
+export const EXPECT = {
+  network: KITE_TESTNET.network,
+  asset: KITE_TESTNET.asset,
   amount: "1000000000000000", // 0.001 pieUSD at 18 decimals
   extra: { name: "pieUSD", version: "1" },
 };
+
+// Every offer in `accepts` must be testnet pieUSD at 0.001: a payer may pick any of them, so a
+// single mainnet or other-asset entry makes the seller unsafe. Returns a list of problems.
+export function checkOffers(accepts) {
+  if (!Array.isArray(accepts) || accepts.length === 0) return ["no payment offers in PAYMENT-REQUIRED"];
+  const problems = [];
+  accepts.forEach((offer, i) => {
+    const at = accepts.length > 1 ? `offer ${i + 1}: ` : "";
+    for (const key of ["network", "asset", "amount"]) {
+      const got = key === "asset" ? String(offer?.[key] ?? "").toLowerCase() : offer?.[key];
+      const want = key === "asset" ? EXPECT.asset.toLowerCase() : EXPECT[key];
+      if (got !== want) problems.push(`${at}${key} is ${offer?.[key]}, expected ${EXPECT[key]}`);
+    }
+    if (offer?.extra?.name !== EXPECT.extra.name || offer?.extra?.version !== EXPECT.extra.version) {
+      problems.push(`${at}EIP-712 domain is ${JSON.stringify(offer?.extra)}, expected ${JSON.stringify(EXPECT.extra)}`);
+    }
+  });
+  return problems;
+}
 
 async function probe(url) {
   const u = new URL(url);
@@ -32,14 +54,8 @@ async function probe(url) {
     problems.push("no PAYMENT-REQUIRED header");
   } else {
     const challenge = JSON.parse(Buffer.from(header, "base64").toString("utf8"));
-    const offer = challenge.accepts?.[0] ?? {};
-    console.log(`offer  : ${JSON.stringify(offer)}`);
-    for (const key of ["network", "asset", "amount"]) {
-      if (offer[key] !== EXPECT[key]) problems.push(`${key} is ${offer[key]}, expected ${EXPECT[key]}`);
-    }
-    if (offer.extra?.name !== EXPECT.extra.name || offer.extra?.version !== EXPECT.extra.version) {
-      problems.push(`EIP-712 domain is ${JSON.stringify(offer.extra)}, expected ${JSON.stringify(EXPECT.extra)}`);
-    }
+    for (const offer of challenge.accepts ?? []) console.log(`offer  : ${JSON.stringify(offer)}`);
+    problems.push(...checkOffers(challenge.accepts));
   }
 
   if (problems.length) {
@@ -51,26 +67,30 @@ async function probe(url) {
   return true;
 }
 
-const urls = process.argv.slice(2);
-if (!urls.length) {
-  console.error("usage: node scripts/seller_probe.mjs <seller url> [<seller url> …]");
-  process.exit(2);
+async function main() {
+  const urls = process.argv.slice(2);
+  if (!urls.length) {
+    console.error("usage: node scripts/seller_probe.mjs <seller url> [<seller url> …]");
+    process.exit(2);
+  }
+
+  let ok = true;
+  for (const url of urls) {
+    try {
+      ok = (await probe(url)) && ok;
+    } catch (err) {
+      console.log(`RESULT : probe failed — ${err.message}`);
+      ok = false;
+    }
+  }
+  if (urls.length > 1) {
+    const origins = new Set(urls.map((x) => new URL(x).origin));
+    if (origins.size !== urls.length) {
+      console.log("\nSellers share an origin. Seller records are keyed by origin, so holding one seller would hold both.");
+      ok = false;
+    }
+  }
+  process.exit(ok ? 0 : 1);
 }
 
-let ok = true;
-for (const url of urls) {
-  try {
-    ok = (await probe(url)) && ok;
-  } catch (err) {
-    console.log(`RESULT : probe failed — ${err.message}`);
-    ok = false;
-  }
-}
-if (urls.length > 1) {
-  const origins = new Set(urls.map((x) => new URL(x).origin));
-  if (origins.size !== urls.length) {
-    console.log("\nSellers share an origin. Seller records are keyed by origin, so holding one seller would hold both.");
-    ok = false;
-  }
-}
-process.exit(ok ? 0 : 1);
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) await main();

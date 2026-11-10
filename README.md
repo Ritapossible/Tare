@@ -56,8 +56,8 @@ them. So the published run used `x402-direct`:
 
 Real Kite testnet settlements from the published run (verified on-chain, 0.001 pieUSD each):
 
-- Seller A (dispute): `0xcb23c2e8f789145ab5e6741daaf53fd098f2c8dfd50333c2ad2af4117753635a`
-- Seller B (verified): `0x222d5cfcb7d6c73c40676f8ac109c904f22a7f97ea9285be60859356b59e2b76`
+- Seller A (dispute): `0xa239ac6d39c87ccda06a6fbe6458b162fa51eec3e75a34c648075e631803d79c`
+- Seller B (verified): `0x3f4740410068026e4d568bb5fcff98e8f1298e37bfb899ef1df1534e0a253219`
 
 No Passport payment hash exists for this run, and none is shown.
 

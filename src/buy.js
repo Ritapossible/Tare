@@ -26,7 +26,7 @@ export function originOf(url) {
 export function createBuyer(deps) {
   const now = deps.now ?? (() => new Date().toISOString());
   const newId = deps.newId ?? (() => randomUUID());
-  const { store, kpass, extract, promptSha256 } = deps;
+  const { store, kpass, extract, promptSha256, paymentRail = null } = deps;
 
   // Buys run strictly one at a time, so two clicks can never race past the checks below.
   let queue = Promise.resolve();
@@ -50,6 +50,7 @@ export function createBuyer(deps) {
       tx_hash: null,
       body_sha256: null,
       prompt_sha256: promptSha256,
+      payment_rail: paymentRail,
       claims: null,
       count: null,
       unique_count: null,

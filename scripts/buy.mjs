@@ -9,6 +9,7 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { createTare, loadEnv } from "../src/tare.js";
 import { loadSellers } from "../src/config.js";
+import { isTxHash, noHashLabel } from "../web/assets/render.js";
 
 loadEnv();
 
@@ -49,7 +50,7 @@ show("promised", r.claims ? JSON.stringify(r.claims) : "-");
 show("delivered", r.count ?? "-");
 show("unique", r.unique_count ?? "-");
 show("failed", r.failed?.length ? r.failed.join(", ") : "-");
-show("tx hash", r.tx_hash ?? "not paid");
+show("tx hash", isTxHash(r.tx_hash) ? r.tx_hash : noHashLabel(r.status));
 const record = tare.store.blockEntry(r.origin);
 show("record", record ? `held (${record.reason})` : "in good standing");
 if (r.reason) show("reason", r.reason);

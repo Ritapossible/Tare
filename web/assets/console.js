@@ -1,7 +1,7 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell } from "./render.js";
 import { icons } from "./icons.js";
 import { sprinkle } from "./layout.js";
 
@@ -55,7 +55,7 @@ export function modeNotice(state) {
 export function railLabel(rail) {
   if (rail === "x402-direct") return "x402 on Kite testnet (Pieverse)";
   if (rail === "kpass") return "via Kite Passport";
-  return "payments attempted";
+  return "payments attempted";  // no rail recorded
 }
 
 // ---------- console page ----------
@@ -67,7 +67,7 @@ export async function mountConsole(root) {
   const render = () => {
     const receipts = [...state.receipts].reverse();
     const blocked = Object.keys(state.blocklist ?? {}).length;
-    const paid = state.receipts.filter((r) => r.tx_hash).length;
+    const paid = state.receipts.filter((r) => isTxHash(r.tx_hash)).length;
     const live = state.mode === "live";
 
     const sellerCards = Object.entries(state.sellers ?? {})
@@ -200,7 +200,7 @@ export async function mountReceipt(root) {
       <div class="card">
         <h2>Evidence</h2>
         <dl class="facts">
-          <div><dt>Settlement tx hash</dt><dd>${r.tx_hash ? `<span class="hash">${esc(r.tx_hash)}</span>${copyBtn(r.tx_hash)}` : txCell(null)}</dd></div>
+          <div><dt>Settlement tx hash</dt><dd>${settlementCell(r)}</dd></div>
           <div><dt>Body sha256</dt><dd><span class="hash">${esc(r.body_sha256 ?? "-")}</span>${copyBtn(r.body_sha256)}</dd></div>
           <div><dt>Prompt sha256</dt><dd><span class="hash">${esc(r.prompt_sha256 ?? "-")}</span></dd></div>
           <div><dt>Failed checks</dt><dd>${failedTags(r.failed)}</dd></div>

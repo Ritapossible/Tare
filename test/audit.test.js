@@ -157,3 +157,70 @@ test("audit 8: reset clears receipts but keeps the direct-rail spend ledger", ()
 
 // keep BODY_A referenced so helpers stay in sync with the payloads
 test("audit helpers: seller A payload still loads", () => assert.ok(BODY_A.includes('"rows"')));
+
+// ---- 11. the probe checks every offer -------------------------------------------------------
+import { checkOffers, EXPECT } from "../scripts/seller_probe.mjs";
+const goodOffer = { scheme: "exact", network: EXPECT.network, amount: EXPECT.amount, asset: EXPECT.asset, extra: { ...EXPECT.extra } };
+
+test("audit 11: a seller offering testnet pieUSD only passes", () => {
+  assert.deepEqual(checkOffers([goodOffer]), []);
+  assert.deepEqual(checkOffers([{ ...goodOffer, asset: EXPECT.asset.toLowerCase() }]), []);
+});
+
+test("audit 11: a second, mainnet offer makes the seller unsafe", () => {
+  const mainnet = { scheme: "exact", network: "eip155:2366", amount: "1000", asset: "0x7aB6f3ed87C42eF0aDb67Ed95090f8bF5240149e", extra: { name: "Bridged USDC (Kite AI)", version: "2" } };
+  const problems = checkOffers([goodOffer, mainnet]);
+  assert.ok(problems.some((p) => /offer 2: network is eip155:2366/.test(p)), problems.join("; "));
+});
+
+test("audit 11: no offers is unsafe", () => {
+  assert.equal(checkOffers([]).length, 1);
+  assert.equal(checkOffers(undefined).length, 1);
+});
+
+// ---- 12 + 14. hash display follows validation and status -------------------------------------
+import { txCell, settlementCell, noHashLabel } from "../web/assets/render.js";
+const REAL_SHAPE = "0x" + "0".repeat(63) + "1"; // valid shape, used only to test rendering
+
+test("audit 12: the receipt detail page never shows a malformed tx_hash as a hash", () => {
+  const html = settlementCell({ status: "clean", tx_hash: NOT_A_TX });
+  assert.ok(!html.includes(NOT_A_TX), html);
+  assert.ok(!html.includes("copy"), "no copy button for an invalid hash");
+  assert.match(settlementCell({ status: "clean", tx_hash: REAL_SHAPE }), new RegExp(REAL_SHAPE));
+});
+
+test("audit 14: the no-hash label matches the receipt status", () => {
+  assert.equal(noHashLabel("paid_unverified"), "paid, no hash");
+  assert.equal(noHashLabel("pending"), "outcome unknown");
+  assert.equal(noHashLabel("refused"), "not paid");
+  assert.equal(noHashLabel("failed"), "not paid");
+  assert.match(txCell(null, "paid_unverified"), /paid, no hash/);
+  assert.doesNotMatch(txCell(null, "paid_unverified"), /not paid/);
+  assert.match(txCell(NOT_A_TX, "clean"), /no valid hash/);
+});
+
+// ---- 13. the rail is recorded with the run, not read at publish time --------------------------
+import { buildState, runRail } from "../src/state.js";
+import { memoryStore } from "../src/store.js";
+import { createBuyer } from "../src/buy.js";
+
+test("audit 13: each receipt records the payment rail it was paid with", async () => {
+  const store = memoryStore();
+  const buyer = createBuyer({ store, kpass: fakeKpass(), extract: async () => ({ claims: { claimed_count: 200, unique: null, fields: null, no_nulls: null } }), promptSha256: "x", paymentRail: "x402-direct" });
+  const r = await buyer.buy(B_URL);
+  assert.equal(r.payment_rail, "x402-direct");
+});
+
+test("audit 13: published state takes the rail from the run, ignoring the environment", () => {
+  const saved = process.env.TARE_PAYMENT_RAIL;
+  process.env.TARE_PAYMENT_RAIL = "kpass";
+  try {
+    const store = memoryStore();
+    store.put({ id: "r1", status: "clean", payment_rail: "x402-direct" });
+    assert.equal(buildState({ store, sellers: {}, mode: "published" }).payment_rail, "x402-direct");
+    assert.equal(runRail([]), null);
+  } finally {
+    if (saved === undefined) delete process.env.TARE_PAYMENT_RAIL;
+    else process.env.TARE_PAYMENT_RAIL = saved;
+  }
+});

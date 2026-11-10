@@ -23,10 +23,28 @@ export function statusChip(status) {
 
 const TX = /^0x[0-9a-fA-F]{64}$/;
 
-// Only a 0x + 64 hex value from kpass is shown as a hash. Anything else renders as "not paid".
-export function txCell(hash) {
-  if (!hash || !TX.test(hash)) return `<span class="faint">not paid</span>`;
+export function isTxHash(hash) {
+  return typeof hash === "string" && TX.test(hash);
+}
+
+// What to say when a receipt has no valid settlement hash, consistent with its status.
+export function noHashLabel(status) {
+  if (status === "paid_unverified") return "paid, no hash";
+  if (status === "pending") return "outcome unknown";
+  if (status === "refused" || status === "failed" || status === undefined || status === null) return "not paid";
+  return "no valid hash";
+}
+
+// Only a 0x + 64 hex value is ever shown as a hash.
+export function txCell(hash, status) {
+  if (!isTxHash(hash)) return `<span class="faint">${esc(noHashLabel(status))}</span>`;
   return `<span class="hash" title="${esc(hash)}">${esc(shortHash(hash))}</span>`;
+}
+
+// Full hash for the receipt detail page (same validation as txCell).
+export function settlementCell(r) {
+  if (!isTxHash(r?.tx_hash)) return txCell(null, r?.status);
+  return `<span class="hash">${esc(r.tx_hash)}</span><button class="copy" data-copy="${esc(r.tx_hash)}">copy</button>`;
 }
 
 export function shortHash(h) {
@@ -113,7 +131,7 @@ export function receiptRow(r, state) {
   <td data-k="Claimed"><span class="num">${cc ?? "-"}</span></td>
   <td data-k="Counted"><span class="num">${r.count ?? "-"}</span>${r.unique_count != null ? `<div class="faint">${esc(r.unique_count)} unique</div>` : ""}</td>
   <td data-k="Failed">${failedTags(r.failed)}</td>
-  <td data-k="Tx hash">${txCell(r.tx_hash)}</td>
+  <td data-k="Tx hash">${txCell(r.tx_hash, r.status)}</td>
   <td data-k="Seller record">${recordCell(blocked)}</td>
 </tr>`;
 }
@@ -139,7 +157,7 @@ export function receiptCard(r, state, { preview = false } = {}) {
     : `<p class="rcard-note">${esc((STATUS[r.status] ?? {}).note ?? "")}</p>`;
   const hash = preview
     ? `<span class="faint">${r.status === "refused" ? "not paid" : "testnet hash after a live run"}</span>`
-    : txCell(r.tx_hash);
+    : txCell(r.tx_hash, r.status);
   return `<${tag} class="rcard bar-${tone}${preview ? " is-preview" : ""}"${href}>
     <div class="rcard-top"><span class="rcard-seller">${esc(name)}</span>${statusChip(r.status)}</div>
     ${nums}

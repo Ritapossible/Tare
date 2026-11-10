@@ -30,7 +30,7 @@ export function createRail({ rail = process.env.TARE_PAYMENT_RAIL || "kpass", st
   return createKpass({ bin: kpassBin });
 }
 
-export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail } = {}) {
+export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail = process.env.TARE_PAYMENT_RAIL || "kpass" } = {}) {
   const store = fileStore(storePath);
   let complete; // created lazily so refused buys work without a key
   const extract = (prose) => {
@@ -42,6 +42,7 @@ export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail 
     kpass: withRawLog(createRail({ rail, store, kpassBin }), onKpassRaw),
     extract,
     promptSha256: PROMPT_SHA256,
+    paymentRail: rail,
   });
   return { store, buy: buyer.buy };
 }
