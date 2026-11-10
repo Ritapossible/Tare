@@ -12,11 +12,12 @@ over-promised, so the agent stops buying from it.
 
 ## How it works
 
-1. Tare pays a seller with Kite Passport (`kpass`) and receives the body plus a settlement hash.
+1. Tare pays a seller over x402 on Kite testnet and receives the body plus a settlement hash
+   (see [Payment rail](#payment-rail): Kite Passport, or a capped testnet key when Passport cannot pay).
 2. SERV Reasoning (`gpt-5.4-mini-serv-multipath`) reads **only the seller's prose** and extracts
    four claims: `claimed_count`, `unique`, `fields`, `no_nulls`.
 3. **Code, not SERV, counts the rows and decides.** Any failed claim ⇒ dispute ⇒ the seller is
-   held on its seller record, and the next buy stops before `kpass` is called.
+   held on its seller record, and the next buy stops before any payment is attempted.
 
 See [SPEC.md](SPEC.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -32,30 +33,55 @@ See [SPEC.md](SPEC.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 System prompt sha256: `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 (source: [`src/prompt.js`](src/prompt.js)).
 
-## Kite testnet setup
+## Payment rail
 
-```
-kpass sandbox on
-kpass wallet address
-kpass faucet drop --recipient <address> --token pieUSD
-kpass agent register --type service-tester
-kpass agent session create --task-summary "tare receipt check" --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h
-kpass agent session execute --method GET --url "<seller url>"
-```
+Tare has two payment rails behind one interface, chosen by `TARE_PAYMENT_RAIL`:
+
+- **`kpass`** (default): Kite Passport pays inside a passkey-approved session (0.05 per payment,
+  1 in total, 1 hour).
+- **`x402-direct`**: Tare signs the standard x402 `exact` payment with a testnet-only key, and the
+  Pieverse facilitator settles it on Kite testnet. Tare refuses to sign anything but testnet pieUSD on
+  `eip155:2368`, at most 0.05 per payment and 1 in total.
+
+**What happened on 10 Nov 2026.** Kite Passport worked up to the payment: account, sandbox mode, a
+registered agent and a session the owner approved with a passkey. Then `kpass session execute`
+returned `payment_target_forbidden: host_not_in_executable_catalog`, on both Kite's production and dev
+backends, because Tare's sellers are not in Kite's service catalog. Kite has been asked to allowlist
+them. So the published run used `x402-direct`:
+
+- **Payer (signer):** `0x7979989aD2A57dC6bBf28fFB120b18aC0aB10895`, a testnet-only key held by Tare
+- **Payee:** `0x9Ef47eA89403c6a2637271B655b0C5b99c68C447`, the owner's Kite Passport wallet (`PAY_TO`)
+- **Settled by:** the Pieverse facilitator, on Kite testnet (chain 2368)
+- **Caps:** enforced by Tare's own ledger and the x402 client's spend controls, not by a Passport session
 
 Real Kite testnet settlements from the published run (verified on-chain, 0.001 pieUSD each):
 
 - Seller A (dispute): `0xcb23c2e8f789145ab5e6741daaf53fd098f2c8dfd50333c2ad2af4117753635a`
 - Seller B (verified): `0x222d5cfcb7d6c73c40676f8ac109c904f22a7f97ea9285be60859356b59e2b76`
 
-Kite Passport currently only pays sellers in Kite's service catalog, so this run used Tare's
-`x402-direct` rail (testnet-only key, capped by Tare, settled by the Pieverse facilitator). See
-SPEC.md "Payment rail".
+No Passport payment hash exists for this run, and none is shown.
+
+## Kite testnet setup (kpass 6.13.1)
+
+```
+curl -fsSL https://cli.gokite.ai/install.sh | bash
+kpass signup init --email <you>            # new account (or: kpass login init / login verify)
+kpass sandbox on                           # testnet mode
+kpass wallet address
+kpass agent register --type service-tester
+kpass session create --separate --task-summary "tare receipt check" \
+  --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h --no-browser
+kpass session execute --method GET --url "<seller url>" --idempotency-key <key> --output json
+```
+
+The production faucet is disabled in 6.13.1; testnet pieUSD came from the faucet on Kite's dev
+Passport backend (see `docs/RUNBOOK.md`). For the direct rail: `node scripts/x402_wallet.mjs`, fund the
+printed address with testnet pieUSD, then run with `TARE_PAYMENT_RAIL=x402-direct`.
 
 ## Web app
 
 ```
-npm run app          # live console on http://127.0.0.1:4020 (Buy works, needs kpass + your passkey)
+npm run app          # live console on http://127.0.0.1:4020 (Buy works with the chosen payment rail)
 npm run publish:site # copy the local run to web/data/state.json for the hosted, read-only site
 ```
 
@@ -74,7 +100,7 @@ npm test
 ## Try it _(TODO)_
 
 - Do: buy seller A. See: 1240 claimed, 860 unique, verdict dispute, a testnet hash, seller A held.
-- Do: buy seller A again. See: stopped, `not paid`, `kpass` never called.
+- Do: buy seller A again. See: stopped, `not paid`, no payment attempted.
 - Do: buy seller B. See: 200 promised, 200 delivered, verified, a testnet hash.
 
 ## License
