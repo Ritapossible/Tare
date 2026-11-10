@@ -64,10 +64,13 @@ export function parseKpassOutput(stdout) {
 
 export function createKpass({ bin = "kpass", timeoutMs = 180_000 } = {}) {
   return {
-    execute(url) {
+    execute(url, { idempotencyKey } = {}) {
+      if (!idempotencyKey) return Promise.reject(new Error("kpass session execute needs an idempotency key"));
       return new Promise((resolve, reject) => {
         // stdin and stderr are inherited so any prompt kpass shows reaches the human.
-        const child = spawn(bin, ["agent", "session", "execute", "--method", "GET", "--url", url], {
+        // kpass 6.13.1: `session execute` with a required idempotency key (a retry never pays twice).
+        const args = ["session", "execute", "--method", "GET", "--url", url, "--idempotency-key", idempotencyKey, "--output", "json", "--no-interactive"];
+        const child = spawn(bin, args, {
           stdio: ["inherit", "pipe", "inherit"],
           shell: false,
         });
@@ -83,7 +86,16 @@ export function createKpass({ bin = "kpass", timeoutMs = 180_000 } = {}) {
         });
         child.on("close", (code) => {
           clearTimeout(timer);
-          if (code !== 0) return reject(new Error(`kpass exited with code ${code}: ${out.slice(0, 500)}`));
+          if (code !== 0) {
+            let detail = out.slice(0, 500);
+            try {
+              const j = JSON.parse(out);
+              detail = `${j.error_code ?? "error"}: ${j.error ?? j.hint ?? ""}`.slice(0, 500);
+            } catch {
+              // not JSON
+            }
+            return reject(new Error(`kpass exited with code ${code}: ${detail}`));
+          }
           resolve({ ...parseKpassOutput(out), raw: out });
         });
       });

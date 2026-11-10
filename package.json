@@ -15,6 +15,10 @@
     "serv:check": "node scripts/serv_check.mjs"
   },
   "dependencies": {
-    "openai": "^4.104.0"
+    "@x402/core": "2.25.0",
+    "@x402/evm": "2.25.0",
+    "@x402/fetch": "2.25.0",
+    "openai": "^4.104.0",
+    "viem": "2.56.3"
   }
 }

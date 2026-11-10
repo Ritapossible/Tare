@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync, renameSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-const empty = () => ({ receipts: [], blocklist: {}, idempotency: {}, kpass_calls: 0 });
+const empty = () => ({ receipts: [], blocklist: {}, idempotency: {}, kpass_calls: 0, direct_spent_units: "0" });
 
 function fileBackend(path) {
   return {
@@ -101,6 +101,18 @@ export class Store {
 
   kpassCalls() {
     return this.backend.read().kpass_calls;
+  }
+
+  // Ledger for the x402-direct rail (atomic pieUSD units, as a decimal string).
+  directSpent() {
+    return BigInt(this.backend.read().direct_spent_units ?? "0");
+  }
+
+  addDirectSpent(units) {
+    return this.#mutate((s) => {
+      s.direct_spent_units = (BigInt(s.direct_spent_units ?? "0") + BigInt(units)).toString();
+      return s.direct_spent_units;
+    });
   }
 
   reset() {

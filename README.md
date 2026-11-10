@@ -43,7 +43,14 @@ kpass agent session create --task-summary "tare receipt check" --max-amount-per-
 kpass agent session execute --method GET --url "<seller url>"
 ```
 
-Testnet settlement hash from seller B: _not yet run — pasted here only once `kpass` returns it._
+Real Kite testnet settlements from the published run (verified on-chain, 0.001 pieUSD each):
+
+- Seller A (dispute): `0xcb23c2e8f789145ab5e6741daaf53fd098f2c8dfd50333c2ad2af4117753635a`
+- Seller B (verified): `0x222d5cfcb7d6c73c40676f8ac109c904f22a7f97ea9285be60859356b59e2b76`
+
+Kite Passport currently only pays sellers in Kite's service catalog, so this run used Tare's
+`x402-direct` rail (testnet-only key, capped by Tare, settled by the Pieverse facilitator). See
+SPEC.md "Payment rail".
 
 ## Web app
 

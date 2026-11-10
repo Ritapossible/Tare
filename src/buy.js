@@ -79,7 +79,7 @@ export function createBuyer(deps) {
     store.countKpassCall();
     let paid;
     try {
-      paid = await kpass.execute(url);
+      paid = await kpass.execute(url, { idempotencyKey: `tare-${request_id}` });
     } catch (err) {
       return finish({ status: "failed", error: `kpass: ${err?.message ?? err}` });
     }

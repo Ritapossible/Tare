@@ -42,5 +42,5 @@ test("unblock and reset", () => {
   assert.equal(s.unblock("https://a.test"), false);
   s.put({ id: "r1" });
   s.reset();
-  assert.deepEqual(s.snapshot(), { receipts: [], blocklist: {}, idempotency: {}, kpass_calls: 0 });
+  assert.deepEqual(s.snapshot(), { receipts: [], blocklist: {}, idempotency: {}, kpass_calls: 0, direct_spent_units: "0" });
 });

@@ -72,7 +72,7 @@ function footer() {
           </ul>
         </div>
       </div>
-      <p class="small">SERV reads the promise. Code verifies and records. Kite Passport pays. Every hash shown here was returned by kpass.</p>
+      <p class="small">SERV reads the promise. Code verifies and records. x402 pays on Kite testnet. Every hash shown here is a real Kite testnet settlement.</p>
       <div class="footer-word" aria-hidden="true">Tare<span>.</span></div>
     </div>
   </footer>`;

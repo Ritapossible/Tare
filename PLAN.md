@@ -31,7 +31,7 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 - [x] 🤖 `check.js` + tests (shape, count, unique, fields, no_nulls, fail-closed `unverifiable`)
 - [x] 🤖 `serv.js` parse rule + retry + tests (string count, extra verdict, invalid ×2, API error)
 - [x] 🤖 `store.js` (atomic JSON, kpass call counter)
-- [~] 🤖 `kpass.js`: spawn + provisional parser done; **rewrite parser against real output after the live run**
+- [x] 🤖 `kpass.js` updated to 6.13.1 (`session execute --idempotency-key`); success output still unseen (Kite blocks uncatalogued hosts). Added `x402-direct` rail (10 Nov) and used it for the live run
 - [x] 🤖 `buy.js` payment order + all 10 spec tests + P0 fixes (queue, pending lock, replay-first); mutation-checked
 - [x] 🤖 `config.js` distinct-origin assertion + test
 - [x] 🤖 CLI: `scripts/buy.mjs`, `reset.mjs`, `unblock.mjs`; live eval `scripts/serv_eval.mjs`; CI workflow; `docs/RUNBOOK.md`
@@ -44,9 +44,9 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 - [x] 🧑 Vercel deploy: live at https://tare-agent.vercel.app (root `web/`)
 
 ## Live day — Tue 10 Nov · run `docs/RUNBOOK.md` (🧑), then parser rewrite + first end-to-end run (🤖)
-- [~] 🧑 Steps 1-6 of the runbook; paste outputs back (1-2 done 10 Nov: SERV check passed, eval safety 5/5 accuracy 5/7)
+- [x] 🧑 Steps 1-6 of the runbook (10 Nov): SERV passed; Kite login/sandbox; testnet pieUSD via dev faucet; sellers live; first real payment
 - [ ] 🤖 Rewrite `src/kpass.js` parser against the real output; record facts in MEMORY.md
-- [ ] 🧑 Live run: reset → buy A → buy A → buy B
+- [x] 🧑 Live run: reset → buy A → buy A → buy B (10 Nov, real hashes, published)
 
 **Gate (decides whether Wed builds shared records):** dispute with a real hash, stopped with no hash
 and kpass not called, verified with a real hash.

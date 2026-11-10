@@ -16,5 +16,6 @@ export function buildState({ store, sellers, mode, now = () => new Date().toISOS
     receipts: snap.receipts,
     blocklist: snap.blocklist,
     kpass_calls: snap.kpass_calls,
+    payment_rail: process.env.TARE_PAYMENT_RAIL || "kpass",
   };
 }

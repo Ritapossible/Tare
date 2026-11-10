@@ -144,6 +144,24 @@ blocklisted.
 
 `pending` · `refused` · `failed` · `paid_unverified` · `paid_unchecked` · `clean` · `dispute` · `unverifiable`
 
+## Payment rail
+
+Two interchangeable rails behind the same interface (`execute(url, { idempotencyKey })` →
+status, body, settlement hash), chosen by `TARE_PAYMENT_RAIL`:
+
+- **`kpass`** (default): Kite Passport, `kpass session execute --method GET --url … --idempotency-key …`
+  inside a passkey-approved session (0.05 per payment, 1 total, 1 h).
+- **`x402-direct`**: Tare signs the standard x402 `exact` payment (EIP-3009) with a testnet-only key
+  (`data/x402-testnet.key`, 0600, gitignored); the seller's middleware verifies it and the Pieverse
+  facilitator settles on Kite testnet. Nothing is signed unless the requirement is Kite testnet
+  `eip155:2368` + testnet pieUSD, scheme `exact`, amount ≤ 0.05 and spent + amount ≤ 1 pieUSD (Tare's
+  ledger), and the x402 client's own spend controls allow only testnet pieUSD, capped.
+
+Why two: Kite Passport (prod and dev, CLI 6.13.1) only pays hosts in Kite's executable service catalog
+(`payment_target_forbidden / host_not_in_executable_catalog`). Until Tare's sellers are allowlisted,
+the published run uses `x402-direct`. Every hash is still a real Kite testnet settlement returned in
+`PAYMENT-RESPONSE`, never invented.
+
 ## Sellers
 
 Two **public HTTPS origins** (not two paths on one host — the blocklist would block both). Each is

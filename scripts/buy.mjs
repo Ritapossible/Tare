@@ -54,4 +54,4 @@ const record = tare.store.blockEntry(r.origin);
 show("record", record ? `held (${record.reason})` : "in good standing");
 if (r.reason) show("reason", r.reason);
 if (r.error) show("error", r.error);
-show("kpass calls", tare.store.kpassCalls());
+show("payments", `${tare.store.kpassCalls()} attempted (rail: ${process.env.TARE_PAYMENT_RAIL || "kpass"})`);

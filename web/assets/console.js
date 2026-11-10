@@ -49,7 +49,13 @@ export function modeBadge(state) {
 export function modeNotice(state) {
   if (state.mode === "live") return "";
   const when = state.generated_at ? ` Published ${esc(formatTime(state.generated_at))}.` : "";
-  return `<div class="notice">${icons.info}<div><strong>Read-only.</strong> Payments need a human passkey in Kite Passport, so buying runs on the operator's machine (<code>npm run app</code>). This page shows the receipts of a published run.${when}</div></div>`;
+  return `<div class="notice">${icons.info}<div><strong>Read-only.</strong> Payments are signed on the operator's machine (<code>npm run app</code>), so buying runs there. This page shows the receipts of a published run; every hash is a real Kite testnet settlement.${when}</div></div>`;
+}
+
+export function railLabel(rail) {
+  if (rail === "x402-direct") return "x402 on Kite testnet (Pieverse)";
+  if (rail === "kpass") return "via Kite Passport";
+  return "payments attempted";
 }
 
 // ---------- console page ----------
@@ -105,9 +111,9 @@ export async function mountConsole(root) {
       </div>
       ${modeNotice(state)}
       <div class="stats">
-        <div class="stat stat-kpass"><div class="k">kpass calls</div><div class="v" data-testid="kpass-calls">${esc(state.kpass_calls)}</div><div class="s">payments attempted</div></div>
+        <div class="stat stat-kpass"><div class="k">Payment calls</div><div class="v" data-testid="kpass-calls">${esc(state.kpass_calls)}</div><div class="s">${esc(railLabel(state.payment_rail))}</div></div>
         <div class="stat stat-receipts"><div class="k">Receipts</div><div class="v">${state.receipts.length}</div><div class="s">${paid} with a settlement hash</div></div>
-        <div class="stat stat-held"><div class="k">Held sellers</div><div class="v ${blocked ? "tone-bad" : ""}">${blocked}</div><div class="s">stopped before kpass</div></div>
+        <div class="stat stat-held"><div class="k">Held sellers</div><div class="v ${blocked ? "tone-bad" : ""}">${blocked}</div><div class="s">stopped before payment</div></div>
         <div class="stat stat-disputes"><div class="k">Disputes</div><div class="v ${disputes ? "tone-bad" : ""}">${disputes}</div><div class="s">promises that failed</div></div>
       </div>
       ${sellerCards ? `<span class="label">Sellers</span><div class="sellers">${sellerCards}</div>` : ""}
@@ -119,7 +125,7 @@ export async function mountConsole(root) {
              <tbody>${receipts.map((r) => receiptRow(r, state)).join("")}</tbody></table></div>`
           : live
             ? `<div class="empty card"><h3>No receipts yet</h3><p>Buy from Seller A, then Seller A again, then Seller B.</p></div>`
-            : `<div class="preview-head"><h3>What a run looks like</h3><p>No run has been published yet. This preview uses the real seller payloads; hashes appear only after kpass returns them.</p></div>
+            : `<div class="preview-head"><h3>What a run looks like</h3><p>No run has been published yet. This preview uses the real seller payloads; hashes appear only after a real payment returns them.</p></div>
                <div class="rcards always">${preview.map((r) => receiptCard(r, previewState, { preview: true })).join("")}</div>`
       }`;
 

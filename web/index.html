@@ -115,8 +115,8 @@
             <i class="step-bar" style="background:#f97316"></i>
             <div class="n">01</div>
             <h3>Pay</h3>
-            <p>Kite Passport pays the seller 0.001 pieUSD over x402 within a capped session and returns the body with a settlement hash.</p>
-            <span class="who who-kite">Kite Passport</span>
+            <p>Tare pays the seller 0.001 pieUSD over x402 on Kite testnet, inside hard spending caps, and gets the body back with a settlement hash.</p>
+            <span class="who who-kite">x402 · Kite testnet</span>
           </article>
           <article class="step">
             <i class="step-bar" style="background:#1d9bf0"></i>
@@ -165,10 +165,10 @@
             <ul class="cannot"><li>Never asks the model for a verdict</li><li>Never invents a hash</li></ul>
           </article>
           <article class="role role-kite">
-            <span class="tag">Kite Passport</span>
+            <span class="tag">x402 on Kite</span>
             <h3>Pays, within limits</h3>
-            <ul class="can"><li>Capped session: 0.05 per tx, 1 total</li><li>Returns the settlement hash</li></ul>
-            <ul class="cannot"><li>Never called for a held seller</li><li>Passkey approval stays human</li></ul>
+            <ul class="can"><li>Caps: 0.05 per payment, 1 in total</li><li>Settled on Kite testnet, hash returned</li></ul>
+            <ul class="cannot"><li>Never called for a held seller</li><li>Signs testnet pieUSD only</li></ul>
           </article>
         </div>
       </div>
@@ -199,7 +199,7 @@
             <div class="kv"><span>Buy</span><span>Seller A again</span></div>
             <div class="kv"><span>Promised</span><span class="big-num faint">-</span></div>
             <div class="kv"><span>Delivered</span><span class="big-num faint">-</span></div>
-            <div class="kv"><span>kpass</span><span>not called</span></div>
+            <div class="kv"><span>Payment</span><span>not attempted</span></div>
             <div class="kv"><span>Result</span><span class="chip tone-muted">Stopped · not paid</span></div>
           </div>
           <div class="demo-row">
@@ -213,7 +213,7 @@
         </div>
         <p class="dim" style="margin-top:22px;font-size:15px">
           Counts above come from the committed seller payloads. Transaction hashes appear only in the
-          <a href="/app" class="u">console</a>, and only once kpass has returned them.
+          <a href="/app" class="u">console</a>, and only once a payment has returned them.
         </p>
       </div>
     </section>
@@ -229,7 +229,7 @@
           <div class="guarantee"><div class="ico" data-icon="hash"></div><div><h3>Evidence on every receipt</h3><p>Settlement hash, sha256 of the delivered body and sha256 of the prompt used to read the promise, so a check can be repeated.</p></div></div>
           <div class="guarantee"><div class="ico" data-icon="shield"></div><div><h3>No claim, no pass</h3><p>A promise with no count is "unverifiable", not verified. Steering the model into empty claims gets a seller held, not trusted.</p></div></div>
           <div class="guarantee"><div class="ico" data-icon="eye"></div><div><h3>Rows never reach the model</h3><p>SERV sees the prose inside &lt;prose&gt; tags and nothing else. Any tags the seller hides in its prose are stripped.</p></div></div>
-          <div class="guarantee"><div class="ico" data-icon="stop"></div><div><h3>Held sellers are not paid</h3><p>A held seller is stopped before kpass is ever called. The console's kpass counter does not move.</p></div></div>
+          <div class="guarantee"><div class="ico" data-icon="stop"></div><div><h3>Held sellers are not paid</h3><p>A held seller is stopped before any payment is attempted. The console's payment counter does not move.</p></div></div>
           <div class="guarantee"><div class="ico" data-icon="lock"></div><div><h3>Never invents a hash</h3><p>Only a hash returned in PAYMENT-RESPONSE is stored or shown. Missing means "paid, no hash", never a made-up value.</p></div></div>
           <div class="guarantee"><div class="ico" data-icon="repeat"></div><div><h3>One request, one payment</h3><p>Buys carry a request id and run one at a time, so a double click replays the receipt instead of paying twice.</p></div></div>
         </div>
@@ -240,9 +240,9 @@
     <section class="band" id="run">
       <div class="wrap">
         <span class="label">Run it</span>
-        <h2>Your machine.<br />Your passkey.</h2>
+        <h2>Your machine.<br />Your limits.</h2>
         <p class="lede" style="margin-top:24px">
-          Payments need a human passkey approval, so the live console runs locally. This hosted site shows the
+          Payments are signed on the operator's machine, so the live console runs locally. This hosted site shows the
           <strong>published run</strong>: the same receipts, read-only.
         </p>
 <pre><span class="c"># clone, install, check</span>
@@ -265,8 +265,12 @@ npm run app</pre>
           <details>
             <summary>Is Tare a spending policy?<span data-icon="chevron"></span></summary>
             <div class="answer">
-              <p>No. A spending policy decides before a payment, from the amount, the merchant and the budget. Tare works after the delivery: it checks the rows a seller sent against the seller's own claims. It sits next to a spending policy. Kite Passport's capped session limits the spend, and Tare verifies what that spend bought.</p>
+              <p>No. A spending policy decides before a payment, from the amount, the merchant and the budget. Tare works after the delivery: it checks the rows a seller sent against the seller's own claims. It sits next to a spending policy. A spending cap limits what the agent can pay; Tare verifies what that spend bought.</p>
             </div>
+          </details>
+          <details>
+            <summary>How are payments made?<span data-icon="chevron"></span></summary>
+            <div class="answer"><p>Over x402 on Kite testnet, with testnet pieUSD. Tare supports Kite Passport (<code>kpass</code>) as its payment rail, but Passport currently only pays sellers listed in Kite's service catalog. Until Tare's sellers are listed, the published run signs standard x402 payments with a testnet-only key, capped by Tare at 0.05 per payment and 1 in total, and the Pieverse facilitator settles them on Kite testnet. Every hash shown is a real Kite testnet transaction.</p></div>
           </details>
           <details>
             <summary>Does SERV decide anything?<span data-icon="chevron"></span></summary>

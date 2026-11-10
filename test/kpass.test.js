@@ -45,7 +45,7 @@ test("missing PAYMENT-RESPONSE → null hash", () => {
 
 test("a missing kpass binary rejects instead of hanging", async () => {
   const k = createKpass({ bin: "kpass-binary-that-does-not-exist", timeoutMs: 5000 });
-  await assert.rejects(() => k.execute("https://seller-b.test/v1/b.json"), /ENOENT/);
+  await assert.rejects(() => k.execute("https://seller-b.test/v1/b.json", { idempotencyKey: "tare-test" }), /ENOENT/);
 });
 
 test("url with shell metacharacters is passed as one argv item, not interpreted", async () => {
@@ -53,5 +53,10 @@ test("url with shell metacharacters is passed as one argv item, not interpreted"
   const k = createKpass({ bin: process.execPath, timeoutMs: 5000 });
   const evil = "https://x.test/a;echo PWNED $(whoami)";
   // node treats the first argv ("agent") as a script path and fails: we only assert no shell ran.
-  await assert.rejects(() => k.execute(evil), (err) => !/PWNED/.test(err.message));
+  await assert.rejects(() => k.execute(evil, { idempotencyKey: "tare-test" }), (err) => !/PWNED/.test(err.message));
+});
+
+test("kpass 6.13.1 execute requires an idempotency key, so a retry can never pay twice", async () => {
+  const k = createKpass({ bin: "kpass-binary-that-does-not-exist", timeoutMs: 5000 });
+  await assert.rejects(() => k.execute("https://seller-b.test/v1/b.json"), /idempotency key/);
 });
