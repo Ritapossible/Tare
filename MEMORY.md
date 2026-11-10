@@ -80,6 +80,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-10 | Real-seller probe reads descriptions from the public x402 discovery list, never pays, never judges | the listed sellers are not on Kite testnet; without a delivery there is nothing to count |
 | 2026-11-10 | SERV requests declare `serv_disable_content_filter` by default (`TARE_SERV_TOOLS`) | the default filter refused plain texts ("Here is your data.", 7-9 of 30 real descriptions); measured eval 7/9 → 9/9 with safety 6/6 unchanged. Code decides and the output is a strict schema, so the filter protected nothing Tare relies on |
 | 2026-11-10 | SERV Prompt Guard stays off | measured: it blocks the injection text with a refusal ("I can't share that.", empty content). For Tare that is a SERV failure ⇒ `paid_unchecked`, seller not held, where without it the same text is disputed and held. The guard would reward injection |
+| 2026-11-10 | Library entry `src/index.js` (`verify(promise, rows)`, `tareFetch(url)`), package `exports` | lets another agent add Tare in three lines; `verify` needs no wallet |
 
 ## Facts learned (from docs)
 

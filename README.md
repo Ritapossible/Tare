@@ -113,6 +113,18 @@ A seller held in a trusted feed is stopped before payment (override per buy with
 `--allow-feed-hold`). An unreachable or malformed feed never blocks a buy and is noted on the receipt.
 There is no global blacklist: agents choose which publishers to trust.
 
+## Add Tare to your agent
+
+```js
+// npm install github:Ritapossible/Tare   (SERV_API_KEY in the environment)
+import { verify, tareFetch } from "tare";
+const r = await verify(sellerText, rows);   // { verdict: "clean" | "dispute" | "unverifiable", failed, claims }
+const receipt = await tareFetch(sellerUrl);  // pay over x402, check, record; held sellers are refused
+```
+
+`verify` never pays: it reads the seller's own text with SERV and checks your rows in code.
+`tareFetch` is the full buyer (payment rail, seller records, trusted feeds), as in the CLI.
+
 ## Web app
 
 ```

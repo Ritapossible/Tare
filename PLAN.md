@@ -91,7 +91,7 @@ Afternoon:
 - [x] 🤖 **Real-seller probe** (10 Nov: `scripts/real_probe.mjs` on the public x402 discovery list; found SERV inventing claims ⇒ full code-side grounding; results in WRITEUP): run the no-payment 402 probe and the description check against real
       public x402 services (start with those listed in `gokite-ai/kite-x402-services`). Report what was
       found, honest or not; never claim a mismatch that was not observed.
-- [ ] 🤖 **Library export**: `verify(promise, body)` and `tareFetch(url)` with a three-line "add Tare to
+- [x] 🤖 **Library export**: `verify(promise, body)` and `tareFetch(url)` with a three-line "add Tare to
       your agent" section in the README and docs
 - [ ] 🤖 Fix whatever the live run surfaced; readable error text (SERV_INVALID, paid_unverified, kpass failed)
 - [x] 🤖 README complete: two sentences, SERV key + $5 credit note, Kite commands, `npm test`, three "do X, see Y", model id, "code, not SERV, counts and decides"

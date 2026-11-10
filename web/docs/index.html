@@ -24,6 +24,7 @@
         <a href="#serv">SERV key</a>
         <a href="#kite">Kite testnet</a>
         <a href="#sellers">Sellers</a>
+        <a href="#library">Library</a>
         <a href="#console">Console</a>
         <a href="#rules">Rules</a>
         <a href="#statuses">Statuses</a>
@@ -73,6 +74,13 @@ kpass agent session create --task-summary "tare receipt check" \
             <tr><td>B</td><td>200 records, fields id and ts, no nulls</td><td>200 rows · 200 unique ids · no nulls</td></tr>
           </tbody>
         </table>
+
+        <h2 id="library">Add Tare to your agent</h2>
+<pre>// npm install github:Ritapossible/Tare   (SERV_API_KEY in the environment)
+import { verify, tareFetch } from "tare";
+const r = await verify(sellerText, rows);   // verdict: clean | dispute | unverifiable
+const receipt = await tareFetch(sellerUrl);  // pay, check, record; held sellers are refused</pre>
+        <p><code>verify</code> never pays: it reads the seller's own text with SERV and checks your rows in code. <code>tareFetch</code> is the full buyer, as in the CLI.</p>
 
         <h2 id="console">Console</h2>
         <p><code>npm run app</code> serves this site with a live API on <code>127.0.0.1:4020</code>. The Buy buttons only accept the sellers in <code>sellers.json</code>; the browser cannot send an arbitrary URL. From the command line:</p>
