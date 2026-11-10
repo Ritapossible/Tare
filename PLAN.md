@@ -64,7 +64,7 @@ Goal: a person can use Tare, and honest sellers have a reason to care (evaluatio
 - [x] 🤖 Tests: trusted feed hit stops before kpass; untrusted or unreachable feed never blocks a buy
       silently (the receipt says what happened); malformed feed entries are ignored; feed contains no
       hash that kpass did not return; badge never says verified for a held or unchecked origin
-- [ ] 🤖 Write-up limits: only feeds you choose to trust (no global blacklist), evidence on every
+- [x] 🤖 Write-up limits (in WRITEUP, "Shared records, and their limits"): only feeds you choose to trust (no global blacklist), evidence on every
       record, records are per origin (a seller can move domain; Kite agent identity is the next step)
 
 ## Day 5 — Thu 12 Nov · Real promises, real sellers, then the story
