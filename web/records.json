@@ -1,15 +1,15 @@
 {
   "version": 1,
   "publisher": "tare",
-  "generated_at": "2026-11-10T12:58:02.284Z",
+  "generated_at": "2026-11-10T15:56:21.643Z",
   "records": [
     {
       "origin": "https://tare-seller-a.onrender.com",
       "status": "held",
       "reason": "dispute",
-      "since": "2026-11-10T12:57:40.571Z",
+      "since": "2026-11-10T15:55:56.700Z",
       "evidence": {
-        "receipt_id": "rcpt_613d4bd8-b09a-488c-95df-0d4ecfe6482d",
+        "receipt_id": "rcpt_2dbeff67-31ec-44c5-8c22-134e3b5c7a8b",
         "status": "dispute",
         "url": "https://tare-seller-a.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
         "promised": {
@@ -30,17 +30,15 @@
           "count",
           "unique",
           "no_nulls",
-          "advertised:count",
-          "advertised:unique",
-          "advertised:no_nulls"
+          "advertised:fields"
         ],
-        "tx_hash": "0xd7caedba720278dd80e4b7cf2ab94afd20f15e21882b762aab009a04ee69874b",
+        "tx_hash": "0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a",
         "body_sha256": "22df2684da4982bfe1d30996b26ad181c7327de03e21dca7848a3fc0c11bc2b2",
         "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
         "payment_rail": "x402-direct",
         "promise": "Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.",
-        "advertised": "Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.",
-        "checked_at": "2026-11-10T12:57:32.268Z"
+        "advertised": "Export of 1,240 records, fields id, ts and score.",
+        "checked_at": "2026-11-10T15:55:47.273Z"
       },
       "counts": {
         "verified": 0,
@@ -55,7 +53,7 @@
       "reason": null,
       "since": null,
       "evidence": {
-        "receipt_id": "rcpt_984b193f-a456-4383-841c-79fa3f7591fd",
+        "receipt_id": "rcpt_5558d6ca-4c44-4600-8119-4fed63f19932",
         "status": "clean",
         "url": "https://tare-seller-b.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/b.json",
         "promised": {
@@ -73,13 +71,13 @@
           "unique_count": 200
         },
         "failed": [],
-        "tx_hash": "0x8e1bf4ab2d38b43d637255e2267e853600ac58d1ff23cc88227531967e449716",
+        "tx_hash": "0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec",
         "body_sha256": "1adba78eabc8674fefa588b0654b4b23a821b79d6199de364e805c48a0fa6493",
         "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
         "payment_rail": "x402-direct",
         "promise": "Delivered two hundred records, fields id and ts, no nulls.",
-        "advertised": "Delivered two hundred records, fields id and ts, no nulls.",
-        "checked_at": "2026-11-10T12:57:41.169Z"
+        "advertised": "200 records.",
+        "checked_at": "2026-11-10T15:55:57.296Z"
       },
       "counts": {
         "verified": 1,

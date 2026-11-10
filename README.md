@@ -103,8 +103,8 @@ So the published run used `x402-direct`:
 
 Real Kite testnet settlements from the published run, verified on-chain, 0.001 pieUSD each:
 
-- Seller A, dispute: `0xd7caedba720278dd80e4b7cf2ab94afd20f15e21882b762aab009a04ee69874b`
-- Seller B, verified: `0x8e1bf4ab2d38b43d637255e2267e853600ac58d1ff23cc88227531967e449716`
+- Seller A, dispute: `0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a`
+- Seller B, verified: `0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec`
 
 No Passport payment hash exists for this run, and none is shown.
 
@@ -135,8 +135,9 @@ node scripts/buy.mjs a
 node scripts/buy.mjs b
 ```
 
-- Buy seller A. See: 1,240 claimed, 860 unique, dispute (in the delivery and in its 402
-  advertisement), a testnet hash, seller A held.
+- Buy seller A. See: 1,240 claimed, 860 unique, dispute. The delivery note fails count, unique and
+  no_nulls; the 402 advertisement fails `advertised:fields` (it promised a `score` field). A testnet
+  hash, seller A held.
 - Buy seller A again. See: stopped, not paid, the payment counter unchanged.
 - Buy seller B. See: 200 promised, 200 delivered, verified, a testnet hash.
 

@@ -108,10 +108,10 @@ All of it, from 8 Nov 2026:
 
 Real Kite testnet settlements, 0.001 pieUSD each, verified on-chain:
 
-- Seller A, dispute (count, unique, no_nulls failed, and the same three in its 402 advertisement):
-  `0xd7caedba720278dd80e4b7cf2ab94afd20f15e21882b762aab009a04ee69874b`
+- Seller A, dispute (the delivery note failed count, unique and no_nulls; the 402 advertisement, "Export of 1,240 records, fields id, ts and score.", failed fields: no score arrived):
+  `0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a`
 - Seller A again: stopped, no payment attempted, no hash.
-- Seller B, verified: `0x8e1bf4ab2d38b43d637255e2267e853600ac58d1ff23cc88227531967e449716`
+- Seller B, verified: `0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec`
 - A second, fresh agent trusting the published feed: seller A refused before payment, zero payment
   attempts.
 

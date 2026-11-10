@@ -182,6 +182,12 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   agent with `TARE_PAY_FEEDS=1` and that feed trusted paid one lookup
   `0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20` (block 22043913, status 1,
   0.001 pieUSD to PAY_TO), was refused for seller A, and made 0 payments to seller A.
+- 2026-11-10: **Live run 4** with the separate advertisements (A "Export of 1,240 records, fields id,
+  ts and score.", B "200 records."), verified on Kite testnet (status 1, 0.001 pieUSD each):
+  A dispute `0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a` (block 22043919;
+  failed count, unique, no_nulls, advertised:fields); A again refused, no payment; B clean
+  `0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec` (block 22043920). Published;
+  README, docs page and write-up cite these.
 
 ## Open questions
 

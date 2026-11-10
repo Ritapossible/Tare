@@ -185,7 +185,7 @@
           <h2>Two sellers.<br /><span class="grey">Three buys.</span></h2>
           <p class="lede">
             Seller A promises <span class="hl hl-o">1,240 unique records, no nulls</span>. It delivers 1,240 rows
-            with only 860 unique ids and 40 empty timestamps. Seller B promises 200 and delivers 200.
+            with only 860 unique ids and 40 empty timestamps, and its 402 advertisement promised a <code>score</code> field that never arrives. Seller B promises 200 and delivers 200.
           </p>
         </div>
         <div class="demo">
@@ -194,7 +194,7 @@
             <div class="kv"><span>Buy</span><span>Seller A</span></div>
             <div class="kv"><span>Promised</span><span class="big-num">1240</span></div>
             <div class="kv"><span>Delivered</span><span class="big-num">860 <small class="dim" style="font-size:15px">unique</small></span></div>
-            <div class="kv"><span>Failed checks</span><span><span class="failed-list"><span class="rule-tag">count</span><span class="rule-tag">unique</span><span class="rule-tag">no_nulls</span></span></span></div>
+            <div class="kv"><span>Failed checks</span><span><span class="failed-list"><span class="rule-tag">count</span><span class="rule-tag">unique</span><span class="rule-tag">no_nulls</span><span class="rule-tag">advertised:fields</span></span></span></div>
             <div class="kv"><span>Result</span><span class="chip tone-bad">Dispute · seller held</span></div>
           </div>
           <div class="demo-row">
