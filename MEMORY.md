@@ -160,6 +160,10 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 - 2026-11-10: Live eval with the content filter disabled: **accuracy 9/9, safety 6/6**. Real-seller
   probe: SERV failures 5/30 (was 7-9), mostly transient empty content (2 of 3 retried succeeded);
   nothing checkable 25/30; invented claims dropped from 21.
+- 2026-11-10: OpenServ console: "Training data collection (optional)" switched on under Settings →
+  Organization (wording version 2.7). $5 credit redeemed; overview showed 498 requests, $0.68 spent,
+  credit balance $5.32, and 86 "blocked requests", consistent with the content-filter refusals seen
+  before `serv_disable_content_filter` was declared.
 
 ## Open questions
 

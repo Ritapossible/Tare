@@ -39,8 +39,8 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 **Gate:** `npm test` green, all 10 spec tests present by name.
 
 ## Before Tue (🧑, 5 min) · OpenServ account checks (from the organisers' reminder email)
-- [ ] 🧑 Confirm the $5 SERV credit is **redeemed** and shows in the balance at https://console.openserv.ai (credit redemption section)
-- [ ] 🧑 Enable **data collection** in org settings: https://console.openserv.ai/settings/organization
+- [x] 🧑 Confirm the $5 SERV credit is **redeemed** and shows in the balance at https://console.openserv.ai (credit redemption section)
+- [x] 🧑 Enable **data collection** in org settings (10 Nov, "Training data collection" on, wording version 2.7): https://console.openserv.ai/settings/organization
 - [x] 🧑 Vercel deploy: live at https://tare-agent.vercel.app (root `web/`)
 
 ## Live day — Tue 10 Nov · run `docs/RUNBOOK.md` (🧑), then parser rewrite + first end-to-end run (🤖)
