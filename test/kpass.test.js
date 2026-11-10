@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { decodePaymentResponse, parseKpassOutput, createKpass } from "../src/kpass.js";
+import { TEST_TX } from "./helpers.js";
 
 // A syntactically valid 32-byte hex value used only to test parsing. Not a real transaction.
-const H = "0x" + "ab".repeat(32);
+const H = TEST_TX; // obviously fake ("7e57" = test), valid shape only
 
 test("decodes a bare hash", () => {
   assert.equal(decodePaymentResponse(H), H);

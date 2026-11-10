@@ -167,7 +167,19 @@ What this says:
 
 ## Why it matters now
 
-_TODO: 2-3 sourced figures on agent payments / x402 adoption, each with a link._
+- **Agents are paying, and the payments are getting bigger.** Chainalysis counts "well over 100
+  million cumulative transactions through Q1 2026" on x402, most of them on Base, and payments of $1 or
+  more are now 95% of the value moved, up from 49% in early 2025
+  ([Chainalysis, 3 Jun 2026](https://www.chainalysis.com/blog/x402-agentic-payments-adoption/)).
+  The more an agent pays per call, the more it matters what came back.
+- **Real trade is still early.** Forkast, citing CoinDesk's March 2026 reporting, puts real daily
+  commercial x402 volume at about $28,000, and cites Artemis finding that more than 95% of activity
+  is protocol signaling, machines testing the rails, rather than buyers paying sellers
+  ([Forkast via Yahoo Finance, 4 Aug 2026](https://finance.yahoo.com/markets/crypto/articles/x402-foundation-activated-27-old-152440828.html)).
+  The trust layer can be built before the volume arrives, not after the first wave of bad deliveries.
+- **Sellers promise almost nothing checkable.** On 10 Nov 2026 the public x402 discovery list held
+  33,245 paid resources. Of 1,000 descriptions we read, 11 stated a number of items and none said
+  "unique" or "no nulls" (`scripts/real_probe.mjs`, above).
 
 ## Testnet
 

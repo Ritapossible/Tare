@@ -158,7 +158,7 @@ export function receiptRow(r, state) {
   return `<tr>
   <td data-k="Seller"><a class="row-link" href="/app/receipt?id=${encodeURIComponent(r.id)}">${esc(name)}</a><div class="faint hash">${esc(r.origin)}</div></td>
   <td data-k="Status">${statusChip(r.status)}</td>
-  <td data-k="Claimed"><span class="num">${cc ?? "-"}</span></td>
+  <td data-k="Claimed"><span class="num">${esc(cc ?? "-")}</span></td>
   <td data-k="Counted"><span class="num">${r.count ?? "-"}</span>${r.unique_count != null ? `<div class="faint">${esc(r.unique_count)} unique</div>` : ""}</td>
   <td data-k="Failed">${failedTags(r.failed)}</td>
   <td data-k="Tx hash">${txCell(r.tx_hash, r.status)}</td>
@@ -180,7 +180,7 @@ export function receiptCard(r, state, { preview = false } = {}) {
   const href = preview ? "" : ` href="/app/receipt?id=${encodeURIComponent(r.id)}"`;
   const nums = judged
     ? `<div class="rcard-nums">
-        <div><span class="k">Promised</span><span class="big">${cc ?? "-"}</span></div>
+        <div><span class="k">Promised</span><span class="big">${esc(cc ?? "-")}</span></div>
         <span class="rcard-arrow" aria-hidden="true">→</span>
         <div><span class="k">Delivered</span><span class="big ${r.failed?.length ? "tone-bad" : ""}">${delivered ?? "-"}</span>${uniq ? `<span class="sub">unique of ${esc(r.count)}</span>` : ""}</div>
       </div>`
@@ -226,7 +226,9 @@ export function sellerSummary(state, key) {
     hold,
     holdReceipt: hold ? mine.find((r) => r.id === hold.receipt_id) ?? null : null,
     verified: count("clean"),
-    disputes: count("dispute") + count("unverifiable"),
+    // Same definition as the console's Disputes tile: promises that failed a check. An
+    // "unverifiable" hold is shown by the record banner, not counted as a dispute.
+    disputes: count("dispute"),
     stopped: count("refused"),
     lastCheck: judged[judged.length - 1] ?? null,
     promise: state?.seller_labels?.[key] ?? null,
@@ -290,4 +292,21 @@ export function formatTime(iso) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return String(iso);
   return d.toISOString().replace("T", " ").replace(/\.\d+Z$/, " UTC");
+}
+
+// Everything a receipt says about how it was read: claims SERV gave that code dropped, the 402
+// advertisement, trusted feeds, and how the body was hashed. Plain text; render through esc().
+export function receiptNotes(r) {
+  return [
+    ...(r?.serv_notes ?? []).map((n) => ["Reading", n]),
+    ...(r?.ad_notes ?? []).map((n) => ["402 advertisement", n]),
+    ...(r?.feed_notes ?? []).map((n) => ["Trusted feed", n]),
+    ...(r?.body_notes ?? []).map((n) => ["Body hash", n]),
+  ];
+}
+
+export function receiptNotesHTML(r) {
+  const notes = receiptNotes(r);
+  if (!notes.length) return "";
+  return `<div><dt>Notes</dt><dd><ul class="notes">${notes.map(([k, n]) => `<li><span class="k">${esc(k)}</span> ${esc(n)}</li>`).join("")}</ul></dd></div>`;
 }

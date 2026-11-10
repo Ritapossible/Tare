@@ -95,10 +95,10 @@ Afternoon:
       your agent" section in the README and docs
 - [ ] 🤖 Fix whatever the live run surfaced; readable error text (SERV_INVALID, paid_unverified, kpass failed)
 - [x] 🤖 README complete: two sentences, SERV key + $5 credit note, Kite commands, `npm test`, three "do X, see Y", model id, "code, not SERV, counts and decides"
-- [~] 🤖 `docs/WRITEUP.md` (drafted 10 Nov; real-seller probe + sourced figures still TODO): what Tare does, how SERV Reasoning powers it, which track (Kite), what was
+- [x] 🤖 `docs/WRITEUP.md`: what Tare does, how SERV Reasoning powers it, which track (Kite), what was
       built during the hackathon, live `serv_eval` numbers, real-seller probe results, shared records
       and their limits; testnet is a hackathon rule and switching network is one setting
-- [ ] 🧑 Find 2-3 **sourced** figures on agent payments / x402 adoption for the write-up (no invented numbers)
+- [x] 🧑 Find 2-3 **sourced** figures on agent payments / x402 adoption for the write-up (no invented numbers)
 - [x] 🤖 Draft X post (tags **@openservai**) and video script (< 90 s)
 
 ## Day 6 — Fri 13 Nov · Record + stretch
@@ -124,7 +124,7 @@ Afternoon:
 ## Audit (10 Nov) — 26 findings
 - [x] 🤖 Findings 1-8 (injection boundary, lost hash, double payment, spend cap) fixed + regression tests
 - [x] 🤖 11-14 fixed + regression tests; live run re-done and republished on the fixed code
-- [ ] 🤖 Then: 9-10, 15-26 (UTF-8 chunks, raw body hash, publish path, CLI edge cases, server null body, dispute counts, esc() on numbers, fake-looking fixtures, stale comments, duplicated constants, serv_check reuse, serve.mjs cleanup, store caching)
+- [x] 🤖 Then: 9-10, 15-26 (10 Nov; 15 and 17 were already fixed; regression tests in test/audit2.test.js, mutation-checked) (UTF-8 chunks, raw body hash, publish path, CLI edge cases, server null body, dispute counts, esc() on numbers, fake-looking fixtures, stale comments, duplicated constants, serv_check reuse, serve.mjs cleanup, store caching)
 
 ## Day 8 — Sun 15 Nov · Buffer only. Deadline 23:59 UTC.
 

@@ -13,6 +13,9 @@ export const BODY_A = readFileSync(new URL("../sellers/data/a.json", import.meta
 export const BODY_B = readFileSync(new URL("../sellers/data/b.json", import.meta.url), "utf8");
 
 // Obviously fake hashes. They exist only inside tests and never reach data/store.json.
+// Hex-shaped stand-in for tests that need a syntactically valid hash: "7e57" spells "test".
+// Never a real transaction, and never reaches the live store.
+export const TEST_TX = "0x" + "7e57".repeat(16);
 export const FAKE_HASH = { [A_URL]: "0xTEST_HASH_A", [B_URL]: "0xTEST_HASH_B" };
 
 // Fake kpass: records every call. Behaviour per URL can be overridden.

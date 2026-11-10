@@ -2,8 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { esc, txCell, ruleRows, receiptRow, sellerName } from "../web/assets/render.js";
 import { validateForPublish } from "../scripts/publish.mjs";
+import { TEST_TX } from "./helpers.js";
 
-const H = "0x" + "ab".repeat(32); // syntactically valid, not a real transaction
+const H = TEST_TX; // obviously fake ("7e57" = test), valid shape only
 
 test("esc neutralises HTML from sellers and the model", () => {
   assert.equal(esc(`<img src=x onerror="alert(1)">'&`), "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;&#39;&amp;");
@@ -21,7 +22,7 @@ test("a receipt row escapes every seller- or model-controlled value", () => {
 });
 
 test("only a 0x + 64 hex value renders as a hash; anything else is 'not paid'", () => {
-  assert.match(txCell(H), /0xabababab…ababab/);
+  assert.match(txCell(H), /0x7e577e57…577e57/);
   for (const bad of [null, "", "0xTEST_HASH_A", "pending", "0x123"]) assert.match(txCell(bad), /not paid/);
 });
 

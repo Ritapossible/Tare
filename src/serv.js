@@ -274,7 +274,8 @@ export function parseServTools(value = process.env.TARE_SERV_TOOLS ?? DEFAULT_SE
 }
 
 // Real SERV completion function.
-export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM, tools = parseServTools() } = {}) {
+// onResponse (optional) sees the full API response, e.g. so serv_check can print finish_reason and usage.
+export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM, tools = parseServTools(), onResponse } = {}) {
   if (!apiKey) throw new Error("SERV_API_KEY is not set");
   // Built-in fetch (not the SDK's bundled HTTP client) so an HTTPS proxy configured for Node
   // (NODE_USE_ENV_PROXY=1) is honoured; behaviour is otherwise identical.
@@ -288,6 +289,7 @@ export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM, tools = 
       messages,
       ...(tools.length ? { tools } : {}),
     });
+    onResponse?.(res);
     return res.choices?.[0]?.message?.content ?? null;
   };
 }

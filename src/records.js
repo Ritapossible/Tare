@@ -7,7 +7,7 @@
 // choose to trust its publisher.
 
 export const RECORDS_VERSION = 1;
-const TX = /^0x[0-9a-fA-F]{64}$/;
+import { TX_HASH as TX } from "./txhash.js";
 const JUDGED = new Set(["clean", "dispute", "unverifiable"]);
 
 function evidence(r) {

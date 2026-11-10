@@ -2,7 +2,7 @@
 //
 // deps = {
 //   store,                       // Store
-//   kpass: { execute(url) },     // → { status, bodyText, paymentHash|null, raw }
+//   kpass: { execute(url) },     // → { status, bodyText, bodyBytes?, bodyNote?, paymentHash|null, raw }
 //   extract(prose),              // → { claims, attempts } or throws ServError
 //   promptSha256, now(), newId()
 // }
@@ -11,6 +11,9 @@ import { createHash, randomUUID } from "node:crypto";
 import { parseBody, check, shapeFailure } from "./check.js";
 
 const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
+// Evidence hash of the delivery: the seller's exact bytes when the rail has them.
+const bodyHash = (paid) => (paid.bodyBytes ? createHash("sha256").update(paid.bodyBytes).digest("hex") : sha256(paid.bodyText ?? ""));
+const bodyNotes = (paid) => (paid.bodyNote ? { body_notes: [paid.bodyNote] } : {});
 
 // Payment-rail idempotency key: hex, fixed length, derived from Tare's own origin|request_id key.
 export function paymentKey(idempotencyKey) {
@@ -135,8 +138,7 @@ export function createBuyer(deps) {
     }
     if (paid.status !== 200 && paid.paymentHash) {
       // Settled, but the seller did not deliver. Keep the real hash; nothing usable was delivered.
-      const bodyText = paid.bodyText ?? "";
-      finish({ tx_hash: paid.paymentHash, body_sha256: sha256(bodyText), error: `seller returned HTTP ${paid.status} after settlement` });
+      finish({ tx_hash: paid.paymentHash, body_sha256: bodyHash(paid), ...bodyNotes(paid), error: `seller returned HTTP ${paid.status} after settlement` });
       const r = shapeFailure();
       finish({ status: r.verdict, count: r.count, unique_count: r.unique_count, failed: r.failed });
       store.block(origin, { receipt_id: receipt.id, reason: r.verdict, at: now() });
@@ -150,7 +152,7 @@ export function createBuyer(deps) {
       return finish({ status: "paid_unverified", error: "no PAYMENT-RESPONSE hash returned" });
     }
     const bodyText = paid.bodyText ?? "";
-    finish({ tx_hash: paid.paymentHash, body_sha256: sha256(bodyText) });
+    finish({ tx_hash: paid.paymentHash, body_sha256: bodyHash(paid), ...bodyNotes(paid) });
 
     // 6. Read the label (prose only) with SERV, unless the body is unreadable.
     const body = parseBody(bodyText);

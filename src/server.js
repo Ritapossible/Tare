@@ -96,10 +96,12 @@ export function createApp({ tare, sellers, webRoot }) {
           return send(res, 403, { error: "cross-origin request refused" });
         }
         if (req.headers["x-tare-request"] !== "1") return send(res, 403, { error: "missing X-Tare-Request header" });
-        if (!(req.headers["content-type"] ?? "").startsWith("application/json")) {
+        if (!/^application\/json\b/i.test(req.headers["content-type"] ?? "")) {
           return send(res, 415, { error: "content-type must be application/json" });
         }
         const body = await readJson(req);
+        // JSON.parse accepts null, numbers and arrays: anything but an object is a bad request.
+        if (!body || typeof body !== "object" || Array.isArray(body)) return send(res, 400, { error: "body must be a JSON object" });
         const key = body.seller;
         if (typeof key !== "string" || !Object.hasOwn(sellers, key)) return send(res, 400, { error: "unknown seller" });
         const sellerUrl = sellers[key];

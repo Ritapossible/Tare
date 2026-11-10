@@ -81,6 +81,9 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-10 | SERV requests declare `serv_disable_content_filter` by default (`TARE_SERV_TOOLS`) | the default filter refused plain texts ("Here is your data.", 7-9 of 30 real descriptions); measured eval 7/9 → 9/9 with safety 6/6 unchanged. Code decides and the output is a strict schema, so the filter protected nothing Tare relies on |
 | 2026-11-10 | SERV Prompt Guard stays off | measured: it blocks the injection text with a refusal ("I can't share that.", empty content). For Tare that is a SERV failure ⇒ `paid_unchecked`, seller not held, where without it the same text is disputed and held. The guard would reward injection |
 | 2026-11-10 | Library entry `src/index.js` (`verify(promise, rows)`, `tareFetch(url)`), package `exports` | lets another agent add Tare in three lines; `verify` needs no wallet |
+| 2026-11-10 | Body evidence hash = sha256 of the seller's raw bytes when the rail has them (x402-direct: `arrayBuffer`; kpass: `body_base64` if offered). A body kpass already parsed is re-serialised and the receipt says so (`body_notes`) | audit 10: the hash must be recomputable from the seller's file |
+| 2026-11-10 | File store caches the parsed JSON, keyed on mtime + size, and always hands out copies | audit 26; another process (unblock.mjs) can still change the store under a running console |
+| 2026-11-10 | Sellers page "Disputes" = status dispute only, same as the console; unverifiable holds show on the record banner | audit 19 |
 
 ## Facts learned (from docs)
 

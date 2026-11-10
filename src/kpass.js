@@ -1,13 +1,14 @@
-// Kite Passport adapter. Spawns `kpass agent session execute` with an argv array (never a shell).
+// Kite Passport adapter (kpass 6.13.1). Spawns
+//   kpass session execute --method GET --url <url> --idempotency-key <key> --output json --no-interactive
+// with an argv array, never a shell.
 //
-// PROVISIONAL PARSER: the exact output of `kpass agent session execute` has not been captured yet
-// (MEMORY.md open question 1). parseKpassOutput accepts the two plausible shapes (a JSON object, or
-// an HTTP-style dump of status line, headers, blank line, body) and returns paymentHash = null
-// whenever it cannot find a real hash. It is rewritten against the real output once captured.
+// PROVISIONAL PARSER: kpass has only ever answered Tare with an error (Kite refuses sellers that are
+// not in its catalog; MEMORY.md), so its success output is unseen. parseKpassOutput accepts the two
+// plausible shapes (a JSON object, or an HTTP-style dump: status line, headers, blank line, body)
+// and returns paymentHash = null whenever it cannot find a real hash.
 
 import { spawn } from "node:child_process";
-
-const TX_HASH = /^0x[0-9a-fA-F]{64}$/;
+import { TX_HASH } from "./txhash.js";
 
 // PAYMENT-RESPONSE may be the bare tx hash, or base64 JSON (x402 v2 settlement object).
 // Returns the hash string or null. Never fabricates.
@@ -44,10 +45,18 @@ export function parseKpassOutput(stdout) {
   try {
     const j = JSON.parse(text);
     const status = Number(j.status ?? j.statusCode ?? j.http_status);
-    const body = j.body ?? j.data ?? null;
-    const bodyText = typeof body === "string" ? body : body === null ? null : JSON.stringify(body);
     const header = headerLookup(j.headers, "payment-response") ?? j.paymentResponse ?? j.payment_response ?? null;
-    return { status: Number.isFinite(status) ? status : null, bodyText, paymentHash: decodePaymentResponse(header) };
+    const out = { status: Number.isFinite(status) ? status : null, paymentHash: decodePaymentResponse(header) };
+    // Prefer the seller's exact bytes; a body kpass already parsed can only be re-serialised, and
+    // then the evidence hash is of Tare's serialisation, which the receipt must say.
+    const b64 = j.body_base64 ?? j.bodyBase64 ?? null;
+    if (typeof b64 === "string") {
+      const bytes = Buffer.from(b64, "base64");
+      return { ...out, bodyBytes: bytes, bodyText: bytes.toString("utf8") };
+    }
+    const body = j.body ?? j.data ?? null;
+    if (body === null || typeof body === "string") return { ...out, bodyText: body };
+    return { ...out, bodyText: JSON.stringify(body), bodyNote: "kpass returned the body already parsed; the body hash is of Tare's re-serialisation, not the seller's raw bytes" };
   } catch {
     // not JSON
   }
@@ -67,26 +76,28 @@ export function createKpass({ bin = "kpass", timeoutMs = 180_000 } = {}) {
     execute(url, { idempotencyKey } = {}) {
       if (!idempotencyKey) return Promise.reject(new Error("kpass session execute needs an idempotency key"));
       return new Promise((resolve, reject) => {
-        // stdin and stderr are inherited so any prompt kpass shows reaches the human.
-        // kpass 6.13.1: `session execute` with a required idempotency key (a retry never pays twice).
+        // --no-interactive: kpass never prompts here (the session was approved beforehand with a
+        // passkey). stderr is inherited so its messages stay visible. The idempotency key is
+        // required, so a retry can never pay twice.
         const args = ["session", "execute", "--method", "GET", "--url", url, "--idempotency-key", idempotencyKey, "--output", "json", "--no-interactive"];
         const child = spawn(bin, args, {
           stdio: ["inherit", "pipe", "inherit"],
           shell: false,
         });
-        let out = "";
+        const chunks = []; // raw bytes: decoding chunk by chunk would split multi-byte characters
         const timer = setTimeout(() => {
           child.kill("SIGTERM");
           // The payment may still settle after we stop waiting: the outcome is unknown, not failed.
           reject(Object.assign(new Error(`kpass timed out after ${timeoutMs} ms`), { outcome: "unknown" }));
         }, timeoutMs);
-        child.stdout.on("data", (d) => (out += d));
+        child.stdout.on("data", (d) => chunks.push(d));
         child.on("error", (err) => {
           clearTimeout(timer);
           reject(err);
         });
         child.on("close", (code) => {
           clearTimeout(timer);
+          const out = Buffer.concat(chunks).toString("utf8");
           if (code !== 0) {
             let detail = out.slice(0, 500);
             try {

@@ -79,10 +79,11 @@ export function createX402Direct({ privateKey, ledger, caps = DEFAULT_CAPS, fetc
     async execute(url) {
       pending = 0n;
       signed = false;
-      let res, bodyText;
+      let res, bodyBytes;
       try {
         res = await payFetch(url, { method: "GET" });
-        bodyText = await res.text();
+        bodyBytes = Buffer.from(await res.arrayBuffer()); // exact bytes, for the evidence hash
+
       } catch (err) {
         // After signing, a timeout or network error leaves the settlement unknown.
         if (signed) throw Object.assign(err instanceof Error ? err : new Error(String(err)), { outcome: "unknown" });
@@ -90,8 +91,9 @@ export function createX402Direct({ privateKey, ledger, caps = DEFAULT_CAPS, fetc
       }
       const header = res.headers.get("payment-response");
       const paymentHash = decodePaymentResponse(header);
-      const raw = JSON.stringify({ rail: "x402-direct", status: res.status, payment_response: header, body_bytes: bodyText.length });
-      return { status: res.status, bodyText, paymentHash, raw };
+      const bodyText = bodyBytes.toString("utf8");
+      const raw = JSON.stringify({ rail: "x402-direct", status: res.status, payment_response: header, body_bytes: bodyBytes.length });
+      return { status: res.status, bodyText, bodyBytes, paymentHash, raw };
     },
   };
 }

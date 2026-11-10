@@ -4,10 +4,9 @@
 //   node scripts/buy.mjs b --request-id demo-1  # replaying the same id never pays twice
 //   node scripts/buy.mjs https://host/v1/...    # any URL
 //
-// Every raw kpass output is appended to data/kpass_raw.log so the parser can be checked.
+// Every raw payment output is appended to data/kpass_raw.log so the parser can be checked.
 
-import { appendFileSync, mkdirSync } from "node:fs";
-import { createTare, loadEnv } from "../src/tare.js";
+import { createTare, loadEnv, appendRawLog } from "../src/tare.js";
 import { loadSellers } from "../src/config.js";
 import { isTxHash, noHashLabel } from "../web/assets/render.js";
 
@@ -28,25 +27,23 @@ if (idIdx >= 0 && !/^[A-Za-z0-9_-]{1,100}$/.test(requestId ?? "")) {
 const allowFeedHold = rest.includes("--allow-feed-hold");
 
 let url = target;
+let sellers = null;
 if (!/^https?:\/\//.test(target)) {
   try {
-    url = loadSellers()[target];
+    // Only the seller being bought needs a URL: buying A must work before B is deployed.
+    sellers = loadSellers("sellers.json", { requireAll: false });
+    url = sellers[target];
   } catch (err) {
     console.error(`${err.message}\nDeploy the sellers (sellers/README.md) and fill sellers.json, or pass a full URL.`);
     process.exit(2);
   }
 }
 if (!url) {
-  console.error(`unknown seller "${target}" (use a, b or a URL)`);
+  console.error(sellers && target in sellers ? `seller "${target}" has no URL in sellers.json yet` : `unknown seller "${target}" (use a, b or a URL)`);
   process.exit(2);
 }
 
-const tare = createTare({
-  onKpassRaw: (raw) => {
-    mkdirSync("data", { recursive: true });
-    appendFileSync("data/kpass_raw.log", `\n===== ${new Date().toISOString()} ${url}\n${raw}\n`);
-  },
-});
+const tare = createTare({ onKpassRaw: appendRawLog });
 
 const r = await tare.buy(url, { requestId, allowFeedHold });
 const show = (k, v) => console.log(`${k.padEnd(12)}: ${v}`);

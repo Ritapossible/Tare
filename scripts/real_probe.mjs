@@ -11,6 +11,7 @@
 // Claims are shown after Tare's code-side grounding, with a note when SERV's claims were dropped.
 // Descriptions are untrusted seller text: they go to SERV inside <prose> like any other promise.
 
+import { fileURLToPath } from "node:url";
 import { extractClaims, createServComplete } from "../src/serv.js";
 import { TIME_WORDS } from "../src/prompt.js";
 import { loadEnv } from "../src/tare.js";
@@ -80,4 +81,4 @@ async function main() {
   console.log(`"up to N" texts: ${tally.upToRead}, of which read as an exact count: ${tally.upToExact}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) await main();

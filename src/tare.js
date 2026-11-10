@@ -3,7 +3,8 @@
 import { createBuyer } from "./buy.js";
 import { createKpass } from "./kpass.js";
 import { createX402Direct } from "./x402direct.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, appendFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import { extractClaims, createServComplete } from "./serv.js";
 import { fileStore } from "./store.js";
 import { PROMPT_SHA256 } from "./prompt.js";
@@ -71,11 +72,18 @@ export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail 
 // Hand every raw payment output to a logger (the CLI writes it to data/kpass_raw.log).
 // Logging is best effort: a logger failure must never change the payment outcome, because a
 // settled payment recorded as "failed" would lose its hash and could be paid again.
+// The CLI and the live console both append raw payment output here, with the seller URL.
+export const RAW_LOG_PATH = "data/kpass_raw.log";
+export function appendRawLog(raw, url, path = RAW_LOG_PATH) {
+  mkdirSync(dirname(path), { recursive: true });
+  appendFileSync(path, `\n===== ${new Date().toISOString()} ${url ?? ""}\n${raw}\n`);
+}
+
 export function withRawLog(rail, onRaw) {
   if (!onRaw) return rail;
-  const log = (text) => {
+  const log = (text, url) => {
     try {
-      onRaw(text);
+      onRaw(text, url);
     } catch (err) {
       console.error(`warning: could not write the raw payment log: ${err?.message ?? err}`);
     }
@@ -87,10 +95,10 @@ export function withRawLog(rail, onRaw) {
       try {
         res = await rail.execute(url, opts);
       } catch (err) {
-        log(`ERROR: ${err?.message ?? err}`);
+        log(`ERROR: ${err?.message ?? err}`, url);
         throw err;
       }
-      log(res.raw);
+      log(res.raw, url);
       return res;
     },
   };

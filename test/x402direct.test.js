@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createX402Direct, checkRequirement, KITE_TESTNET, DEFAULT_CAPS } from "../src/x402direct.js";
+import { TEST_TX } from "./helpers.js";
 
 // A throwaway key used only inside these tests; it never holds funds and never touches a network.
 const TEST_KEY = "0x" + "11".repeat(32);
-const FAKE_TX = "0x" + "ab".repeat(32); // syntactically valid, not a real transaction
+const FAKE_TX = TEST_TX; // obviously fake ("7e57" = test), valid shape only
 
 const req = (over = {}) => ({
   scheme: "exact",

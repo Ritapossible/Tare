@@ -14,8 +14,7 @@ import { fileStore } from "../src/store.js";
 import { STORE_PATH } from "../src/tare.js";
 import { buildState } from "../src/state.js";
 import { buildRecords, badgeEligible, badgeFileName, badgeSvg } from "../src/records.js";
-
-const TX = /^0x[0-9a-fA-F]{64}$/;
+import { TX_HASH as TX } from "../src/txhash.js";
 
 export function validateForPublish(state) {
   const bad = state.receipts.filter((r) => r.tx_hash !== null && r.tx_hash !== undefined && !TX.test(r.tx_hash));

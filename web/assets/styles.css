@@ -633,3 +633,8 @@ dl.facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
 
 /* one-line punchline under a lede */
 .lede.punch { margin-top: 18px; font-size: clamp(19px, 2vw, 24px); line-height: 1.4; }
+
+/* receipt notes: how the receipt was read */
+ul.notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+ul.notes li { line-height: 1.5; overflow-wrap: anywhere; }
+ul.notes .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-right: 6px; }

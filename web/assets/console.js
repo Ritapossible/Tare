@@ -1,7 +1,7 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML, receiptNotesHTML } from "./render.js";
 import { icons } from "./icons.js";
 import { sprinkle } from "./layout.js";
 
@@ -79,7 +79,7 @@ export async function mountConsole(root) {
         const block = origin ? state.blocklist?.[origin] : null;
         const label = state.seller_labels?.[key];
         const disabled = !live || !url || inFlight.has(key);
-        const btnText = inFlight.has(key) ? "Paying…" : block ? `Buy again (seller held)` : `Buy from Seller ${key.toUpperCase()}`;
+        const btnText = inFlight.has(key) ? "Paying…" : block ? `Buy again (seller held)` : `Buy from Seller ${esc(key.toUpperCase())}`;
         return `<article class="seller seller-${esc(key)}">
           <div class="seller-top"><span class="seller-name">Seller ${esc(key.toUpperCase())}</span>${recordChip(block, Boolean(url))}</div>
           <div class="origin">${esc(origin ?? "no URL in sellers.json yet")}</div>
@@ -213,6 +213,7 @@ export async function mountReceipt(root) {
           <div><dt>Body sha256</dt><dd><span class="hash">${esc(r.body_sha256 ?? "-")}</span>${copyBtn(r.body_sha256)}</dd></div>
           <div><dt>Prompt sha256</dt><dd><span class="hash">${esc(r.prompt_sha256 ?? "-")}</span></dd></div>
           <div><dt>Failed checks</dt><dd>${failedTags(r.failed)}</dd></div>
+          ${receiptNotesHTML(r)}
           <div><dt>Seller record</dt><dd><span class="hash">${esc(r.origin)}</span> · ${recordCell(blocked)}</dd></div>
           <div><dt>URL</dt><dd><span class="hash">${esc(r.url)}</span></dd></div>
           <div><dt>Request id</dt><dd><span class="hash">${esc(r.request_id ?? "-")}</span></dd></div>
