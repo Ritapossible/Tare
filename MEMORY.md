@@ -164,6 +164,13 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   Organization (wording version 2.7). $5 credit redeemed; overview showed 498 requests, $0.68 spent,
   credit balance $5.32, and 86 "blocked requests", consistent with the content-filter refusals seen
   before `serv_disable_content_filter` was declared.
+- 2026-11-10: Sellers' `SERVICE_DESCRIPTION` set on Render (A: the 1,240-unique promise, B: the
+  200 promise); read back via unpaid 402. **Live run 3** (x402-direct, on the grounding + filter-off
+  code), verified on Kite testnet RPC (status 1, pieUSD 0.001, payer 0x7979…0895 → PAY_TO 0x9Ef4…C447):
+  A dispute `0xd7caedba720278dd80e4b7cf2ab94afd20f15e21882b762aab009a04ee69874b` (block 22043910;
+  failed count, unique, no_nulls, advertised:count, advertised:unique, advertised:no_nulls);
+  A again refused, no payment; B clean `0x8e1bf4ab2d38b43d637255e2267e853600ac58d1ff23cc88227531967e449716`
+  (block 22043911). Published; README and write-up now cite these. Earlier hashes stay valid history.
 
 ## Open questions
 

@@ -1,6 +1,6 @@
 {
   "mode": "published",
-  "generated_at": "2026-11-10T11:01:10.118Z",
+  "generated_at": "2026-11-10T12:58:02.269Z",
   "model": "gpt-5.4-mini-serv-multipath",
   "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
   "sellers": {
@@ -13,12 +13,12 @@
   },
   "receipts": [
     {
-      "id": "rcpt_5a65322a-1ca5-496e-aa55-886c765ea850",
-      "request_id": "e002419d-8808-405c-818e-954a3fbb7e03",
-      "idempotency_key": "https://tare-seller-a.onrender.com|e002419d-8808-405c-818e-954a3fbb7e03",
+      "id": "rcpt_613d4bd8-b09a-488c-95df-0d4ecfe6482d",
+      "request_id": "bdde636a-995a-438d-81f7-e4a082e7807e",
+      "idempotency_key": "https://tare-seller-a.onrender.com|bdde636a-995a-438d-81f7-e4a082e7807e",
       "url": "https://tare-seller-a.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
       "origin": "https://tare-seller-a.onrender.com",
-      "tx_hash": "0xa239ac6d39c87ccda06a6fbe6458b162fa51eec3e75a34c648075e631803d79c",
+      "tx_hash": "0xd7caedba720278dd80e4b7cf2ab94afd20f15e21882b762aab009a04ee69874b",
       "body_sha256": "22df2684da4982bfe1d30996b26ad181c7327de03e21dca7848a3fc0c11bc2b2",
       "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
       "payment_rail": "x402-direct",
@@ -29,24 +29,44 @@
           "id",
           "ts"
         ],
-        "no_nulls": true
+        "no_nulls": true,
+        "max_age_hours": null
       },
       "count": 1240,
       "unique_count": 860,
       "failed": [
         "count",
         "unique",
-        "no_nulls"
+        "no_nulls",
+        "advertised:count",
+        "advertised:unique",
+        "advertised:no_nulls"
       ],
       "reason": null,
       "error": null,
-      "created_at": "2026-11-10T10:41:42.413Z",
-      "status": "dispute"
+      "feed_notes": [],
+      "promise": "Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.",
+      "advertised": "Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.",
+      "advertised_claims": {
+        "claimed_count": 1240,
+        "unique": true,
+        "fields": [
+          "id",
+          "ts"
+        ],
+        "no_nulls": true,
+        "max_age_hours": null
+      },
+      "ad_notes": [],
+      "oldest_age_hours": null,
+      "created_at": "2026-11-10T12:57:32.268Z",
+      "status": "dispute",
+      "serv_notes": []
     },
     {
-      "id": "rcpt_a50f088e-54e5-436d-b4ef-74c5e757bf32",
-      "request_id": "ab4af229-48d6-4a28-b946-7e4cdc9bcee8",
-      "idempotency_key": "https://tare-seller-a.onrender.com|ab4af229-48d6-4a28-b946-7e4cdc9bcee8",
+      "id": "rcpt_41a263d1-1300-431b-afa3-7371b051a89e",
+      "request_id": "626ebf0e-22c2-4081-a0d2-3d954efee335",
+      "idempotency_key": "https://tare-seller-a.onrender.com|626ebf0e-22c2-4081-a0d2-3d954efee335",
       "url": "https://tare-seller-a.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
       "origin": "https://tare-seller-a.onrender.com",
       "tx_hash": null,
@@ -59,16 +79,22 @@
       "failed": [],
       "reason": "seller held (dispute)",
       "error": null,
-      "created_at": "2026-11-10T10:41:49.200Z",
+      "feed_notes": [],
+      "promise": null,
+      "advertised": null,
+      "advertised_claims": null,
+      "ad_notes": [],
+      "oldest_age_hours": null,
+      "created_at": "2026-11-10T12:57:40.869Z",
       "status": "refused"
     },
     {
-      "id": "rcpt_ee7af3c3-c517-45cd-b9b5-c4bfe0fee307",
-      "request_id": "5356c991-354f-4fcd-9f2c-8f1fac12e2fc",
-      "idempotency_key": "https://tare-seller-b.onrender.com|5356c991-354f-4fcd-9f2c-8f1fac12e2fc",
+      "id": "rcpt_984b193f-a456-4383-841c-79fa3f7591fd",
+      "request_id": "19b49c96-86dc-4e22-8183-55c8df3cfcb3",
+      "idempotency_key": "https://tare-seller-b.onrender.com|19b49c96-86dc-4e22-8183-55c8df3cfcb3",
       "url": "https://tare-seller-b.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/b.json",
       "origin": "https://tare-seller-b.onrender.com",
-      "tx_hash": "0x3f4740410068026e4d568bb5fcff98e8f1298e37bfb899ef1df1534e0a253219",
+      "tx_hash": "0x8e1bf4ab2d38b43d637255e2267e853600ac58d1ff23cc88227531967e449716",
       "body_sha256": "1adba78eabc8674fefa588b0654b4b23a821b79d6199de364e805c48a0fa6493",
       "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
       "payment_rail": "x402-direct",
@@ -79,22 +105,39 @@
           "id",
           "ts"
         ],
-        "no_nulls": true
+        "no_nulls": true,
+        "max_age_hours": null
       },
       "count": 200,
       "unique_count": 200,
       "failed": [],
       "reason": null,
       "error": null,
-      "created_at": "2026-11-10T10:41:49.489Z",
-      "status": "clean"
+      "feed_notes": [],
+      "promise": "Delivered two hundred records, fields id and ts, no nulls.",
+      "advertised": "Delivered two hundred records, fields id and ts, no nulls.",
+      "advertised_claims": {
+        "claimed_count": 200,
+        "unique": null,
+        "fields": [
+          "id",
+          "ts"
+        ],
+        "no_nulls": true,
+        "max_age_hours": null
+      },
+      "ad_notes": [],
+      "oldest_age_hours": 229,
+      "created_at": "2026-11-10T12:57:41.169Z",
+      "status": "clean",
+      "serv_notes": []
     }
   ],
   "blocklist": {
     "https://tare-seller-a.onrender.com": {
-      "receipt_id": "rcpt_5a65322a-1ca5-496e-aa55-886c765ea850",
+      "receipt_id": "rcpt_613d4bd8-b09a-488c-95df-0d4ecfe6482d",
       "reason": "dispute",
-      "at": "2026-11-10T10:41:48.884Z"
+      "at": "2026-11-10T12:57:40.571Z"
     }
   },
   "kpass_calls": 2,
