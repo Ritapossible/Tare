@@ -1,6 +1,7 @@
 // Production wiring: real SERV, real kpass, file store.
 
-import { createBuyer } from "./buy.js";
+import { createBuyer, paymentKey } from "./buy.js";
+import { randomUUID } from "node:crypto";
 import { createKpass } from "./kpass.js";
 import { createX402Direct } from "./x402direct.js";
 import { readFileSync, appendFileSync, mkdirSync } from "node:fs";
@@ -49,21 +50,32 @@ export function createRail({ rail = process.env.TARE_PAYMENT_RAIL || "kpass", st
   return createKpass({ bin: kpassBin });
 }
 
-export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail = process.env.TARE_PAYMENT_RAIL || "kpass", feeds = parseFeedList(process.env.TARE_FEEDS) } = {}) {
+export function createTare({
+  storePath = STORE_PATH,
+  kpassBin,
+  onKpassRaw,
+  rail = process.env.TARE_PAYMENT_RAIL || "kpass",
+  feeds = parseFeedList(process.env.TARE_FEEDS),
+  payFeeds = process.env.TARE_PAY_FEEDS === "1",
+} = {}) {
   const store = fileStore(storePath);
   let complete; // created lazily so refused buys work without a key
   const extract = (prose) => {
     complete ??= createServComplete({ apiKey: process.env.SERV_API_KEY });
     return extractClaims(prose, { complete });
   };
+  // One rail instance pays for everything, so feed lookups and buys share the same spending caps.
+  const payer = withRawLog(createRail({ rail, store, kpassBin }), onKpassRaw);
+  // Paid feeds (opt-in): each lookup is a fresh payment with its own idempotency key.
+  const payFetch = payFeeds ? (u) => payer.execute(u, { idempotencyKey: paymentKey(`feed|${u}|${randomUUID()}`) }) : null;
   const buyer = createBuyer({
     store,
-    kpass: withRawLog(createRail({ rail, store, kpassBin }), onKpassRaw),
+    kpass: payer,
     extract,
     promptSha256: PROMPT_SHA256,
     paymentRail: rail,
     // TARE_FEEDS: comma-separated records.json URLs the operator chooses to trust (opt-in).
-    feedCheck: feeds.length ? createFeedChecker({ feeds }) : null,
+    feedCheck: feeds.length ? createFeedChecker({ feeds, payFetch }) : null,
     readAdvertisement: (u) => readAdvertisement(u),
   });
   return { store, buy: buyer.buy };

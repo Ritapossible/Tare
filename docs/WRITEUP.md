@@ -129,6 +129,11 @@ owner's Kite Passport wallet. No Passport payment hash exists for this run and n
 - **Never silent.** An unreachable or malformed feed never blocks a buy; the receipt says what happened.
   A human can override a feed hold per buy, and release a local hold after review.
 - **Per origin.** A seller can move domain. Binding records to a Kite agent identity is the next step.
+- **A business model, honestly small.** The same unchanged Kite seller template can sell the feed:
+  0.001 testnet pieUSD per lookup for agents, free for people on `/check`. Tested live: a fresh
+  agent paid one lookup (`0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20`),
+  learned seller A was held, and paid seller A nothing. Agents pay for lookups only if their operator
+  turns it on (`TARE_PAY_FEEDS=1`), inside the same spending caps.
 - **No refunds.** Tare does not claw back the first payment. It makes sure there is no second one.
 
 ## Real sellers: what they promise today

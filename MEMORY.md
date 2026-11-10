@@ -175,6 +175,11 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   failed count, unique, no_nulls, advertised:count, advertised:unique, advertised:no_nulls);
   A again refused, no payment; B clean `0x8e1bf4ab2d38b43d637255e2267e853600ac58d1ff23cc88227531967e449716`
   (block 22043911). Published; README and write-up now cite these. Earlier hashes stay valid history.
+- 2026-11-10: **Paid records feed, live:** the unchanged seller template run locally with
+  `UPSTREAM_URL=https://tare-agent.vercel.app` passed `seller_probe` (testnet pieUSD 0.001). A fresh
+  agent with `TARE_PAY_FEEDS=1` and that feed trusted paid one lookup
+  `0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20` (block 22043913, status 1,
+  0.001 pieUSD to PAY_TO), was refused for seller A, and made 0 payments to seller A.
 
 ## Open questions
 

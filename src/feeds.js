@@ -4,6 +4,11 @@
 //
 // Failure rules: an unreachable or malformed feed never blocks a buy by itself, and never silently:
 // the receipt carries a note for every feed problem. Malformed records are ignored one by one.
+//
+// Paid feeds: a feed may sit behind x402 (HTTP 402). Tare pays for a lookup only when the operator
+// passes payFetch (TARE_PAY_FEEDS=1); the payment goes through the same rail and caps as any buy,
+// and its settlement hash is written on the receipt. A read is cached for cacheMs, so a run of
+// buys does not pay for the same feed again and again.
 
 import { RECORDS_VERSION } from "./records.js";
 
@@ -49,17 +54,38 @@ export function validateFeed(json) {
   return { records: out, ignored };
 }
 
-// fetchImpl is injected for tests. Returns check(origin) → { hold: {source, reason, since} | null, notes: [] }
-export function createFeedChecker({ feeds = [], fetchImpl = globalThis.fetch, timeoutMs = 10_000 } = {}) {
+// fetchImpl and payFetch are injected (tests never hit the network).
+// payFetch(url) → { status, bodyText, paymentHash } pays an x402 feed; without it a paid feed is noted, not paid.
+// Returns check(origin) → { hold: {source, reason, since} | null, notes: [] }
+export function createFeedChecker({ feeds = [], fetchImpl = globalThis.fetch, payFetch = null, timeoutMs = 10_000, cacheMs = 5 * 60_000, now = Date.now } = {}) {
+  const cache = new Map(); // source → { at, json }
+
+  async function read(source, notes) {
+    const hit = cache.get(source);
+    if (hit && now() - hit.at < cacheMs) return hit.json;
+    const res = await fetchImpl(source, { signal: AbortSignal.timeout(timeoutMs), headers: { accept: "application/json" } });
+    let json;
+    if (res.status === 402) {
+      if (!payFetch) throw new Error("HTTP 402: this feed charges per lookup; set TARE_PAY_FEEDS=1 to pay for it");
+      const paid = await payFetch(source);
+      if (paid.status !== 200) throw new Error(`paid lookup returned HTTP ${paid.status}`);
+      notes.push(`feed ${source}: paid lookup, settlement ${paid.paymentHash ?? "returned no hash"}`);
+      json = JSON.parse(paid.bodyText ?? "");
+    } else {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      json = await res.json();
+    }
+    cache.set(source, { at: now(), json });
+    return json;
+  }
+
   return async function check(origin) {
     const notes = [];
     let hold = null;
     for (const source of feeds) {
       let json;
       try {
-        const res = await fetchImpl(source, { signal: AbortSignal.timeout(timeoutMs), headers: { accept: "application/json" } });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        json = await res.json();
+        json = await read(source, notes);
       } catch (err) {
         notes.push(`feed ${source} unreachable: ${err?.message ?? err}`);
         continue;

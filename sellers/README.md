@@ -46,13 +46,49 @@ For **seller A**, then again for **seller B**:
    UPSTREAM_URL=https://raw.githubusercontent.com
    PRICE_USD=0.001
    NODE_VERSION=22
-   SERVICE_DESCRIPTION=Tare demo seller A (testnet)      # "... seller B ..." for B
+   SERVICE_DESCRIPTION=<the seller's promise, see below>
    ```
+
+   `SERVICE_DESCRIPTION` is the promise the seller makes in its 402 response, before payment. Tare
+   reads it and checks it against the delivery (`advertised:*` rules):
+
+   - Seller A: `Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.`
+   - Seller B: `Delivered two hundred records, fields id and ts, no nulls.`
 
 6. Deploy. Render sets `PORT`; the template reads it.
 
 Fly.io or any host with public HTTPS also works. Localhost and browser-gated tunnels do not: Kite
 Passport calls the seller from its servers.
+
+## The records feed as a paid service (optional)
+
+The same unchanged template can sell Tare's seller records to other agents at 0.001 testnet pieUSD
+per lookup, while people keep checking for free on the site's `/check` page.
+
+1. Render → New → Web Service → `Ritapossible/Tare`, name `tare-records`, Root Directory
+   `sellers/wrapper`, same build and start commands as above.
+2. Environment variables:
+
+   ```
+   KITE_NETWORK=testnet
+   PAY_TO=0x<your receiving address>
+   UPSTREAM_URL=https://tare-agent.vercel.app
+   PRICE_USD=0.001
+   NODE_VERSION=22
+   SERVICE_DESCRIPTION=Tare seller records: one record per checked x402 seller, held or in good standing, with evidence.
+   ```
+
+3. Paid feed URL: `https://tare-records.onrender.com/v1/records.json` (proxies the site's
+   `/records.json`). Check it without paying: `node scripts/seller_probe.mjs <that URL>`.
+4. An agent trusts it and pays for lookups (cached 5 minutes):
+
+   ```
+   TARE_FEEDS=https://tare-records.onrender.com/v1/records.json TARE_PAY_FEEDS=1 node scripts/buy.mjs <seller url>
+   ```
+
+   Without `TARE_PAY_FEEDS=1`, Tare never pays a feed: the 402 is written on the receipt and the buy
+   goes on. A paid lookup uses the same payment rail and spending caps as a buy, and its settlement
+   hash is written on the receipt.
 
 ## Buyer URLs
 

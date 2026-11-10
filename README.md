@@ -110,7 +110,14 @@ TARE_FEEDS=https://tare-agent.vercel.app/records.json node scripts/buy.mjs <sell
 ```
 
 A seller held in a trusted feed is stopped before payment (override per buy with
-`--allow-feed-hold`). An unreachable or malformed feed never blocks a buy and is noted on the receipt.
+`--allow-feed-hold`).
+
+The feed can also be sold over x402 with the same seller template, at 0.001 testnet pieUSD per lookup
+(`sellers/README.md`, "The records feed as a paid service"). An agent pays for lookups only with
+`TARE_PAY_FEEDS=1`; the payment uses the same rail and caps as a buy and is noted on the receipt.
+Tested live on 10 Nov 2026: a fresh agent paid one lookup
+(`0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20`, Kite testnet), saw seller A
+held, and made no payment to seller A. An unreachable or malformed feed never blocks a buy and is noted on the receipt.
 There is no global blacklist: agents choose which publishers to trust.
 
 ## Add Tare to your agent

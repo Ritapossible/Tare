@@ -104,7 +104,7 @@ Afternoon:
 ## Day 6 — Fri 13 Nov · Record + stretch
 - [ ] 🧑 Record the video from a fresh `reset`: A dispute → A stopped → B verified → another agent
       warned by the record → the "check a seller" page with the badge
-- [ ] 🤖 Stretch, only if all of the above is done: serve the records feed behind x402 with the same
+- [x] 🤖 Stretch (10 Nov: paid-feed support + TARE_PAY_FEEDS; tested live against the unchanged template run locally; hosting a `tare-records` Render service is optional, steps in sellers/README.md): serve the records feed behind x402 with the same
       Kite seller template (0.001 pieUSD per lookup) as the revenue story
 
 ## Evaluation targets (idea score 41/60 on 9 Nov)
