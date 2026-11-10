@@ -26,7 +26,7 @@ export function originOf(url) {
 export function createBuyer(deps) {
   const now = deps.now ?? (() => new Date().toISOString());
   const newId = deps.newId ?? (() => randomUUID());
-  const { store, kpass, extract, promptSha256, paymentRail = null } = deps;
+  const { store, kpass, extract, promptSha256, paymentRail = null, feedCheck = null } = deps;
 
   // Buys run strictly one at a time, so two clicks can never race past the checks below.
   let queue = Promise.resolve();
@@ -36,7 +36,7 @@ export function createBuyer(deps) {
     return run;
   }
 
-  async function buyOnce(url, { requestId } = {}) {
+  async function buyOnce(url, { requestId, allowFeedHold = false } = {}) {
     const origin = originOf(url);
     const request_id = requestId ?? newId();
     const idempotency_key = `${origin}|${request_id}`;
@@ -57,6 +57,7 @@ export function createBuyer(deps) {
       failed: [],
       reason: null,
       error: null,
+      feed_notes: [],
       created_at: now(),
     };
 
@@ -75,6 +76,26 @@ export function createBuyer(deps) {
     const pending = store.pendingFor(origin);
     if (pending) {
       return store.put({ ...base, status: "refused", reason: `unresolved pending payment ${pending.id}` });
+    }
+
+    // 3b. Trusted seller-record feeds (opt-in). A seller held in a feed the operator trusts is
+    //     stopped before payment unless a human explicitly allows this buy. Feed problems never
+    //     block a buy and are always written on the receipt.
+    if (feedCheck) {
+      let result;
+      try {
+        result = await feedCheck(origin);
+      } catch (err) {
+        result = { hold: null, notes: [`feed check failed: ${err?.message ?? err}`] };
+      }
+      base.feed_notes = [...(result.notes ?? [])];
+      if (result.hold) {
+        const where = `held in trusted feed ${result.hold.source} (${result.hold.reason})`;
+        if (!allowFeedHold) {
+          return store.put({ ...base, status: "refused", reason: where });
+        }
+        base.feed_notes.push(`${where}; this buy was allowed by the operator`);
+      }
     }
 
     // 4. Record intent before paying.

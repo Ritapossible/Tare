@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "publisher": "tare",
+  "generated_at": "2026-11-10T11:01:10.125Z",
+  "records": [
+    {
+      "origin": "https://tare-seller-a.onrender.com",
+      "status": "held",
+      "reason": "dispute",
+      "since": "2026-11-10T10:41:48.884Z",
+      "evidence": {
+        "receipt_id": "rcpt_5a65322a-1ca5-496e-aa55-886c765ea850",
+        "status": "dispute",
+        "url": "https://tare-seller-a.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
+        "promised": {
+          "claimed_count": 1240,
+          "unique": true,
+          "fields": [
+            "id",
+            "ts"
+          ],
+          "no_nulls": true
+        },
+        "delivered": {
+          "count": 1240,
+          "unique_count": 860
+        },
+        "failed": [
+          "count",
+          "unique",
+          "no_nulls"
+        ],
+        "tx_hash": "0xa239ac6d39c87ccda06a6fbe6458b162fa51eec3e75a34c648075e631803d79c",
+        "body_sha256": "22df2684da4982bfe1d30996b26ad181c7327de03e21dca7848a3fc0c11bc2b2",
+        "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
+        "payment_rail": "x402-direct",
+        "checked_at": "2026-11-10T10:41:42.413Z"
+      },
+      "counts": {
+        "verified": 0,
+        "disputes": 1,
+        "unverifiable": 0,
+        "stopped": 1
+      }
+    },
+    {
+      "origin": "https://tare-seller-b.onrender.com",
+      "status": "in_good_standing",
+      "reason": null,
+      "since": null,
+      "evidence": {
+        "receipt_id": "rcpt_ee7af3c3-c517-45cd-b9b5-c4bfe0fee307",
+        "status": "clean",
+        "url": "https://tare-seller-b.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/b.json",
+        "promised": {
+          "claimed_count": 200,
+          "unique": null,
+          "fields": [
+            "id",
+            "ts"
+          ],
+          "no_nulls": true
+        },
+        "delivered": {
+          "count": 200,
+          "unique_count": 200
+        },
+        "failed": [],
+        "tx_hash": "0x3f4740410068026e4d568bb5fcff98e8f1298e37bfb899ef1df1534e0a253219",
+        "body_sha256": "1adba78eabc8674fefa588b0654b4b23a821b79d6199de364e805c48a0fa6493",
+        "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
+        "payment_rail": "x402-direct",
+        "checked_at": "2026-11-10T10:41:49.489Z"
+      },
+      "counts": {
+        "verified": 1,
+        "disputes": 0,
+        "unverifiable": 0,
+        "stopped": 0
+      }
+    }
+  ]
+}

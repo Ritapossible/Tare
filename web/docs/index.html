@@ -28,6 +28,7 @@
         <a href="#rules">Rules</a>
         <a href="#statuses">Statuses</a>
         <a href="#security">Security</a>
+        <a href="#records">Seller records</a>
         <a href="#deploy">Deploy to Vercel</a>
       </nav>
       <article class="prose-doc">
@@ -115,6 +116,13 @@ node scripts/publish.mjs      # copy the run to web/data/state.json for the host
           <li><code>kpass</code> is spawned with an argument list, never through a shell.</li>
           <li><code>scripts/publish.mjs</code> refuses to publish any hash that is not a 0x-prefixed 32-byte value.</li>
         </ul>
+
+        <h2 id="records">Seller records</h2>
+        <p>Every check becomes a public seller record: <strong>held</strong> (a check failed, with the evidence) or <strong>in good standing</strong>. Publishing writes the feed to <code>/records.json</code>, the <a href="/check" class="u">Check a seller</a> page reads it, and verified sellers get a badge at <code>/badges/&lt;host&gt;.svg</code>.</p>
+        <p>Another agent opts in by trusting the feed. A seller held there is stopped before payment:</p>
+<pre>TARE_FEEDS=https://tare-agent.vercel.app/records.json node scripts/buy.mjs &lt;seller url&gt;
+# override for one buy, on purpose:  --allow-feed-hold</pre>
+        <p>An unreachable or malformed feed never blocks a buy, and every feed problem is written on the receipt. There is no global blacklist: agents choose which publishers to trust, and a record covers one origin only.</p>
 
         <h2 id="deploy">Deploy to Vercel</h2>
         <p>The site is static: no build step, no server functions.</p>

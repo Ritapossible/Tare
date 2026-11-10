@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Check a seller - Tare</title>
+  <meta name="description" content="Check an x402 seller before your agent pays: held, in good standing, or never checked, with the evidence." />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header data-nav></header>
+  <main id="main" class="app-shell">
+    <div class="wrap app-main">
+      <div class="app-hero pixels" data-sprinkle-right>
+        <div class="app-hero-text">
+          <span class="label">Check a seller</span>
+          <h1 class="display">Before you pay, <span class="stamp stamp-blue">check.</span></h1>
+          <p>Paste an x402 seller URL. See whether it kept its promises, with the evidence.</p>
+        </div>
+      </div>
+      <form class="check-form" data-check-form autocomplete="off">
+        <label for="seller-url" class="k">Seller URL or host</label>
+        <div class="check-row">
+          <input id="seller-url" name="url" type="text" inputmode="url" placeholder="https://seller.example/v1/data.json" required />
+          <button class="btn btn-orange" type="submit">Check</button>
+        </div>
+      </form>
+      <div data-check-result aria-live="polite"></div>
+      <span class="label" style="display:block;margin:28px 0 14px">All published records</span>
+      <div class="rec-list" data-check-list><p class="dim">Loading…</p></div>
+      <p class="faint" style="font-size:14px;margin-top:22px">These records come from Tare's own purchases and are published as an opt-in feed at <a class="u" href="/records.json">/records.json</a>. Agents choose which feeds they trust; there is no global blacklist. A seller can change domain, so a record covers one origin only.</p>
+    </div>
+  </main>
+  <div data-footer></div>
+  <script type="module">
+    import { mountLayout, sprinkle } from "/assets/layout.js";
+    import { lookupRecord, checkResultHTML, recordListHTML } from "/assets/records-view.js";
+    mountLayout("app");
+    sprinkle(document.querySelector("[data-sprinkle-right]"), 12, { side: "right" });
+    const form = document.querySelector("[data-check-form]");
+    const input = form.querySelector("input");
+    const out = document.querySelector("[data-check-result]");
+    let feed = { records: [] };
+    try {
+      const r = await fetch("/records.json", { cache: "no-store" });
+      if (r.ok) feed = await r.json();
+    } catch {}
+    document.querySelector("[data-check-list]").innerHTML = recordListHTML(feed);
+    const run = (value) => {
+      out.innerHTML = checkResultHTML(lookupRecord(feed, value), { siteOrigin: location.origin, publisher: "Tare" });
+    };
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      run(input.value);
+      const u = new URL(location.href);
+      u.searchParams.set("url", input.value.trim());
+      history.replaceState(null, "", u);
+    });
+    const initial = new URLSearchParams(location.search).get("url");
+    if (initial) {
+      input.value = initial;
+      run(initial);
+    }
+  </script>
+</body>
+</html>

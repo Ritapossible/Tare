@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { extractClaims, createServComplete } from "./serv.js";
 import { fileStore } from "./store.js";
 import { PROMPT_SHA256 } from "./prompt.js";
+import { createFeedChecker, parseFeedList } from "./feeds.js";
 
 export const STORE_PATH = "data/store.json";
 
@@ -30,7 +31,7 @@ export function createRail({ rail = process.env.TARE_PAYMENT_RAIL || "kpass", st
   return createKpass({ bin: kpassBin });
 }
 
-export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail = process.env.TARE_PAYMENT_RAIL || "kpass" } = {}) {
+export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail = process.env.TARE_PAYMENT_RAIL || "kpass", feeds = parseFeedList(process.env.TARE_FEEDS) } = {}) {
   const store = fileStore(storePath);
   let complete; // created lazily so refused buys work without a key
   const extract = (prose) => {
@@ -43,6 +44,8 @@ export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail 
     extract,
     promptSha256: PROMPT_SHA256,
     paymentRail: rail,
+    // TARE_FEEDS: comma-separated records.json URLs the operator chooses to trust (opt-in).
+    feedCheck: feeds.length ? createFeedChecker({ feeds }) : null,
   });
   return { store, buy: buyer.buy };
 }

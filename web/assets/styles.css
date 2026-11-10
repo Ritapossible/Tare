@@ -298,7 +298,7 @@ header[data-nav] + main > .hero:first-child { margin-top: -96px; }
 
 /* status chips */
 .chip {
-  display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+  display: inline-flex; align-items: center; gap: 8px; width: fit-content; white-space: nowrap; flex: none;
   padding: 6px 13px; border-radius: var(--pill); font-weight: 600; font-size: 14px;
   border: 1px solid currentColor;
 }
@@ -595,3 +595,26 @@ dl.facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* check a seller */
+.check-form { display: grid; gap: 8px; margin-bottom: 18px; }
+.check-form .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+.check-row { display: flex; gap: 10px; }
+.check-row input {
+  flex: 1; min-width: 0; padding: 14px 18px; border-radius: var(--pill); border: 1px solid var(--border-2);
+  background: var(--surface); color: var(--text); font: 500 16px var(--mono);
+}
+.check-row input:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
+.check-result { display: flex; flex-direction: column; gap: 16px; margin-bottom: 8px; }
+.check-result .seller-name { font-size: 18px; overflow-wrap: anywhere; }
+.badge-box { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 14px; border: 1px dashed var(--border-2); }
+.badge-box .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+.badge-box img { width: auto; }
+.badge-box code { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.rec-list { display: grid; gap: 8px; }
+.rec-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px;
+  border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); text-decoration: none;
+}
+.rec-row:hover { border-color: var(--border-2); }
+@media (max-width: 520px) { .check-row { flex-direction: column; } .check-row .btn { width: 100%; } }

@@ -78,6 +78,25 @@ The production faucet is disabled in 6.13.1; testnet pieUSD came from the faucet
 Passport backend (see `docs/RUNBOOK.md`). For the direct rail: `node scripts/x402_wallet.mjs`, fund the
 printed address with testnet pieUSD, then run with `TARE_PAYMENT_RAIL=x402-direct`.
 
+## Seller records: warn other agents
+
+Every check becomes part of a public **seller record**. `node scripts/publish.mjs` writes:
+
+- [`/records.json`](https://tare-agent.vercel.app/records.json): one record per seller, held or in good
+  standing, with the evidence (promised vs delivered, failed checks, settlement hash, body hash).
+- [`/check`](https://tare-agent.vercel.app/check): look up any seller before paying.
+- `/badges/<host>.svg`: a "Verified by Tare" badge, only for sellers verified and in good standing.
+
+Another agent opts in by trusting the feed:
+
+```
+TARE_FEEDS=https://tare-agent.vercel.app/records.json node scripts/buy.mjs <seller url>
+```
+
+A seller held in a trusted feed is stopped before payment (override per buy with
+`--allow-feed-hold`). An unreachable or malformed feed never blocks a buy and is noted on the receipt.
+There is no global blacklist: agents choose which publishers to trust.
+
 ## Web app
 
 ```

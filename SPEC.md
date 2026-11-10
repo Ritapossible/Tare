@@ -162,6 +162,23 @@ Why two: Kite Passport (prod and dev, CLI 6.13.1) only pays hosts in Kite's exec
 the published run uses `x402-direct`. Every hash is still a real Kite testnet settlement returned in
 `PAYMENT-RESPONSE`, never invented.
 
+## Seller records and trusted feeds
+
+- `buildRecords` (src/records.js) turns the store into one record per seller origin: `held` (with the
+  reason and the evidence of the receipt that caused it) or `in_good_standing` (with the last check).
+  A never-checked seller has no record. Only real `0x`+64-hex settlement hashes appear in evidence.
+- `scripts/publish.mjs` writes `web/records.json` (feed, version 1) and `web/badges/<host>.svg`.
+  A "Verified by Tare" badge exists only for a seller in good standing with at least one verified
+  check; publishing deletes badges that are no longer earned.
+- **Opt-in feeds:** `TARE_FEEDS` lists the records.json URLs (https only) the operator trusts. Before
+  paying, Tare reads them; a seller held in any trusted feed is **refused before payment** unless the
+  operator passes `--allow-feed-hold` for that buy. An unreachable, invalid or partly malformed feed
+  never blocks a buy, and every feed problem is written to the receipt's `feed_notes`.
+- No global blacklist: a record only affects agents that choose to trust its publisher. Records are
+  per origin; a seller can move domain (Kite agent identity is the natural next step).
+- `/check` on the site looks a seller up in the published feed: held, in good standing, or never
+  checked, with the evidence and, for verified sellers, the badge embed snippet.
+
 ## Sellers
 
 Two **public HTTPS origins** (not two paths on one host — the blocklist would block both). Each is

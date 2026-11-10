@@ -51,11 +51,16 @@ src/
   config.js      loads sellers.json, asserts distinct origins
   tare.js        production wiring (real SERV, real kpass, file store, raw kpass log)
   state.js       the state shape the web app reads (live or published)
+  records.js     seller records (held / in good standing + evidence) and "Verified by Tare" badges
+  feeds.js       opt-in trusted feeds (TARE_FEEDS): validate, check an origin before payment
   server.js      local console server: static web/ + guarded /api/state, /api/buy (127.0.0.1 only)
 web/             static site + app, deployable as-is (Vercel root = web/)
   index.html     landing · app/{index,receipt,sellers}.html · docs/index.html · 404.html
   assets/        styles.css, layout.js (nav/footer), render.js (pure, escaped), console.js, icons.js
   data/state.json  published run (read-only mode); written by scripts/publish.mjs
+  records.json   published seller-records feed (opt-in for other agents)
+  badges/        "Verified by Tare" SVG badges, verified sellers only
+  check.html     "Check a seller" page (assets/records-view.js, pure + escaped)
   vercel.json    clean URLs + security headers
   server.js      local UI: GET / (receipts page), POST /buy?seller=a|b
 scripts/

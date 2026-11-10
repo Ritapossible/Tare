@@ -8,11 +8,13 @@ const SITE_LINKS = [
   ["How it works", "/#how"],
   ["The demo", "/#demo"],
   ["FAQ", "/#faq"],
+  ["Check a seller", "/check"],
   ["Docs", "/docs"],
 ];
 const APP_LINKS = [
   ["Console", "/app"],
   ["Sellers", "/app/sellers"],
+  ["Check", "/check"],
   ["Docs", "/docs"],
   ["Site", "/"],
 ];
@@ -59,6 +61,8 @@ function footer() {
             <li><a href="/#how">How it works</a></li>
             <li><a href="/app">Console</a></li>
             <li><a href="/app/sellers">Sellers</a></li>
+            <li><a href="/check">Check a seller</a></li>
+            <li><a href="/records.json">Records feed</a></li>
             <li><a href="/#faq">FAQ</a></li>
           </ul>
         </div>

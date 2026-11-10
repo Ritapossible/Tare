@@ -15,11 +15,17 @@ loadEnv();
 
 const [target, ...rest] = process.argv.slice(2);
 if (!target) {
-  console.error("usage: node scripts/buy.mjs <a|b|url> [--request-id ID]");
+  console.error("usage: node scripts/buy.mjs <a|b|url> [--request-id ID] [--allow-feed-hold]");
   process.exit(2);
 }
 const idIdx = rest.indexOf("--request-id");
 const requestId = idIdx >= 0 ? rest[idIdx + 1] : undefined;
+if (idIdx >= 0 && !/^[A-Za-z0-9_-]{1,100}$/.test(requestId ?? "")) {
+  console.error("--request-id needs a value of letters, digits, '-' or '_' (max 100)");
+  process.exit(2);
+}
+// A seller held in a trusted feed is stopped unless the operator passes this flag on purpose.
+const allowFeedHold = rest.includes("--allow-feed-hold");
 
 let url = target;
 if (!/^https?:\/\//.test(target)) {
@@ -42,7 +48,7 @@ const tare = createTare({
   },
 });
 
-const r = await tare.buy(url, { requestId });
+const r = await tare.buy(url, { requestId, allowFeedHold });
 const show = (k, v) => console.log(`${k.padEnd(12)}: ${v}`);
 show("origin", r.origin);
 show("status", r.status + (r.replayed ? " (replayed, no new payment)" : ""));
@@ -55,4 +61,5 @@ const record = tare.store.blockEntry(r.origin);
 show("record", record ? `held (${record.reason})` : "in good standing");
 if (r.reason) show("reason", r.reason);
 if (r.error) show("error", r.error);
+for (const note of r.feed_notes ?? []) show("feed", note);
 show("payments", `${tare.store.kpassCalls()} attempted (rail: ${process.env.TARE_PAYMENT_RAIL || "kpass"})`);

@@ -53,15 +53,15 @@ and kpass not called, verified with a real hash.
 
 ## Day 4 — Wed 11 Nov · Shared seller records + "check a seller" (only if Tuesday's gate passed)
 Goal: a person can use Tare, and honest sellers have a reason to care (evaluation: backer fit 10/15).
-- [ ] 🤖 Publish held sellers as a public feed `web/records.json`: one entry per held origin with its
+- [x] 🤖 Publish held sellers as a public feed `web/records.json`: one entry per held origin with its
       evidence (promised vs delivered, failed checks, settlement hash, body sha256, prompt sha256, time)
-- [ ] 🤖 Before each buy, read the feeds the operator chooses to trust (`TARE_FEEDS`); a seller held
+- [x] 🤖 Before each buy, read the feeds the operator chooses to trust (`TARE_FEEDS`); a seller held
       in a trusted feed is **warned** and stopped before kpass until a human allows it
-- [ ] 🤖 **"Check a seller" page** (`/check`): paste an x402 seller URL → in good standing / held with
+- [x] 🤖 **"Check a seller" page** (`/check`): paste an x402 seller URL → in good standing / held with
       evidence / never checked. This is the human-facing entry point.
-- [ ] 🤖 **"Verified by Tare" badge**: a small SVG per origin, served from the published records, that
+- [x] 🤖 **"Verified by Tare" badge**: a small SVG per origin, served from the published records, that
       an honest seller can embed. Only sellers with a verified receipt get it; held sellers never do.
-- [ ] 🤖 Tests: trusted feed hit stops before kpass; untrusted or unreachable feed never blocks a buy
+- [x] 🤖 Tests: trusted feed hit stops before kpass; untrusted or unreachable feed never blocks a buy
       silently (the receipt says what happened); malformed feed entries are ignored; feed contains no
       hash that kpass did not return; badge never says verified for a held or unchecked origin
 - [ ] 🤖 Write-up limits: only feeds you choose to trust (no global blacklist), evidence on every
