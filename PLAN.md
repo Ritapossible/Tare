@@ -121,6 +121,11 @@ Afternoon:
 - [ ] 🧑 Re-check data collection is enabled in OpenServ org settings
 - [ ] 🧑 Submit at https://openserv.typeform.com/submissions02 (Kite track)
 
+## Audit (10 Nov) — 26 findings
+- [x] 🤖 Findings 1-8 (injection boundary, lost hash, double payment, spend cap) fixed + regression tests
+- [ ] 🤖 Next: 11-14 (probe checks every accepts entry; receipt page validates hash; payment_rail stored with the run; "not paid" vs paid-no-hash)
+- [ ] 🤖 Then: 9-10, 15-26 (UTF-8 chunks, raw body hash, publish path, CLI edge cases, server null body, dispute counts, esc() on numbers, fake-looking fixtures, stale comments, duplicated constants, serv_check reuse, serve.mjs cleanup, store caching)
+
 ## Day 8 — Sun 15 Nov · Buffer only. Deadline 23:59 UTC.
 
 ## Credits

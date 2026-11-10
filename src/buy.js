@@ -12,6 +12,11 @@ import { parseBody, check, shapeFailure } from "./check.js";
 
 const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
 
+// Payment-rail idempotency key: hex, fixed length, derived from Tare's own origin|request_id key.
+export function paymentKey(idempotencyKey) {
+  return `tare-${sha256(idempotencyKey).slice(0, 40)}`;
+}
+
 export function originOf(url) {
   const u = new URL(url);
   if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error(`unsupported URL scheme: ${u.protocol}`);
@@ -79,12 +84,27 @@ export function createBuyer(deps) {
     store.countKpassCall();
     let paid;
     try {
-      paid = await kpass.execute(url, { idempotencyKey: `tare-${request_id}` });
+      // Scoped to origin + request id (the same id on two sellers must never share a payment key).
+      paid = await kpass.execute(url, { idempotencyKey: paymentKey(idempotency_key) });
     } catch (err) {
-      return finish({ status: "failed", error: `kpass: ${err?.message ?? err}` });
+      if (err?.outcome === "unknown") {
+        // We cannot tell whether money moved. Stay pending: the origin is refused until a human
+        // checks the chain. Never mark it failed (that would allow a second payment).
+        return finish({ status: "pending", error: `payment outcome unknown: ${err?.message ?? err}` });
+      }
+      return finish({ status: "failed", error: `payment: ${err?.message ?? err}` });
+    }
+    if (paid.status !== 200 && paid.paymentHash) {
+      // Settled, but the seller did not deliver. Keep the real hash; nothing usable was delivered.
+      const bodyText = paid.bodyText ?? "";
+      finish({ tx_hash: paid.paymentHash, body_sha256: sha256(bodyText), error: `seller returned HTTP ${paid.status} after settlement` });
+      const r = shapeFailure();
+      finish({ status: r.verdict, count: r.count, unique_count: r.unique_count, failed: r.failed });
+      store.block(origin, { receipt_id: receipt.id, reason: r.verdict, at: now() });
+      return receipt;
     }
     if (paid.status !== 200) {
-      return finish({ status: "failed", error: `kpass returned HTTP ${paid.status}` });
+      return finish({ status: "failed", error: `payment returned HTTP ${paid.status}` });
     }
     if (!paid.paymentHash) {
       // Never invent a hash. Without one we do not judge the delivery.

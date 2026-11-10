@@ -77,7 +77,8 @@ export function createKpass({ bin = "kpass", timeoutMs = 180_000 } = {}) {
         let out = "";
         const timer = setTimeout(() => {
           child.kill("SIGTERM");
-          reject(new Error(`kpass timed out after ${timeoutMs} ms`));
+          // The payment may still settle after we stop waiting: the outcome is unknown, not failed.
+          reject(Object.assign(new Error(`kpass timed out after ${timeoutMs} ms`), { outcome: "unknown" }));
         }, timeoutMs);
         child.stdout.on("data", (d) => (out += d));
         child.on("error", (err) => {

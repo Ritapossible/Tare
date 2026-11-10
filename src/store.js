@@ -115,8 +115,11 @@ export class Store {
     });
   }
 
+  // Clears receipts, holds, idempotency and the call counter for a fresh demo take. The direct-rail
+  // spend ledger is lifetime and is kept, so a reset never restores the total spending cap.
   reset() {
-    this.backend.write(empty());
+    const kept = this.backend.read().direct_spent_units ?? "0";
+    this.backend.write({ ...empty(), direct_spent_units: kept });
   }
 }
 

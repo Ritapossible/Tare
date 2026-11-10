@@ -35,14 +35,19 @@ export const SERV_RESPONSE_FORMAT = { type: "json_schema", json_schema: { name: 
 
 export const PROMPT_SHA256 = createHash("sha256").update(SYSTEM_PROMPT, "utf8").digest("hex");
 
-// Wrap the seller's prose for SERV. Any <prose> / </prose> tags inside the seller's own text are
-// removed so the seller cannot close the data block early. Only the prose is ever sent; the rows
-// never leave Tare.
+// Wrap the seller's prose for SERV. Any <prose> / </prose> tag inside the seller's own text, with
+// any whitespace or attributes, is removed REPEATEDLY until none is left, so nested tricks such as
+// "<</prose>/prose>" cannot rebuild a closing tag. Only the prose is ever sent; the rows never leave Tare.
+const PROSE_TAG = /<\s*\/?\s*prose\b[^>]*>/gi;
 export function buildUserMessage(prose) {
   if (typeof prose !== "string") {
     throw new TypeError("prose must be a string");
   }
-  const cleaned = prose.replace(/<\s*\/?\s*prose\s*>/gi, "");
+  let cleaned = prose;
+  for (let prev = null; prev !== cleaned; ) {
+    prev = cleaned;
+    cleaned = cleaned.replace(PROSE_TAG, "");
+  }
   return `<prose>${cleaned}</prose>`;
 }
 

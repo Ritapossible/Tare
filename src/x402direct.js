@@ -45,7 +45,7 @@ export function checkRequirement(req, { spent, caps = DEFAULT_CAPS }) {
 }
 
 // ledger = { spent(): bigint, add(units: bigint): void }
-export function createX402Direct({ privateKey, ledger, caps = DEFAULT_CAPS, fetchImpl = globalThis.fetch }) {
+export function createX402Direct({ privateKey, ledger, caps = DEFAULT_CAPS, fetchImpl = globalThis.fetch, timeoutMs = 90_000 }) {
   if (!privateKey) throw new Error("x402-direct rail needs a testnet private key (scripts/x402_wallet.mjs)");
   const account = privateKeyToAccount(privateKey);
 
@@ -62,19 +62,34 @@ export function createX402Direct({ privateKey, ledger, caps = DEFAULT_CAPS, fetc
     if (reason) return { abort: true, reason: `Tare refused to sign: ${reason}` };
     pending = BigInt(selectedRequirements.amount ?? selectedRequirements.maxAmountRequired);
   });
+  // Count the spend the moment a payment is signed, whatever the seller answers afterwards, so the
+  // total cap can never be exceeded by settled-but-errored calls.
+  let signed = false;
+  client.onAfterPaymentCreation(async () => {
+    signed = true;
+    ledger.add(pending);
+  });
 
-  const payFetch = wrapFetchWithPayment(fetchImpl, client);
+  // Every request (the unpaid probe and the signed retry) gets its own timeout.
+  const timedFetch = (input, init = {}) => fetchImpl(input, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+  const payFetch = wrapFetchWithPayment(timedFetch, client);
 
   return {
     address: account.address,
     async execute(url) {
       pending = 0n;
-      const res = await payFetch(url, { method: "GET" });
-      const bodyText = await res.text();
+      signed = false;
+      let res, bodyText;
+      try {
+        res = await payFetch(url, { method: "GET" });
+        bodyText = await res.text();
+      } catch (err) {
+        // After signing, a timeout or network error leaves the settlement unknown.
+        if (signed) throw Object.assign(err instanceof Error ? err : new Error(String(err)), { outcome: "unknown" });
+        throw err;
+      }
       const header = res.headers.get("payment-response");
       const paymentHash = decodePaymentResponse(header);
-      // Count the spend once the seller answered 200 to a signed payment, hash or not.
-      if (res.status === 200 && pending > 0n) ledger.add(pending);
       const raw = JSON.stringify({ rail: "x402-direct", status: res.status, payment_response: header, body_bytes: bodyText.length });
       return { status: res.status, bodyText, paymentHash, raw };
     },

@@ -46,19 +46,30 @@ export function createTare({ storePath = STORE_PATH, kpassBin, onKpassRaw, rail 
   return { store, buy: buyer.buy };
 }
 
-// Hand every raw kpass output to a logger (the CLI writes it to data/kpass_raw.log).
-function withRawLog(kpass, onRaw) {
-  if (!onRaw) return kpass;
+// Hand every raw payment output to a logger (the CLI writes it to data/kpass_raw.log).
+// Logging is best effort: a logger failure must never change the payment outcome, because a
+// settled payment recorded as "failed" would lose its hash and could be paid again.
+export function withRawLog(rail, onRaw) {
+  if (!onRaw) return rail;
+  const log = (text) => {
+    try {
+      onRaw(text);
+    } catch (err) {
+      console.error(`warning: could not write the raw payment log: ${err?.message ?? err}`);
+    }
+  };
   return {
+    ...rail,
     async execute(url, opts) {
+      let res;
       try {
-        const res = await kpass.execute(url, opts);
-        onRaw(res.raw);
-        return res;
+        res = await rail.execute(url, opts);
       } catch (err) {
-        onRaw(`ERROR: ${err?.message ?? err}`);
+        log(`ERROR: ${err?.message ?? err}`);
         throw err;
       }
+      log(res.raw);
+      return res;
     },
   };
 }
