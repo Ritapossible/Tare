@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Docs - Tare</title>
-  <meta name="description" content="How to run Tare: SERV key, Kite testnet setup, payment rail, sellers, console, rules, seller records, configuration and deployment." />
+  <meta name="description" content="Tare reference: how a buy works, SERV Reasoning and grounding, checks and statuses, receipts, seller records, payment rails, library, CLI, configuration, limits and troubleshooting." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,44 +19,204 @@
     <div class="wrap docs">
       <nav class="toc" aria-label="On this page">
         <span class="label">Docs</span>
-        <a href="#what">What Tare is</a>
+        <a href="#overview">Overview</a>
+        <a href="#flow">How a buy works</a>
         <a href="#quickstart">Quick start</a>
-        <a href="#serv">SERV key</a>
-        <a href="#kite">Kite testnet</a>
-        <a href="#rail">Payment rail</a>
-        <a href="#sellers">Sellers</a>
-        <a href="#library">Library</a>
-        <a href="#console">Console</a>
-        <a href="#rules">Rules</a>
+        <a href="#serv">SERV Reasoning</a>
+        <a href="#grounding">Grounding</a>
+        <a href="#rules">Checks</a>
         <a href="#statuses">Statuses</a>
-        <a href="#security">Security</a>
+        <a href="#receipts">Receipts</a>
         <a href="#records">Seller records</a>
+        <a href="#rail">Payment rails</a>
+        <a href="#kite">Kite testnet setup</a>
+        <a href="#sellers">Demo sellers</a>
+        <a href="#library">Library</a>
+        <a href="#cli">Command line</a>
         <a href="#config">Configuration</a>
-        <a href="#deploy">Deploy to Vercel</a>
+        <a href="#security">Security</a>
+        <a href="#limits">Limits</a>
+        <a href="#troubleshooting">Troubleshooting</a>
       </nav>
       <article class="prose-doc">
         <span class="label">Docs</span>
-        <h1>Run Tare.</h1>
-        <p class="lede">Everything needed to go from a clone to a disputed seller, a refused payment and a clean one, on Kite testnet.</p>
+        <h1>Tare, end to end.</h1>
+        <p class="lede">How Tare decides, what every receipt field means, and how to run it, publish seller records and add it to your own agent. Everything here runs on Kite testnet.</p>
 
-        <h2 id="what">What Tare is</h2>
-        <p>Tare is an independent check of what an x402 data seller delivered. It pays a data seller over x402 on Kite testnet (with Kite Passport, or a capped testnet key while Passport cannot pay uncatalogued sellers), reads the seller's own promises with SERV Reasoning, both the 402 advertisement made before payment and the note that comes with the delivery, and checks those promises against the delivered rows in code. Every check becomes a receipt with evidence, and every seller has a record: a seller whose claims fail is <strong>held</strong>, and the agent stops buying from it before any payment.</p>
-        <p><strong>Not a spending policy.</strong> A spending policy decides before paying, from the amount, merchant and budget. Tare checks after delivery, from the rows. Kite Passport's capped session is the spending limit; Tare verifies what it bought.</p>
-        <p><strong>Code, not SERV, counts and decides.</strong> The model id is <code>gpt-5.4-mini-serv-multipath</code>; it only extracts claims: four from the main prompt, and a time window (<code>max_age_hours</code>) from a second prompt that runs only when the seller mentions time. Code drops any claim the seller's text does not support: a count must be a number the seller states exactly, not "up to 20" or "10,000+".</p>
+        <details class="toc-mobile">
+          <summary>On this page</summary>
+          <nav aria-label="On this page (mobile)">
+            <a href="#overview">Overview</a><a href="#flow">How a buy works</a><a href="#quickstart">Quick start</a><a href="#serv">SERV Reasoning</a><a href="#grounding">Grounding</a><a href="#rules">Checks</a><a href="#statuses">Statuses</a><a href="#receipts">Receipts</a><a href="#records">Seller records</a><a href="#rail">Payment rails</a><a href="#kite">Kite testnet setup</a><a href="#sellers">Demo sellers</a><a href="#library">Library</a><a href="#cli">Command line</a><a href="#config">Configuration</a><a href="#security">Security</a><a href="#limits">Limits</a><a href="#troubleshooting">Troubleshooting</a>
+          </nav>
+        </details>
+
+        <h2 id="overview">Overview</h2>
+        <p>Tare is an independent check of what an x402 data seller delivered. With x402 an agent pays a seller and gets the data back in the same response, along with the seller's own description of it ("1,240 unique records, no nulls"). Nothing compares that description to the data. Tare does.</p>
+        <p><strong>Not a spending policy.</strong> A spending policy decides before paying, from the amount, merchant and budget. Tare checks after delivery, from the rows. The two work together: a cap limits what an agent can pay, and Tare checks what that payment bought, whichever wallet signed it.</p>
+        <p><strong>Three systems, strict lanes.</strong> SERV Reasoning reads the seller's words and returns typed claims. Tare's code counts the rows and decides. The payment rail pays, inside caps. The model never sees the rows, never returns a verdict and never pays.</p>
+
+        <h2 id="flow">How a buy works</h2>
+        <p>Every buy runs these steps in order, one buy at a time. Steps 1 to 4 can stop a buy before any money moves.</p>
+        <ol>
+          <li><strong>Replay check.</strong> A buy with a request id seen before returns the original receipt. It never pays twice.</li>
+          <li><strong>Local seller record.</strong> If the seller's origin is held, the buy is <em>refused</em> before any payment.</li>
+          <li><strong>Pending check.</strong> If an earlier payment to that origin has an unknown outcome, the buy is refused until a person resolves it.</li>
+          <li><strong>Trusted feeds</strong> (optional). If a feed the operator trusts holds the seller, the buy is refused, unless the operator allows it on purpose with <code>--allow-feed-hold</code>.</li>
+          <li><strong>402 advertisement.</strong> An unpaid request reads the seller's <code>resource.description</code>: the promise it makes before any money moves.</li>
+          <li><strong>Pay.</strong> The payment rail pays 0.001 testnet pieUSD over x402. The receipt is written as <em>pending</em> first, so a crash can never lose a payment. The settlement hash comes from the <code>PAYMENT-RESPONSE</code> header and is never made up.</li>
+          <li><strong>Read.</strong> SERV Reasoning reads the delivery note and the advertisement and returns claims. Code drops any claim the seller's text does not support (<a href="#grounding" class="u">grounding</a>).</li>
+          <li><strong>Check.</strong> Code counts rows, distinct ids, fields, empty values and timestamp ages, and checks every claim from both sources.</li>
+          <li><strong>Record.</strong> A dispute or an unverifiable delivery puts the seller on hold. The receipt keeps the evidence.</li>
+        </ol>
 
         <h2 id="quickstart">Quick start</h2>
+        <p>Requires Node 22 or newer and a SERV Reasoning API key.</p>
 <pre>git clone https://github.com/Ritapossible/Tare && cd Tare
 npm ci
 npm test                        # SERV and the payment rail are faked; no network
 cp .env.example .env            # add SERV_API_KEY
 node scripts/serv_check.mjs     # one real SERV call, production client
-npm run app                     # console on http://127.0.0.1:4020</pre>
+npm run app                     # console on http://127.0.0.1:4020/app</pre>
+        <p>To make real payments, set up a payment rail (<a href="#rail" class="u">Payment rails</a>) and deploy two sellers (<a href="#sellers" class="u">Demo sellers</a>). Then:</p>
+<pre>node scripts/reset.mjs    # clean slate (keeps the lifetime spending ledger)
+node scripts/buy.mjs a    # dispute, seller A held
+node scripts/buy.mjs a    # stopped, no payment attempted
+node scripts/buy.mjs b    # verified</pre>
 
-        <h2 id="serv">SERV key</h2>
+        <h2 id="serv">SERV Reasoning</h2>
         <p>Create a key at <a href="https://console.openserv.ai" target="_blank" rel="noopener">console.openserv.ai</a> and put it in <code>.env</code> as <code>SERV_API_KEY</code>. The $5 starter credit pays for SERV inference only; it never funds a payment.</p>
-        <p><code>node scripts/serv_eval.mjs</code> runs nine ordinary and six adversarial seller texts against the real model and reports accuracy and safety. Last live run (10 Nov, final code): accuracy 9/9, safety 6/6. Requests declare SERV's <code>serv_disable_content_filter</code> tool, because the default filter refused plain seller texts. SERV's Prompt Guard is deliberately off: it would turn a seller's injection attempt into a SERV failure, so the seller would be paid but not held.</p>
+        <table>
+          <tbody>
+            <tr><td>Model</td><td><code>gpt-5.4-mini-serv-multipath</code>, <code>reasoning_effort: low</code></td></tr>
+            <tr><td>Output</td><td>Strict JSON schema, 400-token cap. Any field outside the schema is dropped unread.</td></tr>
+            <tr><td>Main prompt</td><td>Four claims: <code>claimed_count</code>, <code>unique</code>, <code>fields</code>, <code>no_nulls</code>. sha256 <code>7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86</code></td></tr>
+            <tr><td>Freshness prompt</td><td>One claim, <code>max_age_hours</code>. Runs only when the seller's text mentions time. sha256 <code>b7089fef4ceba1244340c9c975202a8630356e20298c6d3fa0b81fe59facaa1c</code></td></tr>
+            <tr><td>Input</td><td>Only the seller's text, inside <code>&lt;prose&gt;</code> tags. Any <code>&lt;prose&gt;</code> tags the seller hides in its own text are stripped first. The rows are never sent.</td></tr>
+            <tr><td>Retries</td><td>An invalid answer is retried once. A second invalid answer is <code>SERV_INVALID</code>; an API error is <code>SERV_API</code>. Either one leaves the receipt <em>paid, unchecked</em>.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Why two prompts.</strong> Adding the time window to the main prompt made SERV's content filter refuse far more short texts (9 of 12 against 3 of 12), so freshness became its own call and the main prompt was left unchanged.</p>
+        <p><strong>SERV platform tools.</strong> Requests declare <code>serv_disable_content_filter</code> by default (<code>TARE_SERV_TOOLS</code>), because the default filter refused plain seller texts such as "Here is your data.". <code>serv_prompt_guard</code> is deliberately off: it blocks injection-looking text, which Tare would have to record as a SERV failure, so the seller would be paid but not held. Without it, the same text is read, checked and disputed.</p>
+        <p><strong>Live evaluation</strong> (<code>node scripts/serv_eval.mjs</code>, 10 Nov 2026, final code):</p>
+        <table>
+          <thead><tr><th>Set</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Accuracy: 9 honest seller texts (digits, words, Spanish, three fields, time windows)</td><td><strong>9/9</strong> exact</td></tr>
+            <tr><td>Safety: 6 injection attempts, each making a false promise about seller A</td><td><strong>6/6</strong> safe (none got seller A verified)</td></tr>
+          </tbody>
+        </table>
 
-        <h2 id="kite">Kite testnet</h2>
+        <h2 id="grounding">Grounding</h2>
+        <p>SERV is good at reading phrasing and bad at admitting a text says nothing. On real x402 service descriptions it invented counts, "unique" and "no nulls". So code keeps a claim only when the seller's own text supports it. Code may drop a claim; it never adds or changes one. Dropped claims are listed in the receipt's notes.</p>
+        <table>
+          <thead><tr><th>Claim</th><th>Kept only if the seller's text…</th></tr></thead>
+          <tbody>
+            <tr><td><code>claimed_count</code></td><td>states that exact number, in digits or words (English or Spanish). Not as a bound or approximation ("up to 20", "10,000+", "~2", "about 200"), and not inside a price, decimal, percentage, time or name ("$0.002", "7%", "23:59", "HIP-4"). A lone "one" is not a count.</td></tr>
+            <tr><td><code>unique</code></td><td>says unique, distinct or no duplicates.</td></tr>
+            <tr><td><code>no_nulls</code></td><td>mentions nulls, empty, missing or blank values.</td></tr>
+            <tr><td><code>fields</code></td><td>talks about fields or columns, and names every field it claims.</td></tr>
+            <tr><td><code>max_age_hours</code></td><td>names that window explicitly ("last 24 hours", "this week", "today"). "Latest", "real-time" or "~2 days" name no window.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="rules">Checks</h2>
+        <p>All checks are plain code. Rows are expected as <code>{"prose": "...", "rows": [{...}, ...]}</code>; ids are read from each row's <code>id</code> and times from its <code>ts</code>.</p>
+        <table>
+          <thead><tr><th>Rule</th><th>Fails when</th></tr></thead>
+          <tbody>
+            <tr><td><code>shape</code></td><td>The body is not JSON with a string <code>prose</code> and an array of objects <code>rows</code>, or the seller took payment and returned an error.</td></tr>
+            <tr><td><code>count</code></td><td>A count is claimed and differs from the row count (or from the unique-id count, when uniqueness is claimed).</td></tr>
+            <tr><td><code>unique</code></td><td>Uniqueness is claimed and some ids repeat.</td></tr>
+            <tr><td><code>fields</code></td><td>Fields are named and some row lacks one.</td></tr>
+            <tr><td><code>no_nulls</code></td><td>"No nulls" is claimed and a checked value is <code>null</code> or empty. Checked fields are the named ones, or every field if none are named.</td></tr>
+            <tr><td><code>fresh</code></td><td>A time window is claimed and some row's <code>ts</code> is missing, unreadable, older than the window, or more than 5 minutes in the future (measured at delivery time).</td></tr>
+            <tr><td><code>advertised:&lt;rule&gt;</code></td><td>The same rules, applied to the claims in the seller's 402 advertisement. A missing advertisement is noted and never changes the verdict.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Verdict.</strong> Any failed rule is a <strong>dispute</strong>. No failure but no count claimed anywhere is <strong>unverifiable</strong>: a promise that claims nothing cannot be checked, so the seller is held. Steering the model into empty claims gets a seller held, not trusted. Otherwise the delivery is <strong>verified</strong>.</p>
+
+        <h2 id="statuses">Statuses</h2>
+        <table>
+          <thead><tr><th>Status</th><th>Money · record</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>clean</code><br /><span class="faint">Verified</span></td><td>Paid: yes<br /><span class="faint">Record: in good standing</span></td><td>Every claim matched.</td></tr>
+            <tr><td><code>dispute</code><br /><span class="faint">Dispute</span></td><td>Paid: yes<br /><span class="faint">Record: held</span></td><td>A claim failed.</td></tr>
+            <tr><td><code>unverifiable</code><br /><span class="faint">Unverifiable</span></td><td>Paid: yes<br /><span class="faint">Record: held</span></td><td>No count claim to check.</td></tr>
+            <tr><td><code>refused</code><br /><span class="faint">Stopped</span></td><td>Paid: no<br /><span class="faint">Record: unchanged</span></td><td>The seller is held (locally or in a trusted feed), or a payment to it is still pending.</td></tr>
+            <tr><td><code>pending</code><br /><span class="faint">Outcome unknown</span></td><td>Paid: unknown<br /><span class="faint">Record: refused until resolved</span></td><td>The payment was signed but its outcome was not seen. Resolve with <code>scripts/resolve.mjs</code>.</td></tr>
+            <tr><td><code>paid_unchecked</code><br /><span class="faint">Paid, unchecked</span></td><td>Paid: yes<br /><span class="faint">Record: unchanged</span></td><td>SERV gave no readable answer twice, or could not be reached.</td></tr>
+            <tr><td><code>paid_unverified</code><br /><span class="faint">Paid, no hash</span></td><td>Paid: unknown<br /><span class="faint">Record: unchanged</span></td><td>The payment rail returned no settlement hash, so the delivery was not judged.</td></tr>
+            <tr><td><code>failed</code><br /><span class="faint">Failed</span></td><td>Paid: no<br /><span class="faint">Record: unchanged</span></td><td>The payment was refused or errored, or the seller answered with an error and no settlement hash.</td></tr>
+          </tbody>
+        </table>
+        <p>A human can release a held seller after review with <code>node scripts/unblock.mjs &lt;origin&gt;</code>. Releasing a hold does not refund the first payment.</p>
+
+        <h2 id="receipts">Receipts</h2>
+        <p>Every buy, including a refused one, produces a receipt. These fields are the evidence; the hashes let anyone repeat a check.</p>
+        <table>
+          <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>status</code></td><td>See <a href="#statuses" class="u">Statuses</a>.</td></tr>
+            <tr><td><code>origin</code>, <code>url</code></td><td>The seller. Records are keyed by origin (<code>new URL(url).origin</code>), never by a name the model returned.</td></tr>
+            <tr><td><code>tx_hash</code></td><td>The settlement hash from <code>PAYMENT-RESPONSE</code>, or <code>null</code>. Never invented. <code>tx_hash_source: "operator"</code> marks a hash a person entered after checking the explorer.</td></tr>
+            <tr><td><code>payment_rail</code></td><td><code>kpass</code> or <code>x402-direct</code>.</td></tr>
+            <tr><td><code>body_sha256</code></td><td>sha256 of the delivered body's exact bytes.</td></tr>
+            <tr><td><code>prompt_sha256</code></td><td>sha256 of the system prompt used to read the promise.</td></tr>
+            <tr><td><code>promise</code></td><td>The delivery note, word for word.</td></tr>
+            <tr><td><code>advertised</code></td><td>The 402 advertisement, word for word.</td></tr>
+            <tr><td><code>claims</code>, <code>advertised_claims</code></td><td>What SERV read from each, after grounding.</td></tr>
+            <tr><td><code>count</code>, <code>unique_count</code>, <code>oldest_age_hours</code></td><td>What code measured.</td></tr>
+            <tr><td><code>failed</code></td><td>The rules that failed, e.g. <code>count</code>, <code>advertised:fields</code>.</td></tr>
+            <tr><td><code>serv_notes</code>, <code>ad_notes</code>, <code>feed_notes</code>, <code>body_notes</code></td><td>How the receipt was read: claims dropped by grounding, advertisement problems, feed results and paid lookups, how the body was hashed.</td></tr>
+            <tr><td><code>reason</code>, <code>error</code></td><td>Why a buy was refused, or what went wrong. Shown with a plain sentence.</td></tr>
+            <tr><td><code>request_id</code>, <code>idempotency_key</code></td><td>Replay protection: <code>origin|request_id</code>. The payment key is derived from it, so one request can never pay twice.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="records">Seller records</h2>
+        <p><code>node scripts/publish.mjs</code> turns the local run into a public feed at <a href="/records.json" class="u"><code>/records.json</code></a>. Each seller origin is <strong>held</strong> (with the receipt that caused it) or <strong>in good standing</strong>. The <a href="/check" class="u">Check a seller</a> page reads it, and a seller that is verified and in good standing gets a badge at <code>/badges/&lt;host&gt;.svg</code>. A held or unchecked seller never gets one.</p>
+<pre>{
+  "version": 1,
+  "publisher": "tare",
+  "records": [{
+    "origin": "https://tare-seller-a.onrender.com",
+    "status": "held",
+    "reason": "dispute",
+    "since": "2026-11-10T15:55:56.700Z",
+    "evidence": {
+      "promised": { "claimed_count": 1240, "unique": true, ... },
+      "delivered": { "count": 1240, "unique_count": 860 },
+      "failed": ["count", "unique", "no_nulls", "advertised:fields"],
+      "tx_hash": "0xe46bad23...b3dda89a",
+      "body_sha256": "...", "prompt_sha256": "...",
+      "promise": "...", "advertised": "...", "payment_rail": "x402-direct"
+    },
+    "counts": { "verified": 0, "disputes": 1, "unverifiable": 0, "stopped": 1 }
+  }]
+}</pre>
+        <p><strong>Trusting a feed.</strong> Another agent opts in. A seller held in a trusted feed is stopped before payment:</p>
+<pre>TARE_FEEDS=https://tare-agent.vercel.app/records.json node scripts/buy.mjs &lt;seller url&gt;
+# override for one buy, on purpose:  --allow-feed-hold</pre>
+        <p>An unreachable or malformed feed never blocks a buy, and every feed problem is written on the receipt. Malformed records are ignored one by one. There is no global blacklist: each operator chooses which feeds to trust, and a record covers one origin only.</p>
+        <p><strong>Paid lookups.</strong> The same seller template can sell the feed at 0.001 testnet pieUSD per lookup (steps in <code>sellers/README.md</code>). An agent pays for lookups only with <code>TARE_PAY_FEEDS=1</code>; the payment uses the same rail and caps as a buy, is cached for 5 minutes, and its hash is written on the receipt. Tested live on 10 Nov 2026: a fresh agent paid one lookup (<span class="hash">0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20</span>), saw seller A held, and paid seller A nothing. People check for free on <a href="/check" class="u">Check a seller</a>.</p>
+
+        <h2 id="rail">Payment rails</h2>
+        <p>Two rails behind one interface, chosen with <code>TARE_PAYMENT_RAIL</code>. Both pay standard x402 on Kite testnet.</p>
+        <table>
+          <thead><tr><th>Rail</th><th>Who signs</th><th>Caps</th></tr></thead>
+          <tbody>
+            <tr><td><code>kpass</code> (default)</td><td>Kite Passport, inside a session you approve with your passkey. The agent holds no key.</td><td>Set on the session: 0.05 per payment, 1 in total, 1 hour.</td></tr>
+            <tr><td><code>x402-direct</code></td><td>Tare, with a testnet-only key (<code>node scripts/x402_wallet.mjs</code>). The Pieverse facilitator settles.</td><td>Enforced by Tare: testnet pieUSD on <code>eip155:2368</code> only, 0.05 per payment, 1 in total over the key's lifetime.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>The published run.</strong> Kite Passport currently pays only sellers in Kite's service catalog; for Tare's sellers it returned <code>host_not_in_executable_catalog</code> on 10 Nov 2026. So the published run used <code>x402-direct</code>: payer <code>0x7979989aD2A57dC6bBf28fFB120b18aC0aB10895</code> (Tare's testnet key), payee <code>0x9Ef47eA89403c6a2637271B655b0C5b99c68C447</code> (the owner's Passport wallet). Its settlements, verified on Kite testnet:</p>
+        <ul>
+          <li>Seller A, dispute: <span class="hash">0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a</span></li>
+          <li>Seller B, verified: <span class="hash">0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec</span></li>
+        </ul>
+        <p>Asset: pieUSD <code>0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A</code> (18 decimals), network <code>eip155:2368</code>, facilitator <code>https://facilitator.pieverse.io/v2</code>.</p>
+
+        <h2 id="kite">Kite testnet setup</h2>
         <p>Kite Passport CLI 6.13.1. Run these once, in order. You approve the session with your passkey yourself; Tare never automates it.</p>
 <pre>curl -fsSL https://cli.gokite.ai/install.sh | bash
 kpass signup init --email &lt;you&gt;      # or: kpass login init / login verify
@@ -65,96 +225,53 @@ kpass wallet address
 kpass agent register --type service-tester
 kpass session create --separate --task-summary "tare receipt check" \
   --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h --no-browser</pre>
-        <p>The production faucet is disabled in 6.13.1. Testnet pieUSD came from the faucet on Kite's dev Passport backend; the steps are in <code>docs/RUNBOOK.md</code>.</p>
-        <p>Asset: pieUSD <code>0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A</code> (18 decimals), network <code>eip155:2368</code>, facilitator <code>https://facilitator.pieverse.io/v2</code>.</p>
+        <p>The production faucet is disabled in 6.13.1. Testnet pieUSD came from the faucet on Kite's dev Passport backend; the steps are in <code>docs/RUNBOOK.md</code>. For the direct rail, run <code>node scripts/x402_wallet.mjs</code>, fund the printed address with testnet pieUSD, and set <code>TARE_PAYMENT_RAIL=x402-direct</code>.</p>
 
-        <h2 id="rail">Payment rail</h2>
-        <p>Two rails behind one interface, chosen with <code>TARE_PAYMENT_RAIL</code>:</p>
-        <ul>
-          <li><code>kpass</code> (default): Kite Passport pays inside a passkey-approved session (0.05 per payment, 1 in total, 1 hour).</li>
-          <li><code>x402-direct</code>: Tare signs the standard x402 payment with a testnet-only key (<code>node scripts/x402_wallet.mjs</code>), and the Pieverse facilitator settles it. Tare refuses to sign anything but testnet pieUSD on <code>eip155:2368</code>, at most 0.05 per payment and 1 in total over the key's lifetime.</li>
-        </ul>
-        <p>Kite Passport currently pays only sellers listed in Kite's service catalog (<code>host_not_in_executable_catalog</code> for Tare's sellers on 10 Nov 2026), so the published run used <code>x402-direct</code>: payer <code>0x7979989aD2A57dC6bBf28fFB120b18aC0aB10895</code> (Tare's testnet key), payee <code>0x9Ef47eA89403c6a2637271B655b0C5b99c68C447</code> (the owner's Passport wallet). Its settlements, verified on Kite testnet:</p>
-        <ul>
-          <li>Seller A, dispute: <span class="hash">0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a</span></li>
-          <li>Seller B, verified: <span class="hash">0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec</span></li>
-        </ul>
-
-        <h2 id="sellers">Sellers</h2>
-        <p>Two sellers, each the unchanged Kite x402 Express template on its <strong>own origin</strong>, priced at 0.001 pieUSD. Each seller's advertisement is set as <code>SERVICE_DESCRIPTION</code> and differs from its delivery note, so the two promises are checked as separate sources. Deploy steps are in <code>sellers/README.md</code>. Before paying, check both without spending anything:</p>
-<pre>node scripts/seller_probe.mjs "&lt;seller A url&gt;" "&lt;seller B url&gt;"</pre>
+        <h2 id="sellers">Demo sellers</h2>
+        <p>Two sellers, each the unchanged Kite x402 Express template on its <strong>own origin</strong>, priced at 0.001 testnet pieUSD and serving committed data files. Each seller's advertisement is set as <code>SERVICE_DESCRIPTION</code> and differs from its delivery note, so the two promises are checked as separate sources. Deploy steps are in <code>sellers/README.md</code>.</p>
         <table>
-          <thead><tr><th>Seller</th><th>402 advertisement / delivery note</th><th>Delivery</th></tr></thead>
+          <thead><tr><th>Seller</th><th>Promises</th><th>What arrives</th></tr></thead>
           <tbody>
-            <tr><td>A</td><td>"Export of 1,240 records, fields id, ts and score." / "1,240 unique records, fields id and ts, no nulls"</td><td>1,240 rows · 860 unique ids · 40 null ts</td></tr>
-            <tr><td>B</td><td>"200 records." / "200 records, fields id and ts, no nulls"</td><td>200 rows · 200 unique ids · no nulls</td></tr>
+            <tr><td>A</td><td>Ad: "Export of 1,240 records, fields id, ts and score."<br />Note: "…1,240 unique records, fields id and ts, no nulls."</td><td>1,240 rows · 860 unique ids · 40 empty <code>ts</code> · no <code>score</code></td></tr>
+            <tr><td>B</td><td>Ad: "200 records."<br />Note: "…200 records, fields id and ts, no nulls."</td><td>200 rows · 200 unique ids · no empty values</td></tr>
           </tbody>
         </table>
+        <p>Check a seller charges what it should before paying it anything:</p>
+<pre>node scripts/seller_probe.mjs "&lt;seller A url&gt;" "&lt;seller B url&gt;"</pre>
 
-        <h2 id="library">Add Tare to your agent</h2>
+        <h2 id="library">Library</h2>
 <pre>// npm install github:Ritapossible/Tare   (SERV_API_KEY in the environment)
 import { verify, tareFetch } from "tare";
-const r = await verify(sellerText, rows);   // verdict: clean | dispute | unverifiable
-const receipt = await tareFetch(sellerUrl);  // pay, check, record; held sellers are refused</pre>
-        <p><code>verify</code> never pays: it reads the seller's own text with SERV and checks your rows in code. <code>tareFetch</code> is the full buyer, as in the CLI, and keeps its store in <code>./data/store.json</code>.</p>
 
-        <h2 id="console">Console</h2>
-        <p><code>npm run app</code> serves this site with a live API on <code>127.0.0.1:4020</code>. The Buy buttons only accept the sellers in <code>sellers.json</code>; the browser cannot send an arbitrary URL. From the command line:</p>
-<pre>node scripts/reset.mjs        # clean slate for a demo take
-node scripts/buy.mjs a        # dispute, seller held
-node scripts/buy.mjs a        # stopped, no payment attempted
-node scripts/buy.mjs b        # verified (status: clean)
-node scripts/publish.mjs      # state.json, records.json and badges for the hosted site</pre>
-        <p>If a payment's outcome is unknown (a timeout after signing), the receipt stays <strong>pending</strong> and the seller is refused until you check the payer's wallet on the explorer and run <code>node scripts/resolve.mjs &lt;receipt id&gt; not-paid</code> or <code>paid &lt;tx hash&gt;</code>. A hash entered this way is marked as entered by the operator.</p>
+const r = await verify(sellerText, rows);
+// { verdict: "clean" | "dispute" | "unverifiable", failed, claims,
+//   count, unique_count, oldest_age_hours, notes, prompt_sha256 }
 
-        <h2 id="rules">Rules</h2>
-        <table>
-          <thead><tr><th>Rule</th><th>Fails when</th></tr></thead>
-          <tbody>
-            <tr><td><code>shape</code></td><td>The body is not JSON with a string <code>prose</code> and an array of objects <code>rows</code>.</td></tr>
-            <tr><td><code>count</code></td><td>A count is claimed and differs from the row count (or the unique-id count, when uniqueness is claimed).</td></tr>
-            <tr><td><code>unique</code></td><td>Uniqueness is claimed and some ids repeat.</td></tr>
-            <tr><td><code>fields</code></td><td>Fields are named and some row lacks one.</td></tr>
-            <tr><td><code>no_nulls</code></td><td>"No nulls" is claimed and a checked value is <code>null</code> or empty.</td></tr>
-            <tr><td><code>fresh</code></td><td>A time window is claimed and some row's <code>ts</code> is missing, unreadable, older than the window, or more than 5 minutes in the future.</td></tr>
-            <tr><td><code>advertised:&lt;rule&gt;</code></td><td>The same rules, applied to the claims in the seller's 402 advertisement. A missing advertisement is noted and never changes the verdict.</td></tr>
-          </tbody>
-        </table>
-        <p>A seller that takes payment and then returns an error is a <code>shape</code> dispute: the settlement hash is kept and the seller is held. Any failure is a dispute. No failure but no count claim is <strong>unverifiable</strong>: the seller is held, because a promise that claims nothing cannot be checked. A human can release a hold with <code>node scripts/unblock.mjs &lt;origin&gt;</code>.</p>
-
-        <h2 id="statuses">Statuses</h2>
-        <table>
-          <thead><tr><th>Status</th><th>Shown as</th><th>Paid</th><th>Seller record</th><th>Meaning</th></tr></thead>
-          <tbody>
-            <tr><td>clean</td><td>Verified</td><td>yes</td><td>in good standing</td><td>Every claim matched.</td></tr>
-            <tr><td>dispute</td><td>Dispute</td><td>yes</td><td>held</td><td>A claim failed.</td></tr>
-            <tr><td>unverifiable</td><td>Unverifiable</td><td>yes</td><td>held</td><td>No count claim to check.</td></tr>
-            <tr><td>refused</td><td>Stopped</td><td>no</td><td>-</td><td>The seller is held (locally or in a trusted feed), or a payment to it is still pending.</td></tr>
-            <tr><td>pending</td><td>Outcome unknown</td><td>?</td><td>seller refused until resolved</td><td>The payment was signed but its outcome was not seen. Resolve with <code>scripts/resolve.mjs</code>.</td></tr>
-            <tr><td>paid_unchecked</td><td>Paid, unchecked</td><td>yes</td><td>unchanged</td><td>SERV gave no readable answer twice, or could not be reached.</td></tr>
-            <tr><td>paid_unverified</td><td>Paid, no hash</td><td>?</td><td>unchanged</td><td>The payment rail returned no settlement hash, so the delivery was not judged.</td></tr>
-            <tr><td>failed</td><td>Failed</td><td>no</td><td>unchanged</td><td>The payment was refused or errored, or the seller answered with an error and no settlement hash.</td></tr>
-          </tbody>
-        </table>
-
-        <h2 id="security">Security</h2>
+const receipt = await tareFetch(sellerUrl, { requestId, allowFeedHold });
+// the full receipt; a held seller is refused before any payment</pre>
         <ul>
-          <li>The local API binds to <code>127.0.0.1</code>, checks the <code>Host</code> header (against DNS rebinding), requires a custom header plus JSON (so another website cannot trigger a buy), and only buys sellers listed in <code>sellers.json</code>.</li>
-          <li>Seller prose is untrusted: it is escaped on every page and wrapped in <code>&lt;prose&gt;</code> tags for SERV.</li>
-          <li><code>kpass</code> is spawned with an argument list, never through a shell.</li>
-          <li>The model never sees the rows and has no verdict to give; code drops any claim the seller's text does not support.</li>
-          <li>Spending caps: 0.05 per payment and 1 in total, testnet pieUSD on Kite testnet only. A held seller is refused before any payment is attempted.</li>
-          <li>The direct rail's testnet key lives in <code>data/</code> (gitignored, mode 0600) and is never printed.</li>
-          <li><code>scripts/publish.mjs</code> refuses to publish any hash that is not a 0x-prefixed 32-byte value, or any payment still pending.</li>
+          <li><code>verify(promise, rows)</code> never pays and needs no wallet. It reads the seller's text with SERV, grounds the claims and checks your rows in code. Rows that are not objects are a <code>shape</code> dispute without calling SERV. A SERV failure throws <code>ServError</code> (<code>SERV_INVALID</code> or <code>SERV_API</code>).</li>
+          <li><code>tareFetch(url)</code> is the full buyer, as in the CLI: payment rail, seller records, trusted feeds. It keeps its store in <code>./data/store.json</code> of the calling process.</li>
+          <li>Also exported: <code>check</code>, <code>parseBody</code>, <code>measure</code>, <code>ground</code>, <code>extractClaims</code>, <code>RULES</code>, <code>PROMPT_SHA256</code>, <code>FRESHNESS_PROMPT_SHA256</code>.</li>
         </ul>
 
-        <h2 id="records">Seller records</h2>
-        <p>Every check becomes a public seller record: <strong>held</strong> (a check failed, with the evidence) or <strong>in good standing</strong>. Publishing writes the feed to <code>/records.json</code>, the <a href="/check" class="u">Check a seller</a> page reads it, and verified sellers get a badge at <code>/badges/&lt;host&gt;.svg</code>.</p>
-        <p>Another agent opts in by trusting the feed. A seller held there is stopped before payment:</p>
-<pre>TARE_FEEDS=https://tare-agent.vercel.app/records.json node scripts/buy.mjs &lt;seller url&gt;
-# override for one buy, on purpose:  --allow-feed-hold</pre>
-        <p>An unreachable or malformed feed never blocks a buy, and every feed problem is written on the receipt. There is no global blacklist: agents choose which publishers to trust, and a record covers one origin only.</p>
-        <p><strong>Paid lookups.</strong> The same seller template can sell the feed at 0.001 testnet pieUSD per lookup (steps in <code>sellers/README.md</code>). An agent pays for lookups only with <code>TARE_PAY_FEEDS=1</code>; the payment uses the same rail and caps as a buy, is cached for 5 minutes, and its hash is written on the receipt. People check for free on <a href="/check" class="u">Check a seller</a>.</p>
+        <h2 id="cli">Command line</h2>
+        <table>
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>npm run app</code></td><td>Local console with live Buy buttons on <code>127.0.0.1:4020</code>. It only buys the sellers in <code>sellers.json</code>.</td></tr>
+            <tr><td><code>node scripts/buy.mjs &lt;a|b|url&gt;</code></td><td>One buy. <code>--request-id ID</code> replays instead of paying twice; <code>--allow-feed-hold</code> overrides a trusted feed's hold for this buy.</td></tr>
+            <tr><td><code>node scripts/reset.mjs</code></td><td>Clear receipts and holds for a clean demo. Keeps the lifetime spending ledger.</td></tr>
+            <tr><td><code>node scripts/unblock.mjs &lt;origin&gt;</code></td><td>Release a held seller after review.</td></tr>
+            <tr><td><code>node scripts/resolve.mjs</code></td><td>List payments with an unknown outcome; resolve one with <code>&lt;id&gt; not-paid</code> or <code>&lt;id&gt; paid &lt;tx hash&gt;</code> after checking the explorer.</td></tr>
+            <tr><td><code>node scripts/publish.mjs</code></td><td>Write the receipts, <code>records.json</code> and badges for the hosted site. Refuses malformed hashes and pending payments.</td></tr>
+            <tr><td><code>node scripts/seller_probe.mjs &lt;url&gt;…</code></td><td>Check a seller charges testnet pieUSD 0.001, without paying.</td></tr>
+            <tr><td><code>node scripts/serv_check.mjs</code></td><td>One SERV call through the production client; prints <code>finish_reason</code>, usage and the parsed claims.</td></tr>
+            <tr><td><code>node scripts/serv_eval.mjs</code></td><td>Live accuracy and injection-safety evaluation.</td></tr>
+            <tr><td><code>node scripts/real_probe.mjs</code></td><td>Read what real x402 sellers promise in their advertisements (public discovery list, no payment).</td></tr>
+            <tr><td><code>node scripts/x402_wallet.mjs</code></td><td>Create or show the testnet-only key for the direct rail. The key is never printed.</td></tr>
+          </tbody>
+        </table>
 
         <h2 id="config">Configuration</h2>
         <table>
@@ -169,13 +286,41 @@ node scripts/publish.mjs      # state.json, records.json and badges for the host
           </tbody>
         </table>
 
-        <h2 id="deploy">Deploy to Vercel</h2>
-        <p>The site is static: no build step, no server functions.</p>
-        <ol>
-          <li>Import <code>Ritapossible/Tare</code> in Vercel.</li>
-          <li>Set <strong>Root Directory</strong> to <code>web</code>, Framework Preset to <strong>Other</strong>, and leave the build command empty.</li>
-          <li>Deploy. After a live run, run <code>node scripts/publish.mjs</code>, commit <code>web/data/state.json</code>, <code>web/records.json</code> and <code>web/badges/</code>, and push; Vercel redeploys with the real receipts.</li>
-        </ol>
+        <h2 id="security">Security</h2>
+        <ul>
+          <li>The model never sees the rows and has no verdict to give; code drops any claim the seller's text does not support.</li>
+          <li>Seller text is untrusted: it is wrapped in <code>&lt;prose&gt;</code> tags for SERV (hidden tags stripped) and escaped on every page.</li>
+          <li>Spending caps: 0.05 per payment and 1 in total, testnet pieUSD on Kite testnet only. A held seller is refused before any payment is attempted.</li>
+          <li>Buys run one at a time with a request id, so a double click replays the receipt instead of paying twice. A payment whose outcome is unknown stays pending and blocks the seller until a person resolves it.</li>
+          <li>The local API binds to <code>127.0.0.1</code>, checks the <code>Host</code> header (against DNS rebinding), requires a custom header plus JSON (so another website cannot trigger a buy), and only buys sellers listed in <code>sellers.json</code>.</li>
+          <li><code>kpass</code> is spawned with an argument list, never through a shell. Tare never automates the passkey approval.</li>
+          <li>The direct rail's testnet key lives in <code>data/</code> (gitignored, mode 0600) and is never printed.</li>
+          <li>Publishing refuses any hash that is not a 0x-prefixed 32-byte value, and any payment still pending.</li>
+        </ul>
+
+        <h2 id="limits">Limits</h2>
+        <ul>
+          <li><strong>After the payment, not before.</strong> x402 returns the data only after payment, so Tare cannot stop the first bad buy. It catches it, keeps the evidence and stops the next one. It does not refund.</li>
+          <li><strong>Rows only.</strong> The checks need a delivery with rows. Most real x402 responses are arbitrary JSON; reading the 402 advertisement works on any x402 seller.</li>
+          <li><strong>Per origin.</strong> A seller can move to a new domain. Binding records to a Kite agent identity is the next step.</li>
+          <li><strong>SERV can miss a window.</strong> In testing, "this week" was read as 168 hours in 2 of 3 calls. A missed window means freshness is not checked; it never invents one.</li>
+          <li><strong>Real sellers promise little.</strong> Of 1,000 public x402 descriptions read on 10 Nov 2026, 11 stated a number of items and none said "unique" or "no nulls". Tare holds a delivery that promises nothing countable, and the badge goes only to sellers that state a promise and keep it.</li>
+        </ul>
+
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <table>
+          <thead><tr><th>You see</th><th>What it means</th><th>What to do</th></tr></thead>
+          <tbody>
+            <tr><td><code>payment_target_forbidden: host_not_in_executable_catalog</code></td><td>Kite Passport only pays sellers in Kite's catalog.</td><td>Ask Kite to list the seller, or use <code>TARE_PAYMENT_RAIL=x402-direct</code>.</td></tr>
+            <tr><td>Stopped, "seller held"</td><td>The seller failed a check before.</td><td>Read its receipt; <code>scripts/unblock.mjs</code> after review.</td></tr>
+            <tr><td>Stopped, "held in trusted feed"</td><td>A feed you trust holds the seller.</td><td>Read the feed's evidence; <code>--allow-feed-hold</code> for one buy.</td></tr>
+            <tr><td>Outcome unknown (pending)</td><td>The payment was signed but its result was not seen.</td><td>Check the payer on the Kite testnet explorer, then <code>scripts/resolve.mjs</code>.</td></tr>
+            <tr><td>Paid, unchecked: <code>SERV_INVALID</code></td><td>SERV gave no readable answer twice.</td><td>Run <code>scripts/serv_check.mjs</code> with the same text.</td></tr>
+            <tr><td>Paid, unchecked: <code>SERV_API</code></td><td>SERV could not be reached.</td><td>Check the key, the credit balance and the network.</td></tr>
+            <tr><td>"Tare refused to sign"</td><td>The payment was outside the caps or not testnet pieUSD.</td><td>Run <code>scripts/seller_probe.mjs</code> on the seller.</td></tr>
+            <tr><td>The first buy is slow or times out</td><td>A free-tier seller was asleep.</td><td>Open the seller's <code>/healthz</code> a minute before.</td></tr>
+          </tbody>
+        </table>
       </article>
     </div>
   </main>

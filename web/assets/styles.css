@@ -642,3 +642,12 @@ ul.notes .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
 /* docs on narrow screens: long addresses wrap; wide tables scroll inside themselves, not the page */
 .prose-doc code, .prose-doc .hash { overflow-wrap: anywhere; word-break: break-word; }
 .prose-doc table { display: block; max-width: 100%; overflow-x: auto; }
+
+/* docs: the long table of contents scrolls on desktop; phones get a collapsible menu instead */
+.toc { max-height: calc(100vh - 140px); overflow-y: auto; }
+.toc-mobile { margin: 8px 0 28px; border: 1px solid var(--border); border-radius: 14px; padding: 4px 16px; }
+.toc-mobile summary { cursor: pointer; padding: 12px 0; font-weight: 600; }
+.toc-mobile nav { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; padding: 0 0 14px; }
+.toc-mobile a { color: var(--muted); text-decoration: none; padding: 6px 0; }
+.toc-mobile a:hover { color: var(--text); }
+@media (min-width: 980px) { .toc-mobile { display: none; } }
