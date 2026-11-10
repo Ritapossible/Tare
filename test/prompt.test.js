@@ -41,3 +41,16 @@ test("seller cannot close the prose block early", () => {
 test("non-string prose is rejected", () => {
   assert.throws(() => buildUserMessage({ rows: [] }), TypeError);
 });
+
+import { CLAIMS_SCHEMA, SERV_RESPONSE_FORMAT, SERV_MAX_OUTPUT_TOKENS } from "../src/prompt.js";
+
+test("structured output asks for exactly the four claims, strictly", () => {
+  assert.deepEqual(Object.keys(CLAIMS_SCHEMA.properties).sort(), ["claimed_count", "fields", "no_nulls", "unique"]);
+  assert.equal(CLAIMS_SCHEMA.additionalProperties, false);
+  assert.equal(SERV_RESPONSE_FORMAT.json_schema.strict, true);
+  assert.ok(!JSON.stringify(SERV_RESPONSE_FORMAT).includes("verdict"));
+});
+
+test("output cap leaves room for reasoning tokens", () => {
+  assert.ok(SERV_MAX_OUTPUT_TOKENS >= 300);
+});

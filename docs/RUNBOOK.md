@@ -38,6 +38,22 @@ node scripts/serv_eval.mjs
 
 ## 3. Kite Passport setup (10 min)
 
+Install (macOS/Linux; needs `jq`):
+
+```
+curl -fsSL https://cli.gokite.ai/install.sh | bash
+# Windows PowerShell: irm https://cli.gokite.ai/install.ps1 | iex
+```
+
+Log in first (Kite emails you a link to create your passkey and a code):
+
+```
+kpass login init --email <your email>
+kpass login verify --login-id <id from init> --code <code from the email>
+```
+
+Then:
+
 ```
 kpass --version
 kpass sandbox on
@@ -45,6 +61,7 @@ kpass wallet address
 kpass faucet drop --recipient <address from above> --token pieUSD
 kpass agent register --type service-tester
 kpass agent session create --task-summary "tare receipt check" --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h
+# open the printed approval URL and approve with your passkey (a phone works)
 kpass agent session execute --help
 ```
 

@@ -9,8 +9,8 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 - [x] 🤖 Docs: SPEC, ARCHITECTURE, PLAN, MEMORY, CLAUDE.md, README skeleton, LICENSE, .env.example
 - [x] 🤖 `package.json` (Node 22, ESM, `npm test` = `node --test`), `src/prompt.js` (+ 6 tests)
 - [x] 🤖 `scripts/serv_check.mjs` (error path verified: 401 on a bad key, exit 1)
-- [ ] 🧑 Create SERV key at https://console.openserv.ai, put it in `.env`, run `node scripts/serv_check.mjs`
-- [ ] 🤖 Record in MEMORY.md: token-cap param, `finish_reason`, raw output shape
+- [x] 🧑 Create SERV key at https://console.openserv.ai, put it in `.env`, run `node scripts/serv_check.mjs` (passed 10 Nov)
+- [x] 🤖 Record in MEMORY.md: token-cap param, `finish_reason`, raw output shape (strict json_schema + cap 400)
 - [ ] 🧑 Install `kpass`, run the first five commands in `scripts/kite_check.md` (sandbox, wallet, faucet, register, session)
 
 **Gate:** serv_check prints valid claims JSON. If it fails, stop and fix before anything else.
@@ -44,7 +44,7 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 - [x] 🧑 Vercel deploy: live at https://tare-agent.vercel.app (root `web/`)
 
 ## Live day — Tue 10 Nov · run `docs/RUNBOOK.md` (🧑), then parser rewrite + first end-to-end run (🤖)
-- [ ] 🧑 Steps 1-6 of the runbook; paste outputs back
+- [~] 🧑 Steps 1-6 of the runbook; paste outputs back (1-2 done 10 Nov: SERV check passed, eval safety 5/5 accuracy 5/7)
 - [ ] 🤖 Rewrite `src/kpass.js` parser against the real output; record facts in MEMORY.md
 - [ ] 🧑 Live run: reset → buy A → buy A → buy B
 

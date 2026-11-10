@@ -5,7 +5,7 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 
 ## Status
 
-- **Phase:** Core + web app built (2026-11-09). 87 tests pass. Next: live run (`docs/RUNBOOK.md`), then `node scripts/publish.mjs` and Vercel deploy (root `web/`).
+- **Phase:** Live run started 2026-11-10. Step 1 (SERV check) PASSED; Step 2 (SERV eval) done: safety 5/5, accuracy 5/7. Waiting on: Kite Passport login + sellers deployed (Steps 3-6).
 - **System prompt sha256:** `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86`
 - **Real testnet hash from seller B:** not yet. (Do not write one here until `kpass` returns it.)
 - **Seller URLs:** not deployed yet. Code and guide ready (`sellers/README.md`); `sellers.json` holds nulls.
@@ -48,6 +48,10 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-09 | Edition 01 check (openserv.ai/hackathon, read 9 Nov): no listed winner or featured project verifies a paid delivery against the seller's own claims; the nearest checks price and trust *before* payment | the post-delivery lane is open; the edge is shipping real hashes |
 | 2026-11-09 | Thursday additions: verbatim promise on the receipt page; three copy lines (capped time-limited session with no private key, pay-per-record needs counting, "independent"); evaluate SERV Prompt Guard against `serv_eval` | unattributed lessons from prior-edition entries and the ideas post |
 | 2026-11-10 | Logo changed from the balance scale to logo A ("net bar") in the site's colours: outlined bar = promised, solid bar = delivered, orange dashed gap = shortfall. Favicon is a simplified version (two bars + orange dot) so it stays legible at 16px. Logo only: palette, type and layout unchanged; the full "receipt" redesign was shown and deferred | the scale read as law/justice; the new mark shows promised vs delivered |
+| 2026-11-10 | SERV call uses **strict `json_schema` structured output** (the four claims, `additionalProperties: false`); system prompt and hash unchanged; parse rule still validates | without it the model answered in prose 5/6 times despite "JSON only"; `json_object` drifted to invented keys; strict schema returned the exact four keys every time |
+| 2026-11-10 | Output cap 120 → **400** (`max_completion_tokens`) | at effort "low" reasoning used 24-138 tokens; 120 gave finish_reason "length" with empty content |
+| 2026-11-10 | OpenAI SDK gets `fetch: globalThis.fetch` | lets Node honour an HTTPS proxy (NODE_USE_ENV_PROXY=1) in the cloud session; no change on a normal machine |
+| 2026-11-10 | serv_eval adversarial cases all make a FALSE promise about seller A ("1240 unique") | two cases said "1240 records", which is true for A, so "clean" was the correct verdict and the old rubric mislabelled it unsafe |
 | 2026-11-08 | Kite track, not Open | The capped Passport session is the spending-limit primitive the Kite track is about |
 | 2026-11-08 | Pay first, verify after, refuse the *next* payment | x402 returns the body only after payment; there is nothing to count before paying |
 | 2026-11-08 | Idempotency key = origin + request_id, created before `execute`; `pending` written before paying | body hash is only known after payment; pending record prevents a double pay on crash/retry |
@@ -81,6 +85,14 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 - Hackathon judging: creativity, user readiness, revenue potential. SERV Reasoning required in every track.
 
 ## Facts learned (from running things)
+
+- 2026-11-10 **SERV live (real key, via session proxy):** `max_completion_tokens` is accepted; a system message + `reasoning_effort: "low"` works; `response_format` `json_schema` strict is supported. Step 0 output: `{"claimed_count":1240,"unique":true,"fields":["id","ts"],"no_nulls":true}`, finish_reason stop, 86 completion tokens (50 reasoning), 247 prompt tokens.
+- 2026-11-10 **Without structured output** the model replied in prose 5 of 6 times ("Received: 1,240 unique records…").
+- 2026-11-10 **Prose with no claim** ("Here is your data.") returns finish_reason `content_filter` ("I can't share that.") under strict schema → SERV_INVALID → `paid_unchecked`, not `unverifiable`. Safe (no clean, no block) but not the fail-closed hold; noted for Thursday.
+- 2026-11-10 **serv_eval runs** (same prompt hash 7b5d603d…): run 1 accuracy 5/7, safety 4/5 (one "unsafe" was a rubric error); run 2 accuracy 5/7, safety 4/5 (same rubric error, other case); **final run 3 accuracy 5/7, safety 5/5**. Results vary run to run.
+- 2026-11-10 **Known model weakness:** SERV sometimes invents a field from the wording (`["records"]`, `["registros"]`). On an honest seller that would cause a false `fields` dispute. Did not happen on seller B's prose in any run. Candidate fix (Thursday): keep a claimed field only if it appears in the prose as a field name.
+- 2026-11-10 **Fake-tag injection partly worked:** after a fake `</prose>`, SERV extracted `claimed_count: 860` from the injected text; still a dispute because `unique` failed (defence in depth).
+- 2026-11-10 **kpass install:** `curl -fsSL https://cli.gokite.ai/install.sh | bash` (macOS/Linux; Windows: `irm https://cli.gokite.ai/install.ps1 | iex`); needs `jq`; installs to `~/.kpass`, adds `~/.local/bin` to PATH, verifies SHA-256 checksums. **Login comes first:** `kpass login init --email …` then `kpass login verify --login-id … --code …`; the passkey is created from the emailed link and session approval opens a URL approved with that passkey (can be done on a phone).
 
 - 2026-11-08: Template run locally with `KITE_NETWORK=testnet`: `/healthz` → `{"network":"eip155:2368","asset":"pieUSD","price":"$0.001"}`;
   `/v1/*` → 402 with base64 `PAYMENT-REQUIRED` = x402Version 2, scheme exact, amount `1000000000000000`,

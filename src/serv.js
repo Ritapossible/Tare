@@ -8,6 +8,7 @@ import {
   SERV_REASONING_EFFORT,
   SERV_MAX_OUTPUT_TOKENS,
   SERV_CAP_PARAM,
+  SERV_RESPONSE_FORMAT,
   buildMessages,
 } from "./prompt.js";
 
@@ -72,12 +73,15 @@ export async function extractClaims(prose, { complete }) {
 // Real SERV completion function.
 export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM } = {}) {
   if (!apiKey) throw new Error("SERV_API_KEY is not set");
-  const client = new OpenAI({ baseURL: SERV_BASE_URL, apiKey, maxRetries: 0, timeout: 60_000 });
+  // Built-in fetch (not the SDK's bundled HTTP client) so an HTTPS proxy configured for Node
+  // (NODE_USE_ENV_PROXY=1) is honoured; behaviour is otherwise identical.
+  const client = new OpenAI({ baseURL: SERV_BASE_URL, apiKey, maxRetries: 0, timeout: 60_000, fetch: globalThis.fetch });
   return async (messages) => {
     const res = await client.chat.completions.create({
       model: SERV_MODEL,
       reasoning_effort: SERV_REASONING_EFFORT,
       [capParam]: SERV_MAX_OUTPUT_TOKENS,
+      response_format: SERV_RESPONSE_FORMAT,
       messages,
     });
     return res.choices?.[0]?.message?.content ?? null;

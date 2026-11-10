@@ -14,6 +14,7 @@ import {
   SERV_REASONING_EFFORT,
   SERV_MAX_OUTPUT_TOKENS,
   PROMPT_SHA256,
+  SERV_RESPONSE_FORMAT,
   buildMessages,
 } from "../src/prompt.js";
 
@@ -44,12 +45,13 @@ if (!["max_completion_tokens", "max_tokens"].includes(capParam)) {
 }
 const prose = arg("prose", DEFAULT_PROSE);
 
-const client = new OpenAI({ baseURL: SERV_BASE_URL, apiKey, maxRetries: 0 });
+const client = new OpenAI({ baseURL: SERV_BASE_URL, apiKey, maxRetries: 0, fetch: globalThis.fetch });
 
 const request = {
   model: SERV_MODEL,
   reasoning_effort: SERV_REASONING_EFFORT,
   [capParam]: SERV_MAX_OUTPUT_TOKENS,
+  response_format: SERV_RESPONSE_FORMAT,
   messages: buildMessages(prose),
 };
 
