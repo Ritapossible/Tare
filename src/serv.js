@@ -252,8 +252,29 @@ async function extractMain(prose, complete) {
   throw new ServError("SERV_INVALID", "SERV returned invalid claims twice", attempts);
 }
 
+// SERV platform tools (docs.openserv.ai/serv-reasoning/tools): declared in `tools`, no parameters,
+// removed by SERV before the model runs. Set with TARE_SERV_TOOLS (comma list, or "none").
+// Default: disable_content_filter. Measured 10 Nov: the default filter refused plain texts like "Here
+// is your data." (finish_reason content_filter); without it the eval went 7/9 → 9/9, safety 6/6.
+// Code decides and the output is a strict schema, so the filter guards nothing Tare relies on.
+// prompt_guard is NOT a default: it blocks injection-looking prose, which turns a seller's injection
+// attempt from a dispute (seller held) into a SERV failure (paid_unchecked, seller not held).
+export const SERV_TOOL_NAMES = { prompt_guard: "serv_prompt_guard", disable_content_filter: "serv_disable_content_filter" };
+export const DEFAULT_SERV_TOOLS = "disable_content_filter";
+export function parseServTools(value = process.env.TARE_SERV_TOOLS ?? DEFAULT_SERV_TOOLS) {
+  if (String(value).trim().toLowerCase() === "none") return [];
+  return String(value ?? "")
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .map((x) => {
+      if (!(x in SERV_TOOL_NAMES)) throw new Error(`unknown SERV tool "${x}" (known: ${Object.keys(SERV_TOOL_NAMES).join(", ")})`);
+      return { type: "function", function: { name: SERV_TOOL_NAMES[x] } };
+    });
+}
+
 // Real SERV completion function.
-export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM } = {}) {
+export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM, tools = parseServTools() } = {}) {
   if (!apiKey) throw new Error("SERV_API_KEY is not set");
   // Built-in fetch (not the SDK's bundled HTTP client) so an HTTPS proxy configured for Node
   // (NODE_USE_ENV_PROXY=1) is honoured; behaviour is otherwise identical.
@@ -265,6 +286,7 @@ export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM } = {}) {
       [capParam]: SERV_MAX_OUTPUT_TOKENS,
       response_format: kind === "freshness" ? FRESHNESS_RESPONSE_FORMAT : SERV_RESPONSE_FORMAT,
       messages,
+      ...(tools.length ? { tools } : {}),
     });
     return res.choices?.[0]?.message?.content ?? null;
   };

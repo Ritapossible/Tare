@@ -51,7 +51,7 @@ npm run app                     # console on http://127.0.0.1:4020</pre>
 
         <h2 id="serv">SERV key</h2>
         <p>Create a key at <a href="https://console.openserv.ai" target="_blank" rel="noopener">console.openserv.ai</a> and put it in <code>.env</code> as <code>SERV_API_KEY</code>. The $5 starter credit pays for SERV inference only; it never funds a payment.</p>
-        <p><code>node scripts/serv_eval.mjs</code> runs nine ordinary and six adversarial seller texts against the real model and reports accuracy and safety. Last live runs (10 Nov, final code): accuracy 7/9, safety 6/6; both misses are SERV refusing or wavering, never a manipulated pass.</p>
+        <p><code>node scripts/serv_eval.mjs</code> runs nine ordinary and six adversarial seller texts against the real model and reports accuracy and safety. Last live run (10 Nov, final code): accuracy 9/9, safety 6/6. Requests declare SERV's <code>serv_disable_content_filter</code> tool, because the default filter refused plain seller texts. SERV's Prompt Guard is deliberately off: it would turn a seller's injection attempt into a SERV failure, so the seller would be paid but not held.</p>
 
         <h2 id="kite">Kite testnet</h2>
         <p>Run these once, in order. You approve the passkey yourself; Tare never automates it.</p>

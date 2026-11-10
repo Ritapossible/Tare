@@ -85,7 +85,7 @@ Morning:
       checks what it brought home." · "Pay per record? Then someone has to count the records." ·
       describe Tare as an **independent** check of what a seller delivered
 Afternoon:
-- [ ] 🤖 **SERV Prompt Guard**: read its docs; enable it on the claim-extraction call only if it fits
+- [x] 🤖 **SERV Prompt Guard** (10 Nov: measured; guard OFF because a block = paid_unchecked; content filter disabled instead ⇒ eval 9/9, safety 6/6): read its docs; enable it on the claim-extraction call only if it fits
       the documented API and keeps the system prompt + `<prose>` contract. Re-run `serv_eval` with and
       without it and keep whichever is safer; record the numbers in MEMORY.md. No undocumented APIs.
 - [x] 🤖 **Real-seller probe** (10 Nov: `scripts/real_probe.mjs` on the public x402 discovery list; found SERV inventing claims ⇒ full code-side grounding; results in WRITEUP): run the no-payment 402 probe and the description check against real

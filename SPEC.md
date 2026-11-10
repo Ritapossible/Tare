@@ -49,9 +49,12 @@ log, README or video must be one `kpass` returned.
 - Model: `gpt-5.4-mini-serv-multipath`
 - `reasoning_effort: "low"`
 - A system message is required (requests without one are rejected).
-- Output cap: 120 tokens. The parameter name (`max_completion_tokens` vs `max_tokens`) is
-  confirmed in Step 0. If Step 0 shows `finish_reason: "length"` with empty content, raise the cap
-  and log it in `MEMORY.md`.
+- Output cap: 400 tokens via `max_completion_tokens` (120 was too low; see `MEMORY.md`), strict
+  `json_schema` response format.
+- SERV platform tools (`TARE_SERV_TOOLS`, default `disable_content_filter`): `serv_disable_content_filter`
+  is declared in `tools` because the default content filter refused plain seller texts.
+  `serv_prompt_guard` is **not** declared by default: it blocks injection-looking prose, which would
+  turn a seller's injection attempt from a dispute into `paid_unchecked`. `TARE_SERV_TOOLS=none` sends no tools.
 - `temperature` is not set.
 - Do not call a graph-sharding or `gr_` API. Do not draw a fake graph. Multipath builds SERV's
   reasoning prompt from the system prompt; it does not run branches and does not authorize anything.

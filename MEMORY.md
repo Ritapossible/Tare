@@ -78,6 +78,8 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-10 | Every claim is grounded in code (`ground()` in `src/serv.js`): count must be a number the text states exactly (digits or number words; not "up to", "10,000+", "~2", a price, percentage, time or identifier); unique/no_nulls need the words; each field must appear and the text must talk about fields; a time window must be stated explicitly and match. Dropped claims are noted on the receipt | the real-seller probe showed SERV inventing counts, "unique" and "no nulls" on real service descriptions; an invented claim would dispute an honest seller |
 | 2026-11-10 | Lone "one"/"una" is not a count | "in one call" became claimed_count 1 |
 | 2026-11-10 | Real-seller probe reads descriptions from the public x402 discovery list, never pays, never judges | the listed sellers are not on Kite testnet; without a delivery there is nothing to count |
+| 2026-11-10 | SERV requests declare `serv_disable_content_filter` by default (`TARE_SERV_TOOLS`) | the default filter refused plain texts ("Here is your data.", 7-9 of 30 real descriptions); measured eval 7/9 → 9/9 with safety 6/6 unchanged. Code decides and the output is a strict schema, so the filter protected nothing Tare relies on |
+| 2026-11-10 | SERV Prompt Guard stays off | measured: it blocks the injection text with a refusal ("I can't share that.", empty content). For Tare that is a SERV failure ⇒ `paid_unchecked`, seller not held, where without it the same text is disputed and held. The guard would reward injection |
 
 ## Facts learned (from docs)
 
@@ -149,6 +151,14 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 - 2026-11-10: SERV freshness on "This week's export" is unstable: 168 in 2 of 3 calls, null in 1.
   Live eval after grounding: accuracy 7/9 (misses: content-filter refusal on "Here is your data.",
   freshness null once), safety 6/6.
+- 2026-11-10: SERV platform tools (docs.openserv.ai/serv-reasoning/tools): declared in `tools` with
+  no parameters, removed before the model runs. Raw results: no tools, "Here is your data." ⇒
+  `finish_reason: content_filter`, content "I can't share that."; with `serv_prompt_guard`, an
+  injection text ⇒ `finish_reason: stop`, content null, `refusal: "I can't share that."`; with
+  `serv_disable_content_filter`, "Here is your data." ⇒ all-null claims (correct).
+- 2026-11-10: Live eval with the content filter disabled: **accuracy 9/9, safety 6/6**. Real-seller
+  probe: SERV failures 5/30 (was 7-9), mostly transient empty content (2 of 3 retried succeeded);
+  nothing checkable 25/30; invented claims dropped from 21.
 
 ## Open questions
 
