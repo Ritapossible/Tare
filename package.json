@@ -1,7 +1,7 @@
 {
   "name": "tare",
   "version": "0.1.0",
-  "description": "A buyer agent that pays data sellers over x402 on Kite testnet and disputes deliveries that do not match their label.",
+  "description": "An independent check of what an x402 data seller delivered: pays on Kite testnet, reads the seller's promise with SERV Reasoning, checks the rows in code, and keeps seller records.",
   "type": "module",
   "license": "MIT",
   "private": true,

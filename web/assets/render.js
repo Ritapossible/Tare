@@ -9,11 +9,11 @@ export const STATUS = {
   clean: { label: "Verified", tone: "ok", note: "Every claim matched the delivery. The seller stays in good standing." },
   dispute: { label: "Dispute", tone: "bad", note: "A claim failed against the delivery. The seller is now held." },
   unverifiable: { label: "Unverifiable", tone: "warn", note: "The promise made no count claim to check. The seller is now held." },
-  refused: { label: "Stopped", tone: "muted", note: "Stopped before kpass. Nothing was paid." },
-  failed: { label: "Failed", tone: "muted", note: "kpass did not complete a payment." },
-  paid_unverified: { label: "Paid, no hash", tone: "warn", note: "kpass returned no PAYMENT-RESPONSE hash, so the delivery was not judged." },
+  refused: { label: "Stopped", tone: "muted", note: "Stopped before any payment was attempted. Nothing was paid." },
+  failed: { label: "Failed", tone: "muted", note: "The payment did not complete. No settlement hash came back." },
+  paid_unverified: { label: "Paid, no hash", tone: "warn", note: "The payment rail returned no PAYMENT-RESPONSE hash, so the delivery was not judged." },
   paid_unchecked: { label: "Paid, unchecked", tone: "warn", note: "Paid, but SERV could not read the promise. Not checked; the seller record is unchanged." },
-  pending: { label: "Pending", tone: "warn", note: "Payment started and did not finish." },
+  pending: { label: "Outcome unknown", tone: "warn", note: "The payment was signed but its outcome was not seen. The seller is refused until a person resolves it." },
 };
 
 export function statusChip(status) {
@@ -241,7 +241,7 @@ export function sellerProfileCard(s, icons = {}) {
   let banner;
   if (!s.url) banner = `<div class="record-banner tone-muted-bg"><strong>Not deployed yet</strong><span>No URL in sellers.json.</span></div>`;
   else if (s.hold)
-    banner = `<div class="record-banner bad"><strong>Held · ${esc(s.hold.reason)}</strong><span>The next buy stops before kpass.${
+    banner = `<div class="record-banner bad"><strong>Held · ${esc(s.hold.reason)}</strong><span>The next buy stops before any payment.${
       s.holdReceipt ? ` <a href="/app/receipt?id=${encodeURIComponent(s.holdReceipt.id)}">See the receipt</a>` : ""
     }</span></div>`;
   else banner = `<div class="record-banner ok"><strong>In good standing</strong><span>${s.verified ? "Every check so far matched the promise." : "No failed check on record."}</span></div>`;

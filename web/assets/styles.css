@@ -638,3 +638,7 @@ dl.facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
 ul.notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
 ul.notes li { line-height: 1.5; overflow-wrap: anywhere; }
 ul.notes .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-right: 6px; }
+
+/* docs on narrow screens: long addresses wrap; wide tables scroll inside themselves, not the page */
+.prose-doc code, .prose-doc .hash { overflow-wrap: anywhere; word-break: break-word; }
+.prose-doc table { display: block; max-width: 100%; overflow-x: auto; }
