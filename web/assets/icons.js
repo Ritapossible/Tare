@@ -3,7 +3,9 @@ const svg = (d, extra = "") =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
 
 export const icons = {
-  logo: `<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="29" height="29" rx="8" stroke="currentColor" stroke-width="3"/><path d="M16 7v18M9 25h14M7.5 11h17" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7.5 11 4.8 18h5.4L7.5 11ZM24.5 11l-2.7 7h5.4l-2.7-7Z" fill="#f97316" stroke="#f97316" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
+  // Logo A ("net bar"): outlined top bar = what was promised, solid bar = what arrived,
+  // orange dashed gap = the shortfall Tare catches.
+  logo: `<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="3" y="6" width="26" height="8" rx="4" stroke="currentColor" stroke-width="2.4"/><rect x="3" y="18" width="16" height="8" rx="4" fill="currentColor"/><rect x="21" y="18" width="8" height="8" rx="4" stroke="#f97316" stroke-width="2" stroke-dasharray="2.2 2.2"/></svg>`,
   menu: svg('<path d="M4 7h16M4 12h16M4 17h16"/>', 'class="open"'),
   close: svg('<path d="M6 6l12 12M18 6 6 18"/>', 'class="close"'),
   arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>'),
