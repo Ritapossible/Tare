@@ -11,7 +11,7 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 - [x] 🤖 `scripts/serv_check.mjs` (error path verified: 401 on a bad key, exit 1)
 - [x] 🧑 Create SERV key at https://console.openserv.ai, put it in `.env`, run `node scripts/serv_check.mjs` (passed 10 Nov)
 - [x] 🤖 Record in MEMORY.md: token-cap param, `finish_reason`, raw output shape (strict json_schema + cap 400)
-- [ ] 🧑 Install `kpass`, run the first five commands in `scripts/kite_check.md` (sandbox, wallet, faucet, register, session)
+- [x] 🧑 Install `kpass`, run the first five commands in `scripts/kite_check.md` (10 Nov; kpass 6.13.1: prod faucet disabled, pieUSD from the dev faucet)
 
 **Gate:** serv_check prints valid claims JSON. If it fails, stop and fix before anything else.
 
@@ -22,8 +22,8 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 - [x] 🤖 `scripts/seller_probe.mjs`: no-payment check that a seller charges testnet pieUSD 0.001 on distinct origins
 - [x] 🧑 Create a seller wallet (PAY_TO), deploy seller A and seller B as two services on two hosts (Render, 10 Nov; PAY_TO = Passport wallet)
 - [x] 🧑 `node scripts/seller_probe.mjs <A url> <B url>` → both `RESULT : ok`
-- [ ] 🧑 `kpass agent session execute --method GET --url <seller B>` → copy the raw output and the hash
-- [ ] 🤖 Record real kpass output format in MEMORY.md; fill `sellers.json` (placeholder committed with nulls)
+- [x] 🧑 `kpass session execute` against seller B (10 Nov) → refused by Kite: `host_not_in_executable_catalog` (prod and dev); payment made via `x402-direct` instead
+- [x] 🤖 Record real kpass output format in MEMORY.md (error JSON only; no successful kpass payment yet); `sellers.json` filled
 
 **Gate:** one real testnet hash from seller B exists and is pasted in the README.
 
@@ -45,7 +45,7 @@ Legend: 🧑 = the human must do it (keys, passkey, deploy accounts, video). �
 
 ## Live day — Tue 10 Nov · run `docs/RUNBOOK.md` (🧑), then parser rewrite + first end-to-end run (🤖)
 - [x] 🧑 Steps 1-6 of the runbook (10 Nov): SERV passed; Kite login/sandbox; testnet pieUSD via dev faucet; sellers live; first real payment
-- [ ] 🤖 Rewrite `src/kpass.js` parser against the real output; record facts in MEMORY.md
+- [~] 🤖 `src/kpass.js` on the 6.13.1 command + JSON error handling; success output still unseen until Kite allowlists the sellers
 - [x] 🧑 Live run: reset → buy A → buy A → buy B (10 Nov, real hashes, published)
 
 **Gate (decides whether Wed builds shared records):** dispute with a real hash, stopped with no hash
