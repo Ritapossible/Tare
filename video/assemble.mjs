@@ -49,11 +49,14 @@ for (const scene of timing.scenes) {
   const length = t1 - t0 - removed(t1);
   // Narration starts when the scene's content is on screen: an explicit "speak" marker, or the moment
   // a payment result arrived; otherwise shortly after the scene begins.
-  const speakMark = markers.find((m) => m.name === "speak") ?? markers.find((m) => m.name === "wait-end");
+  // Buy scenes speak from the click; a line marked afterPayment waits for the result (below).
+  const speakMark = markers.find((m) => m.name === "speak");
   const speakAt = speakMark ? Math.max(LEAD, speakMark.t - t0 - removed(speakMark.t) + 0.25) : LEAD;
   let list = "";
   for (let i = 0; i < pts.length; i++) {
-    const d = Math.max(1 / FPS, (i + 1 < pts.length ? pts[i + 1].at : length) - pts[i].at);
+    // true durations: Chrome captures up to ~60 fps; the fps=30 filter below drops the extras.
+    // (Clamping each frame to 1/30 s here played every movement at half speed.)
+    const d = Math.max(0.001, (i + 1 < pts.length ? pts[i + 1].at : length) - pts[i].at);
     list += `file '${pts[i].file}'\nduration ${d.toFixed(4)}\n`;
   }
   list += `file '${pts.at(-1).file}'\n`;
@@ -61,15 +64,19 @@ for (const scene of timing.scenes) {
   writeFileSync(listFile, list);
   // a cued line can push later lines out: the clip must still hold until the last one ends
   const cueList = markers.filter((m) => /^line-\d+$/.test(m.name)).map((m) => ({ i: Number(m.name.slice(5)) - 1, at: m.t - t0 - removed(m.t) + 0.2 }));
+  const paid = markers.find((m) => m.name === "wait-end");
+  if (scene.afterPayment && paid) cueList.push({ i: scene.afterPayment - 1, at: paid.t - t0 - removed(paid.t) + 0.9 });
   let end = speakAt;
   scene.lines.forEach((l, li) => { const c = cueList.find((x) => x.i === li); if (c) end = Math.max(end, c.at); end += l.seconds + l.gap; });
-  const need = Math.max(length, end + 0.6);
+  // End about a second after the last line: a recording paced for longer narration is trimmed (the
+  // crossfade into the next scene hides the cut); a shorter one holds its last frame.
+  const need = end + 1.0;
   const clip = join(BUILD, "clips", `${scene.id}.mp4`);
   run(["-f", "concat", "-safe", "0", "-i", listFile,
     "-vf", `fps=${FPS},scale=1600:900:flags=lanczos,format=yuv420p,tpad=stop_mode=clone:stop_duration=${Math.max(0, need - length + 0.1).toFixed(2)}`,
     "-t", need.toFixed(2), "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-r", String(FPS), clip]);
   // Per-line cues ("line-N", 1-based) pin a line to the moment its visual appears.
-  const cues = Object.fromEntries(markers.filter((m) => /^line-\d+$/.test(m.name)).map((m) => [Number(m.name.slice(5)) - 1, m.t - t0 - removed(m.t) + 0.2]));
+  const cues = Object.fromEntries(cueList.map((c) => [c.i, c.at]));
   const bars = markers.filter((m) => m.name === "bar" && m.barFile).map((m) => ({ at: Math.max(0, m.t - t0 - removed(m.t)), file: m.barFile }));
   clips.push({ id: scene.id, file: clip, duration: probe(clip), speakAt, cues, bars, cuts: cuts.map(([a, b]) => [a - t0 - removed(a), b - a]) });
 }
@@ -155,7 +162,7 @@ segments.forEach((sg, k) => {
 });
 const vf = `${chain}[f${segments.length}]format=yuv420p,subtitles=${assFile}:fontsdir=/usr/share/fonts[v]`;
 if (!voice.length) inputs.push("-f", "lavfi", "-t", total.toFixed(2), "-i", "anullsrc=r=48000:cl=stereo"); // silent track until the voice exists
-const args = [...inputs, "-filter_complex", voice.length ? `${vf};${afilter}${amix}amix=inputs=${voice.length}:normalize=0,alimiter=limit=0.95[a]` : vf,
+const args = [...inputs, "-filter_complex", voice.length ? `${vf};${afilter}${amix}amix=inputs=${voice.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]` : vf,
   "-map", "[v]", "-map", voice.length ? "[a]" : `${FIRST_AUDIO}:a`, "-c:a", "aac", "-b:a", "192k",
   "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-t", total.toFixed(2), OUT];
 run(args);

@@ -46,7 +46,8 @@
         "Code counted eight hundred and sixty unique, and forty empty timestamps.",
         "Its advertisement also promised a score field. It never arrived.",
         "Dispute. Here is the real settlement hash, and seller A is now held."
-      ]
+      ],
+      "afterPayment": 2
     },
     {
       "id": "buy-a-again",

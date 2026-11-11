@@ -38,7 +38,7 @@ for (const scene of script.scenes) {
     return { text, seconds, gap: GAP, audio: has ? wav : null };
   });
   const speech = lines.reduce((s, l) => s + l.seconds + l.gap, 0);
-  timing.scenes.push({ id: scene.id, kind: scene.kind, seller: scene.seller ?? null, lines, speech: Math.round(speech * 100) / 100 });
+  timing.scenes.push({ id: scene.id, kind: scene.kind, seller: scene.seller ?? null, afterPayment: scene.afterPayment ?? null, lines, speech: Math.round(speech * 100) / 100 });
   total += speech;
 }
 const allLines = script.scenes.reduce((n, s) => n + s.lines.length, 0);

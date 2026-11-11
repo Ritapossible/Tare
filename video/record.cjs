@@ -200,6 +200,7 @@ async function consoleScenes(browser, wanted) {
   });
 
   await run("receipt", async (rec) => {
+    const sceneStart = Date.now(); // line 1 is spoken from here; the evidence must be on screen when it ends
     const st = await (await page.request.get(`${CONSOLE}/api/state`)).json();
     const id = st.receipts.find((r) => r.status === "dispute").id;
     const link = page.locator(`a[href*="${id}"]:visible`).first();
@@ -210,16 +211,15 @@ async function consoleScenes(browser, wanted) {
     rec.bar({ url: page.url() });
     await page.evaluate(() => document.fonts.ready);
     await sleep(700);
-    rec.mark("speak"); // narration starts once the receipt is on screen
     const promise = page.locator("text=The promise, word for word").first();
     await page.evaluate(() => window.__tare.cursorTo(1750, 950));
     await scrollTo(page, ".promise-card, .card:has(.promise-quote), main .card:nth-of-type(2)", 120);
     const card = await page.evaluateHandle(() => [...document.querySelectorAll(".card")].find((c) => /word for word/i.test(c.textContent)));
     if (card) await page.evaluate((c) => window.__tare.scrollToEl(c, 140), card);
     await sleep(1200);
-    rec.mark("line-1");
     if (card) await page.evaluate((c) => window.__tare.zoomTo(c, 1.15), card);
-    await sleep(lineMs("receipt", 0));
+    // hold the promise card until it is time to move on to the evidence (zoom-out 0.6 s + scroll 1.2 s)
+    await sleep(Math.max(900, sceneStart + 450 + lineMs("receipt", 0) - 1800 - Date.now()));
     await zoom(page, null, 1); await sleep(600);
     const ev = await page.evaluateHandle(() => [...document.querySelectorAll(".card")].find((c) => /Evidence/.test(c.querySelector("h2")?.textContent || "")));
     if (ev) await page.evaluate((c) => window.__tare.scrollToEl(c, 140), ev);
@@ -282,6 +282,7 @@ async function warnScene(browser) {
   await page.evaluate(() => window.play(28));
   await sleep(Math.max(1500, lineMs("warn", 0) + lineMs("warn", 1) - 5200));
   rec.mark("check-page");
+  rec.mark("line-3"); // "anyone can check a seller" starts as the check page loads
   // the check page on the live site
   await page.goto(`${SITE}/check?url=${encodeURIComponent(sellers.a)}`, { waitUntil: "networkidle" });
   rec.bar({ url: page.url() });
@@ -290,7 +291,6 @@ async function warnScene(browser) {
   const res = page.locator("[data-check-result]");
   await res.scrollIntoViewIfNeeded().catch(() => {});
   await page.evaluate(() => window.__tare.cursorTo(1500, 900));
-  rec.mark("line-3");
   await page.evaluate(() => window.__tare.zoomTo(document.querySelector("[data-check-result]"), 1.1));
   await sleep(Math.max(2600, lineMs("warn", 2)));
   await page.evaluate(() => window.__tare.zoomTo(null, 1));
