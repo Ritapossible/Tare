@@ -220,6 +220,10 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   (block 22043943; count, unique, no_nulls, advertised:fields), A refused, B clean
   `0x8c3da2a2cee55cc20088cbef0ce3e9a56b6c9b636825bbd9cc999881a81a4229` (block 22043944). Published (signed);
   README, docs and write-up cite these.
+- 2026-11-11: **Final demo-video take** (desktop 1600x900 window, console on 127.0.0.1:4020, x402-direct),
+  verified on Kite testnet: A dispute `0xfe1fb5d247ab8111dc6716e4f3d9284f3eef98662ce44fe10d7305b07771529d`,
+  A refused, B clean `0x94c3e5f085b5425b9f2a2783a69c43953d89dcbd146415b283fe81860533bb23`. Published (signed).
+- 2026-11-11: favicon.svg redrawn as Logo A (the nav logo); it still showed the older dot design.
 
 ## Open questions
 

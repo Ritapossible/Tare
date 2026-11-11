@@ -13,8 +13,8 @@ const { execFileSync } = require("node:child_process");
 
 const BUILD = path.resolve(process.argv[2] || path.join(__dirname, "build"));
 const WANT = process.argv.slice(3);
-const W = 1920, H = 1080;
-const CONSOLE = process.env.TARE_CONSOLE || "http://127.0.0.1:4046";
+const W = 1600, H = 900; // a laptop-size desktop browser window, placed pixel for pixel in the video
+const CONSOLE = process.env.TARE_CONSOLE || "http://127.0.0.1:4020"; // the console's real port (npm run app)
 const SITE = process.env.TARE_SITE || "https://tare-agent.vercel.app";
 const timing = JSON.parse(fs.readFileSync(path.join(BUILD, "timing.json"), "utf8"));
 const sceneOf = (id) => timing.scenes.find((s) => s.id === id);
@@ -91,7 +91,9 @@ class Recorder {
     this.t0 = Date.now() / 1000;
     this.mark("start");
   }
-  mark(name) { this.markers.push({ name, t: Date.now() / 1000 }); }
+  mark(name, data) { this.markers.push({ name, t: Date.now() / 1000, ...(data || {}) }); }
+  // what the window's title bar shows from now on: { url } (browser) or { title } (slides, terminal)
+  bar(spec) { this.mark("bar", { bar: spec }); }
   async stop() {
     this.mark("end");
     await sleep(300);
@@ -127,6 +129,7 @@ async function slide(browser, id) {
   await page.evaluate(() => { document.querySelectorAll(".in").forEach((e) => { e.style.animation = "none"; void e.offsetWidth; e.style.animation = ""; }); });
   const rec = new Recorder(page, path.join(BUILD, "rec", id));
   await rec.start();
+  rec.bar({ title: "Tare · The label is not the delivery" });
   await sleep(sceneOf(id).speech * 1000 + 900);
   await rec.stop();
   await page.context().close();
@@ -153,6 +156,7 @@ async function consoleScenes(browser, wanted) {
     if (!wanted(id)) return;
     const rec = new Recorder(page, path.join(BUILD, "rec", id));
     await rec.start();
+    rec.bar({ url: page.url() });
     await fn(rec);
     await rec.stop();
   };
@@ -160,7 +164,7 @@ async function consoleScenes(browser, wanted) {
   await run("console", async () => {
     await page.evaluate(() => window.__tare.cursorTo(1300, 700));
     await sleep(600);
-    await zoom(page, ".stats", 1.35);
+    await zoom(page, ".stats", 1.15);
     await sleep(Math.max(1500, lineMs("console", 0) - 600));
     await zoom(page, null, 1);
     await sleep(900);
@@ -173,19 +177,16 @@ async function consoleScenes(browser, wanted) {
     await page.evaluate(() => window.__tare.cursorTo(1700, 1000));
     await scrollTo(page, "table.receipts", 90); await sleep(1200);
     const row = "table.receipts tbody tr:first-child";
-    await zoom(page, row, 1.55, { dx: -260 });          // promised vs delivered
-    await sleep(lineMs("buy-a", 0) + lineMs("buy-a", 1) - 1200);
-    await zoom(page, row, 1.55, { dx: 140 });            // failed checks incl. advertised:fields
-    await sleep(lineMs("buy-a", 2));
-    await zoom(page, row, 1.55, { dx: 420 });            // tx hash + seller record
-    await sleep(lineMs("buy-a", 3));
+    // the whole row fits at this zoom: promised vs delivered, failed checks, hash, seller record
+    await zoom(page, row, 1.28);
+    await sleep(lineMs("buy-a", 0) + lineMs("buy-a", 1) + lineMs("buy-a", 2) + lineMs("buy-a", 3) - 1200);
     await zoom(page, null, 1); await sleep(900);
   });
 
   await run("buy-a-again", async (rec) => {
     await scrollTo(page, ".stats", 140); await sleep(1100);
     result.a2 = await buyAndWait(page, rec, "a");
-    await zoom(page, ".stats", 1.4);
+    await zoom(page, ".stats", 1.15);
     await sleep(Math.max(1800, lineMs("buy-a-again", 0) - 2600));
     await zoom(page, null, 1); await sleep(900);
   });
@@ -193,7 +194,7 @@ async function consoleScenes(browser, wanted) {
   await run("buy-b", async (rec) => {
     result.b = await buyAndWait(page, rec, "b");
     await scrollTo(page, "table.receipts", 90); await sleep(1200);
-    await zoom(page, "table.receipts tbody tr:first-child", 1.45, { dx: -120 });
+    await zoom(page, "table.receipts tbody tr:first-child", 1.28);
     await sleep(Math.max(1800, lineMs("buy-b", 0) - 1800));
     await zoom(page, null, 1); await sleep(800);
   });
@@ -206,6 +207,7 @@ async function consoleScenes(browser, wanted) {
     await cursorTo(page, link, { press: true });
     await link.click();
     await page.waitForLoadState("networkidle");
+    rec.bar({ url: page.url() });
     await page.evaluate(() => document.fonts.ready);
     await sleep(700);
     rec.mark("speak"); // narration starts once the receipt is on screen
@@ -216,14 +218,14 @@ async function consoleScenes(browser, wanted) {
     if (card) await page.evaluate((c) => window.__tare.scrollToEl(c, 140), card);
     await sleep(1200);
     rec.mark("line-1");
-    if (card) await page.evaluate((c) => window.__tare.zoomTo(c, 1.35), card);
+    if (card) await page.evaluate((c) => window.__tare.zoomTo(c, 1.15), card);
     await sleep(lineMs("receipt", 0));
     await zoom(page, null, 1); await sleep(600);
     const ev = await page.evaluateHandle(() => [...document.querySelectorAll(".card")].find((c) => /Evidence/.test(c.querySelector("h2")?.textContent || "")));
     if (ev) await page.evaluate((c) => window.__tare.scrollToEl(c, 140), ev);
     await sleep(1200);
     rec.mark("line-2");
-    if (ev) await page.evaluate((c) => window.__tare.zoomTo(c, 1.3), ev);
+    if (ev) await page.evaluate((c) => window.__tare.zoomTo(c, 1.15), ev);
     await sleep(Math.max(2000, lineMs("receipt", 1) - 1800));
     await zoom(page, null, 1); await sleep(700);
   });
@@ -234,14 +236,12 @@ async function consoleScenes(browser, wanted) {
 function terminalHTML(lines) {
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   return `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
-<style>html,body{margin:0;width:1920px;height:1080px;background:#050505;font-family:'JetBrains Mono',monospace}
-.win{position:absolute;inset:110px 150px;background:#0c0c0c;border:1px solid #2a2a2a;border-radius:22px;box-shadow:0 40px 120px rgba(0,0,0,.6);overflow:hidden}
-.bar{height:58px;border-bottom:1px solid #222;display:flex;align-items:center;gap:12px;padding:0 24px;color:#777;font-size:20px}
-.bar i{width:15px;height:15px;border-radius:50%;background:#333;display:inline-block}
-pre{margin:0;padding:34px 40px;color:#e5e5e5;font-size:27px;line-height:1.65;white-space:pre-wrap;word-break:break-all}
+<style>html{zoom:.8333333}html,body{margin:0;width:1920px;height:1080px;background:#0c0c0c;font-family:'JetBrains Mono',monospace}
+.win{position:absolute;inset:0;background:#0c0c0c;overflow:hidden}
+pre{margin:0;padding:56px 70px;color:#e5e5e5;font-size:27px;line-height:1.65;white-space:pre-wrap;word-break:break-all}
 .p{color:#f97316}.c{color:#6b6b6b}.ok{color:#22c55e}.bad{color:#ef4444}.k{color:#1d9bf0}
 .cur{display:inline-block;width:14px;height:30px;background:#f97316;vertical-align:-5px;animation:b 1s steps(1) infinite}@keyframes b{50%{opacity:0}}</style>
-<div class="win"><div class="bar"><i></i><i></i><i></i><span style="margin-left:16px">another agent · trusts Tare's signed records</span></div><pre id="t"></pre></div>
+<div class="win"><pre id="t"></pre></div>
 <script>const L=${JSON.stringify(lines.map((l) => ({ ...l, text: esc(l.text) })))};const t=document.getElementById('t');
 window.play=async(perChar)=>{for(const l of L){if(l.type==='cmd'){const s=document.createElement('span');t.appendChild(s);s.innerHTML='<span class="p">$ </span>';for(const ch of l.text){s.innerHTML+=ch;await new Promise(r=>setTimeout(r,perChar));}t.appendChild(document.createTextNode('\\n'));await new Promise(r=>setTimeout(r,500));}else{const s=document.createElement('span');s.className=l.cls||'';s.innerHTML=l.text+'\\n';t.appendChild(s);await new Promise(r=>setTimeout(r,l.pause||250));}}const c=document.createElement('span');c.className='cur';t.appendChild(c);};</script>`;
 }
@@ -277,24 +277,56 @@ async function warnScene(browser) {
   await page.evaluate(() => document.fonts.ready);
   const rec = new Recorder(page, path.join(BUILD, "rec", "warn"));
   await rec.start();
+  rec.bar({ title: "another agent — zsh" });
   await sleep(400);
   await page.evaluate(() => window.play(28));
   await sleep(Math.max(1500, lineMs("warn", 0) + lineMs("warn", 1) - 5200));
   rec.mark("check-page");
   // the check page on the live site
   await page.goto(`${SITE}/check?url=${encodeURIComponent(sellers.a)}`, { waitUntil: "networkidle" });
+  rec.bar({ url: page.url() });
   await page.evaluate(() => document.fonts.ready);
   await sleep(500);
   const res = page.locator("[data-check-result]");
   await res.scrollIntoViewIfNeeded().catch(() => {});
   await page.evaluate(() => window.__tare.cursorTo(1500, 900));
   rec.mark("line-3");
-  await page.evaluate(() => window.__tare.zoomTo(document.querySelector("[data-check-result]"), 1.25));
+  await page.evaluate(() => window.__tare.zoomTo(document.querySelector("[data-check-result]"), 1.1));
   await sleep(Math.max(2600, lineMs("warn", 2)));
   await page.evaluate(() => window.__tare.zoomTo(null, 1));
   await sleep(800);
   await rec.stop();
   await page.context().close();
+}
+
+// Title-bar images for every bar marker of every recorded scene (frame.html?k=bar…).
+async function renderBars(browser) {
+  const dir = path.join(BUILD, "bars"); fs.mkdirSync(dir, { recursive: true });
+  const page = await browser.newPage({ viewport: { width: 1600, height: 48 } });
+  for (const id of fs.readdirSync(path.join(BUILD, "rec"))) {
+    const f = path.join(BUILD, "rec", id, "frames.json"); if (!fs.existsSync(f)) continue;
+    const data = JSON.parse(fs.readFileSync(f, "utf8"));
+    for (const m of data.markers.filter((m) => m.name === "bar")) {
+      const spec = m.bar.url ? { url: m.bar.url.replace(/^http:\/\/(127\.0\.0\.1|localhost):\d+/, (h) => h) } : m.bar;
+      const key = require("node:crypto").createHash("sha1").update(JSON.stringify(spec)).digest("hex").slice(0, 12);
+      const out = path.join(dir, key + ".png");
+      if (!fs.existsSync(out)) {
+        const q = new URLSearchParams({ k: "bar", ...(spec.url ? { url: spec.url } : { title: spec.title }) });
+        await page.goto(`file://${path.join(__dirname, "frame.html")}?${q}`, { waitUntil: "networkidle" });
+        await page.screenshot({ path: out, omitBackground: true });
+      }
+      m.barFile = out;
+    }
+    fs.writeFileSync(f, JSON.stringify(data, null, 1));
+  }
+  // backdrop (white, with the window's shadow) and the page mask
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto(`file://${path.join(__dirname, "frame.html")}?k=bg`, { waitUntil: "networkidle" });
+  await page.screenshot({ path: path.join(BUILD, "frame-bg.png") });
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto(`file://${path.join(__dirname, "frame.html")}?k=mask`, { waitUntil: "networkidle" });
+  await page.screenshot({ path: path.join(BUILD, "frame-mask.png") });
+  await page.close();
 }
 
 (async () => {
@@ -310,5 +342,6 @@ async function warnScene(browser) {
     for (const [k, v] of Object.entries(r)) console.log(`  ${k}: ${v.status} ${v.tx_hash ?? "-"}`);
   }
   if (wanted("warn")) await warnScene(browser);
+  await renderBars(browser);
   await browser.close();
 })();

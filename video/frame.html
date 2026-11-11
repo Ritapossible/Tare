@@ -1,17 +1,60 @@
 <!doctype html>
 <meta charset="utf-8">
-<!-- Renders the milk backdrop (with the window's shadow) and the rounded-corner mask used by assemble.mjs. -->
+<!-- Renders the parts of the desktop-browser frame used by assemble.mjs:
+       ?k=bg            1920x1080 white backdrop with the window's shadow
+       ?k=mask          1600x900 mask for the page area (rounded bottom corners)
+       ?k=bar&url=…     1600x48 browser title bar with the address shown
+       ?k=bar&title=…   1600x48 plain title bar (slides, terminal) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 <style>
-  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
-  body.bg { background:
-      radial-gradient(1200px 700px at 18% 0%, #fffaf0 0%, transparent 70%),
-      radial-gradient(1000px 650px at 100% 100%, #f1e6d3 0%, transparent 70%),
-      #f6f0e4; }
-  .win { position: absolute; left: 160px; top: 40px; width: 1600px; height: 900px; border-radius: 22px; }
-  body.bg .win { background: #0a0a0a; box-shadow: 0 30px 80px rgba(60, 40, 10, .28), 0 8px 24px rgba(60, 40, 10, .18), 0 0 0 1px rgba(0,0,0,.08); }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
+  /* window: x 160, y 24, 1600 x (48 bar + 900 page) */
+  body.bg { background: radial-gradient(1400px 800px at 50% 0%, #ffffff 0%, #fbfbf9 60%, #f4f3ef 100%); }
+  body.bg .win { position: absolute; left: 160px; top: 24px; width: 1600px; height: 948px; border-radius: 14px; background: #0a0a0a;
+    box-shadow: 0 34px 90px rgba(20, 20, 30, .22), 0 10px 28px rgba(20, 20, 30, .14), 0 0 0 1px rgba(0,0,0,.10); }
   body.mask { background: #000; width: 1600px; height: 900px; }
-  body.mask .win { left: 0; top: 0; background: #fff; }
+  body.mask .win { position: absolute; inset: 0; background: #fff; border-radius: 0 0 14px 14px; }
+  body.bar { background: transparent; width: 1600px; height: 48px; }
+  body.bar .win { position: absolute; inset: 0; border-radius: 14px 14px 0 0; background: linear-gradient(#2a2a2c, #232325);
+    border-bottom: 1px solid #111; display: flex; align-items: center; padding: 0 18px; gap: 18px; color: #c9c9cc; }
+  .lights { display: flex; gap: 8px; width: 120px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .lights i:nth-child(1) { background: #ff5f57; } .lights i:nth-child(2) { background: #febc2e; } .lights i:nth-child(3) { background: #28c840; }
+  .navs { display: flex; gap: 14px; color: #8e8e93; font-size: 18px; }
+  .addr { flex: 1; display: flex; justify-content: center; }
+  .pill { min-width: 620px; max-width: 980px; height: 30px; border-radius: 8px; background: #3a3a3d; display: flex; align-items: center; gap: 10px;
+    padding: 0 14px; font-size: 15px; color: #e5e5e7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill .lock { width: 12px; height: 12px; color: #9a9aa0; flex: none; }
+  .pill img { width: 16px; height: 16px; flex: none; border-radius: 4px; }
+  .pill .host { color: #f2f2f4; } .pill .path { color: #9a9aa0; }
+  .title { flex: 1; text-align: center; font-size: 15px; font-weight: 500; color: #c9c9cc; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .title img { width: 16px; height: 16px; border-radius: 4px; }
+  .spacer { width: 120px; }
 </style>
-<body><div class="win"></div>
-<script>document.body.className = new URLSearchParams(location.search).get("k") || "bg";</script>
+<body><div class="win" id="win"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const k = q.get("k") || "bg";
+  document.body.className = k;
+  if (k === "bar") {
+    const favicon = "../web/assets/favicon.svg";
+    const lights = '<div class="lights"><i></i><i></i><i></i></div>';
+    const url = q.get("url");
+    const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    if (url) {
+      const u = new URL(url);
+      const secure = u.protocol === "https:";
+      const host = u.host, path = (u.pathname === "/" ? "" : u.pathname) + u.search;
+      document.getElementById("win").innerHTML = lights +
+        '<div class="navs"><span>‹</span><span>›</span></div>' +
+        '<div class="addr"><div class="pill">' +
+        (secure ? '<svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' : '') +
+        `<img src="${favicon}"><span><span class="host">${esc(host)}</span><span class="path">${esc(path)}</span></span></div></div>` +
+        '<div class="spacer"></div>';
+    } else {
+      document.getElementById("win").innerHTML = lights + `<div class="title"><img src="${favicon}">${esc(q.get("title") || "Tare")}</div><div class="spacer"></div>`;
+    }
+  }
+</script>
 </body>

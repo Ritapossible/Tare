@@ -7,6 +7,7 @@
 <style>
   :root { --bg:#050505; --text:#f6f6f4; --muted:#a3a3a3; --faint:#6b6b6b; --orange:#f97316; --blue:#1d9bf0; --ok:#22c55e; --bad:#ef4444; --border:#2a2a2a; --surface:#111; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { zoom: 0.8333333; }
   html, body { width: 1920px; height: 1080px; background: var(--bg); color: var(--text); font-family: Inter, sans-serif; overflow: hidden; }
   body { background-image: conic-gradient(from 90deg at 2px 2px, var(--bg) 90deg, #101010 0); background-size: 18px 18px; }
   body::after { content: ""; position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 25%, var(--bg) 80%); pointer-events: none; }
@@ -21,12 +22,7 @@
   @keyframes up { to { opacity: 1; transform: none; } }
   .d1 { animation-delay: .25s } .d2 { animation-delay: .7s } .d3 { animation-delay: 1.3s } .d4 { animation-delay: 2.2s } .d5 { animation-delay: 3.4s } .d6 { animation-delay: 4.6s } .d7 { animation-delay: 6s } .d8 { animation-delay: 7.6s }
   .logo { display: flex; align-items: center; gap: 22px; font-family: Outfit; font-weight: 800; font-size: 64px; }
-  .logo i { display: inline-grid; gap: 7px; }
-  .logo b { display: block; width: 62px; height: 20px; border-radius: 10px; background: var(--text); }
-  .logo b + b { width: 40px; }
-  .logo i { position: relative; }
-  .logo i::after { content: ""; position: absolute; right: -12px; bottom: -2px; width: 8px; height: 8px; background: var(--orange);
-    box-shadow: -11px 0 0 var(--orange), 0 -11px 0 var(--orange); }
+  .logo svg { width: 72px; height: 72px; color: var(--text); }
   .sub { color: var(--muted); font-size: 34px; line-height: 1.5; max-width: 1300px; }
   .chips { display: flex; gap: 18px; flex-wrap: wrap; }
   .chip { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 12px 24px; font-size: 26px; color: var(--muted); }
@@ -52,7 +48,7 @@
 </head>
 <body>
   <section class="slide" id="title">
-    <div class="logo in d1"><i><b></b><b></b></i>Tare</div>
+    <div class="logo in d1"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="3" y="6" width="26" height="8" rx="4" stroke="currentColor" stroke-width="2.4"/><rect x="3" y="18" width="16" height="8" rx="4" fill="currentColor"/><rect x="21" y="18" width="8" height="8" rx="4" stroke="#f97316" stroke-width="2" stroke-dasharray="2.2 2.2"/></svg>Tare</div>
     <h1 class="display in d2" style="font-size:190px;margin-top:60px">The label is not<br />the delivery.</h1>
     <div class="in d3" style="margin-top:30px"><span class="display stamp stamp-blue" style="font-size:150px">Tare checks.</span></div>
     <div class="chips in d4" style="margin-top:70px"><span class="chip">Delivery verification for x402</span><span class="chip">SERV Reasoning</span><span class="chip">Kite testnet · pieUSD</span></div>
@@ -81,7 +77,7 @@
   </section>
 
   <section class="slide" id="close">
-    <div class="logo in d1"><i><b></b><b></b></i>Tare</div>
+    <div class="logo in d1"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="3" y="6" width="26" height="8" rx="4" stroke="currentColor" stroke-width="2.4"/><rect x="3" y="18" width="16" height="8" rx="4" fill="currentColor"/><rect x="21" y="18" width="8" height="8" rx="4" stroke="#f97316" stroke-width="2" stroke-dasharray="2.2 2.2"/></svg>Tare</div>
     <h1 class="display in d2" style="font-size:120px;margin-top:50px">SERV reads.<br />Code decides.<br />The wallet pays.</h1>
     <p class="sub in d4" style="margin-top:50px">Spending policies decide whether to pay. <strong style="color:var(--text)">Tare checks what you got.</strong></p>
     <div class="in d5" style="margin-top:60px;display:flex;gap:60px;flex-wrap:wrap">

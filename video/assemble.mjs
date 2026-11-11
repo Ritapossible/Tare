@@ -5,8 +5,9 @@
 // - Frames become a constant 30 fps clip per scene. While a payment settles the page is static, so
 //   that wait is shortened to WAIT_KEEP seconds and marked on screen ("waiting shortened").
 // - Each scene lasts at least as long as its narration (the last frame is held if needed).
-// - Scenes are joined with short crossfades, then framed as a rounded window on a light (milk)
-//   backdrop (video/frame.html renders the backdrop and mask into the build dir).
+// - Scenes are joined with short crossfades, then shown as a desktop browser window on a white
+//   backdrop: the 1600x900 page is placed pixel for pixel (no scaling, so text stays sharp) under a
+//   title bar that shows the real address of whatever is on screen (frame.html, rendered by record.cjs).
 // - Subtitles are burned in below the window (ASS, Inter); voice lines are placed at the same times
 //   as their subtitles.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -65,11 +66,12 @@ for (const scene of timing.scenes) {
   const need = Math.max(length, end + 0.6);
   const clip = join(BUILD, "clips", `${scene.id}.mp4`);
   run(["-f", "concat", "-safe", "0", "-i", listFile,
-    "-vf", `fps=${FPS},scale=1920:1080:flags=lanczos,format=yuv420p,tpad=stop_mode=clone:stop_duration=${Math.max(0, need - length + 0.1).toFixed(2)}`,
+    "-vf", `fps=${FPS},scale=1600:900:flags=lanczos,format=yuv420p,tpad=stop_mode=clone:stop_duration=${Math.max(0, need - length + 0.1).toFixed(2)}`,
     "-t", need.toFixed(2), "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-r", String(FPS), clip]);
   // Per-line cues ("line-N", 1-based) pin a line to the moment its visual appears.
   const cues = Object.fromEntries(markers.filter((m) => /^line-\d+$/.test(m.name)).map((m) => [Number(m.name.slice(5)) - 1, m.t - t0 - removed(m.t) + 0.2]));
-  clips.push({ id: scene.id, file: clip, duration: probe(clip), speakAt, cues, cuts: cuts.map(([a, b]) => [a - t0 - removed(a), b - a]) });
+  const bars = markers.filter((m) => m.name === "bar" && m.barFile).map((m) => ({ at: Math.max(0, m.t - t0 - removed(m.t)), file: m.barFile }));
+  clips.push({ id: scene.id, file: clip, duration: probe(clip), speakAt, cues, bars, cuts: cuts.map(([a, b]) => [a - t0 - removed(a), b - a]) });
 }
 
 // ---------- 2. join with crossfades; scene start times ----------
@@ -94,8 +96,8 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Sub,Inter Display Medium,42,&H001C1A17,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,200,200,46,1
-Style: Note,JetBrains Mono,24,&H00D6D6D6,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,4,0,0,9,200,200,64,1
+Style: Sub,Inter Display Medium,40,&H00171717,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,200,200,34,1
+Style: Note,JetBrains Mono,22,&H00D6D6D6,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,4,0,0,9,184,184,92,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -126,9 +128,19 @@ writeFileSync(OUT.replace(/\.mp4$/, ".srt"), srt);
 
 // ---------- 4. render ----------
 const inputs = clips.flatMap((c) => ["-i", c.file]);
-const BG = clips.length, MASK = clips.length + 1, FIRST_AUDIO = clips.length + 2;
+const BG = clips.length, MASK = clips.length + 1;
 inputs.push("-loop", "1", "-framerate", String(FPS), "-i", join(BUILD, "frame-bg.png"));
 inputs.push("-loop", "1", "-framerate", String(FPS), "-i", join(BUILD, "frame-mask.png"));
+// title bars: one input per distinct image, shown during each segment of the global timeline
+const barFiles = [...new Set(clips.flatMap((c) => c.bars.map((b) => b.file)))];
+const barInput = Object.fromEntries(barFiles.map((f, k) => [f, clips.length + 2 + k]));
+for (const f of barFiles) inputs.push("-loop", "1", "-framerate", String(FPS), "-i", f);
+const FIRST_AUDIO = clips.length + 2 + barFiles.length;
+const segments = [];
+clips.forEach((c, i) => c.bars.forEach((b, j) => {
+  const from = starts[i] + b.at, to = j + 1 < c.bars.length ? starts[i] + c.bars[j + 1].at : starts[i] + c.duration;
+  segments.push({ from, to, input: barInput[b.file] });
+}));
 let afilter = "", amix = "";
 voice.forEach((v, k) => {
   inputs.push("-i", v.file);
@@ -136,9 +148,12 @@ voice.forEach((v, k) => {
   amix += `[a${k}]`;
 });
 // framed window: 1600x900 with rounded corners at (160, 40) on the milk backdrop; subtitles below it
-const vf = `${filter}[vj]scale=1600:900:flags=lanczos,format=rgba[win];[${MASK}:v]format=gray,scale=1600:900[mask];` +
-  `[win][mask]alphamerge[winA];[${BG}:v]format=rgba[bg];[bg][winA]overlay=160:40:format=auto,format=yuv420p,` +
-  `subtitles=${assFile}:fontsdir=/usr/share/fonts[v]`;
+let chain = `${filter}[vj]format=rgba[win];[${MASK}:v]format=gray[mask];[win][mask]alphamerge[winA];` +
+  `[${BG}:v]format=rgba[bg];[bg][winA]overlay=160:72:format=auto[f0];`;
+segments.forEach((sg, k) => {
+  chain += `[f${k}][${sg.input}:v]overlay=160:24:format=auto:enable='between(t,${sg.from.toFixed(3)},${sg.to.toFixed(3)})'[f${k + 1}];`;
+});
+const vf = `${chain}[f${segments.length}]format=yuv420p,subtitles=${assFile}:fontsdir=/usr/share/fonts[v]`;
 if (!voice.length) inputs.push("-f", "lavfi", "-t", total.toFixed(2), "-i", "anullsrc=r=48000:cl=stereo"); // silent track until the voice exists
 const args = [...inputs, "-filter_complex", voice.length ? `${vf};${afilter}${amix}amix=inputs=${voice.length}:normalize=0,alimiter=limit=0.95[a]` : vf,
   "-map", "[v]", "-map", voice.length ? "[a]" : `${FIRST_AUDIO}:a`, "-c:a", "aac", "-b:a", "192k",
