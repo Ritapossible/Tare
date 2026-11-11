@@ -129,7 +129,10 @@ code, kbd, pre { font-family: var(--mono); font-size: 0.88em; }
 .mobile-menu .btn { width: 100%; padding: 16px; font-size: 18px; }
 html.menu-open { overflow: hidden; }
 
-@media (min-width: 900px) {
+/* The full desktop menu needs about 1,100 px for the landing page's seven links and the button;
+   below that the menu button is used, so labels never wrap onto two lines. */
+.nav-links a, .nav-cta { white-space: nowrap; }
+@media (min-width: 1140px) {
   .nav-links, .nav-cta { display: flex; }
   .menu-btn, .mobile-menu, .nav.open .mobile-menu { display: none; }
 }
@@ -286,7 +289,7 @@ header[data-nav] + main > .hero:first-child { margin-top: -96px; }
 }
 .demo-row .step-n { grid-column: 1 / -1; }
 .demo-row .kv:last-child { grid-column: 1 / -1; }
-@media (min-width: 860px) {
+@media (min-width: 1100px) {
   .demo-row { grid-template-columns: 70px 1.3fr 1fr 1fr 1fr 1.2fr; padding: 24px 26px; }
   .demo-row .step-n, .demo-row .kv:last-child { grid-column: auto; }
 }
@@ -303,6 +306,7 @@ header[data-nav] + main > .hero:first-child { margin-top: -96px; }
   border: 1px solid currentColor;
 }
 .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.demo-row .chip { white-space: normal; flex: initial; }
 .tone-ok { color: var(--ok); }
 .tone-bad { color: var(--bad); }
 .tone-warn { color: var(--warn); }
@@ -644,7 +648,6 @@ ul.notes .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
 .prose-doc code { overflow-wrap: break-word; word-break: normal; }
 .prose-doc .hash { overflow-wrap: anywhere; }
 .prose-doc h2[id] { scroll-margin-top: 120px; }
-.prose-doc td:first-child code { white-space: nowrap; }
 
 /* docs tables on phones: each row becomes a card; the first cell is its title, every other cell
    carries its column name (data-label) above it. */
@@ -671,3 +674,8 @@ ul.notes .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
 .toc-mobile a { color: var(--muted); text-decoration: none; padding: 6px 0; }
 .toc-mobile a:hover { color: var(--text); }
 @media (min-width: 980px) { .toc-mobile { display: none; } }
+/* short names in a docs table's first column never break at "-" or ":" on wide screens */
+@media (min-width: 721px) { .prose-doc code.nw { white-space: nowrap; } }
+/* narrow phones: code blocks scroll inside themselves, and grid children may shrink below their content */
+pre { max-width: 100%; }
+.band .wrap, .detail-grid > * { min-width: 0; }

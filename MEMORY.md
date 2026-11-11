@@ -196,6 +196,12 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   any of them would break the testnet-only rule, so Passport cannot pay anything in this build until
   Kite lists Tare's testnet sellers. kpass account: prod backend, sandbox mode, agent registered, no
   allowance set, no active session. Installed bundle 110 (kpass 6.13.1) is also the current "latest".
+- 2026-11-11: **Correction: testnet-only is not an official hackathon rule.** openserv.ai/hackathon-2
+  says nothing about testnet, mainnet or real funds; it asks for a public repo, a demo link or video,
+  a write-up (what it does, how it uses SERV Reasoning, which track) and SERV Reasoning in the build,
+  judged on "creativity, user readiness and revenue potential", deadline 15 Nov 2026 23:59 UTC.
+  Testnet-only came from the owner's brief and stays a project rule (CLAUDE.md rule 7) unless the
+  owner changes it. The Pieverse facilitator supports both eip155:2368 and eip155:2366.
 
 ## Open questions
 

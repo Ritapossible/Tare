@@ -97,7 +97,7 @@ Afternoon:
 - [x] 🤖 README complete: two sentences, SERV key + $5 credit note, Kite commands, `npm test`, three "do X, see Y", model id, "code, not SERV, counts and decides"
 - [x] 🤖 `docs/WRITEUP.md`: what Tare does, how SERV Reasoning powers it, which track (Kite), what was
       built during the hackathon, live `serv_eval` numbers, real-seller probe results, shared records
-      and their limits; testnet is a hackathon rule and switching network is one setting
+      and their limits; testnet is our choice (the official rules do not require it) and the network is one config block
 - [x] 🧑 Find 2-3 **sourced** figures on agent payments / x402 adoption for the write-up (no invented numbers)
 - [x] 🤖 Draft X post (tags **@openservai**) and video script (< 90 s)
 
