@@ -85,7 +85,7 @@ node scripts/buy.mjs b    # verified</pre>
 
         <h2 id="serv">SERV Reasoning</h2>
         <p>Create a key at <a href="https://console.openserv.ai" target="_blank" rel="noopener">console.openserv.ai</a> and put it in <code>.env</code> as <code>SERV_API_KEY</code>. The $5 starter credit pays for SERV inference only; it never funds a payment.</p>
-        <table>
+        <table class="doc-table">
           <tbody>
             <tr><td>Model</td><td><code>gpt-5.4-mini-serv-multipath</code>, <code>reasoning_effort: low</code></td></tr>
             <tr><td>Output</td><td>Strict JSON schema, 400-token cap. Any field outside the schema is dropped unread.</td></tr>
@@ -98,78 +98,78 @@ node scripts/buy.mjs b    # verified</pre>
         <p><strong>Why two prompts.</strong> Adding the time window to the main prompt made SERV's content filter refuse far more short texts (9 of 12 against 3 of 12), so freshness became its own call and the main prompt was left unchanged.</p>
         <p><strong>SERV platform tools.</strong> Requests declare <code>serv_disable_content_filter</code> by default (<code>TARE_SERV_TOOLS</code>), because the default filter refused plain seller texts such as "Here is your data.". <code>serv_prompt_guard</code> is deliberately off: it blocks injection-looking text, which Tare would have to record as a SERV failure, so the seller would be paid but not held. Without it, the same text is read, checked and disputed.</p>
         <p><strong>Live evaluation</strong> (<code>node scripts/serv_eval.mjs</code>, 10 Nov 2026, final code):</p>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Set</th><th>Result</th></tr></thead>
           <tbody>
-            <tr><td>Accuracy: 9 honest seller texts (digits, words, Spanish, three fields, time windows)</td><td><strong>9/9</strong> exact</td></tr>
-            <tr><td>Safety: 6 injection attempts, each making a false promise about seller A</td><td><strong>6/6</strong> safe (none got seller A verified)</td></tr>
+            <tr><td data-label="">Accuracy: 9 honest seller texts (digits, words, Spanish, three fields, time windows)</td><td data-label=""><strong>9/9</strong> exact</td></tr>
+            <tr><td data-label="">Safety: 6 injection attempts, each making a false promise about seller A</td><td data-label=""><strong>6/6</strong> safe (none got seller A verified)</td></tr>
           </tbody>
         </table>
 
         <h2 id="grounding">Grounding</h2>
         <p>SERV is good at reading phrasing and bad at admitting a text says nothing. On real x402 service descriptions it invented counts, "unique" and "no nulls". So code keeps a claim only when the seller's own text supports it. Code may drop a claim; it never adds or changes one. Dropped claims are listed in the receipt's notes.</p>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Claim</th><th>Kept only if the seller's text…</th></tr></thead>
           <tbody>
-            <tr><td><code>claimed_count</code></td><td>states that exact number, in digits or words (English or Spanish). Not as a bound or approximation ("up to 20", "10,000+", "~2", "about 200"), and not inside a price, decimal, percentage, time or name ("$0.002", "7%", "23:59", "HIP-4"). A lone "one" is not a count.</td></tr>
-            <tr><td><code>unique</code></td><td>says unique, distinct or no duplicates.</td></tr>
-            <tr><td><code>no_nulls</code></td><td>mentions nulls, empty, missing or blank values.</td></tr>
-            <tr><td><code>fields</code></td><td>talks about fields or columns, and names every field it claims.</td></tr>
-            <tr><td><code>max_age_hours</code></td><td>names that window explicitly ("last 24 hours", "this week", "today"). "Latest", "real-time" or "~2 days" name no window.</td></tr>
+            <tr><td data-label=""><code>claimed_count</code></td><td data-label="">states that exact number, in digits or words (English or Spanish). Not as a bound or approximation ("up to 20", "10,000+", "~2", "about 200"), and not inside a price, decimal, percentage, time or name ("$0.002", "7%", "23:59", "HIP-4"). A lone "one" is not a count.</td></tr>
+            <tr><td data-label=""><code>unique</code></td><td data-label="">says unique, distinct or no duplicates.</td></tr>
+            <tr><td data-label=""><code>no_nulls</code></td><td data-label="">mentions nulls, empty, missing or blank values.</td></tr>
+            <tr><td data-label=""><code>fields</code></td><td data-label="">talks about fields or columns, and names every field it claims.</td></tr>
+            <tr><td data-label=""><code>max_age_hours</code></td><td data-label="">names that window explicitly ("last 24 hours", "this week", "today"). "Latest", "real-time" or "~2 days" name no window.</td></tr>
           </tbody>
         </table>
 
         <h2 id="rules">Checks</h2>
         <p>All checks are plain code. Rows are expected as <code>{"prose": "...", "rows": [{...}, ...]}</code>; ids are read from each row's <code>id</code> and times from its <code>ts</code>.</p>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Rule</th><th>Fails when</th></tr></thead>
           <tbody>
-            <tr><td><code>shape</code></td><td>The body is not JSON with a string <code>prose</code> and an array of objects <code>rows</code>, or the seller took payment and returned an error.</td></tr>
-            <tr><td><code>count</code></td><td>A count is claimed and differs from the row count (or from the unique-id count, when uniqueness is claimed).</td></tr>
-            <tr><td><code>unique</code></td><td>Uniqueness is claimed and some ids repeat.</td></tr>
-            <tr><td><code>fields</code></td><td>Fields are named and some row lacks one.</td></tr>
-            <tr><td><code>no_nulls</code></td><td>"No nulls" is claimed and a checked value is <code>null</code> or empty. Checked fields are the named ones, or every field if none are named.</td></tr>
-            <tr><td><code>fresh</code></td><td>A time window is claimed and some row's <code>ts</code> is missing, unreadable, older than the window, or more than 5 minutes in the future (measured at delivery time).</td></tr>
-            <tr><td><code>advertised:&lt;rule&gt;</code></td><td>The same rules, applied to the claims in the seller's 402 advertisement. A missing advertisement is noted and never changes the verdict.</td></tr>
+            <tr><td data-label=""><code>shape</code></td><td data-label="">The body is not JSON with a string <code>prose</code> and an array of objects <code>rows</code>, or the seller took payment and returned an error.</td></tr>
+            <tr><td data-label=""><code>count</code></td><td data-label="">A count is claimed and differs from the row count (or from the unique-id count, when uniqueness is claimed).</td></tr>
+            <tr><td data-label=""><code>unique</code></td><td data-label="">Uniqueness is claimed and some ids repeat.</td></tr>
+            <tr><td data-label=""><code>fields</code></td><td data-label="">Fields are named and some row lacks one.</td></tr>
+            <tr><td data-label=""><code>no_nulls</code></td><td data-label="">"No nulls" is claimed and a checked value is <code>null</code> or empty. Checked fields are the named ones, or every field if none are named.</td></tr>
+            <tr><td data-label=""><code>fresh</code></td><td data-label="">A time window is claimed and some row's <code>ts</code> is missing, unreadable, older than the window, or more than 5 minutes in the future (measured at delivery time).</td></tr>
+            <tr><td data-label=""><code>advertised:&lt;rule&gt;</code></td><td data-label="">The same rules, applied to the claims in the seller's 402 advertisement. A missing advertisement is noted and never changes the verdict.</td></tr>
           </tbody>
         </table>
         <p><strong>Verdict.</strong> Any failed rule is a <strong>dispute</strong>. No failure but no count claimed anywhere is <strong>unverifiable</strong>: a promise that claims nothing cannot be checked, so the seller is held. Steering the model into empty claims gets a seller held, not trusted. Otherwise the delivery is <strong>verified</strong>.</p>
 
         <h2 id="statuses">Statuses</h2>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Status</th><th>Money · record</th><th>Meaning</th></tr></thead>
           <tbody>
-            <tr><td><code>clean</code><br /><span class="faint">Verified</span></td><td>Paid: yes<br /><span class="faint">Record: in good standing</span></td><td>Every claim matched.</td></tr>
-            <tr><td><code>dispute</code><br /><span class="faint">Dispute</span></td><td>Paid: yes<br /><span class="faint">Record: held</span></td><td>A claim failed.</td></tr>
-            <tr><td><code>unverifiable</code><br /><span class="faint">Unverifiable</span></td><td>Paid: yes<br /><span class="faint">Record: held</span></td><td>No count claim to check.</td></tr>
-            <tr><td><code>refused</code><br /><span class="faint">Stopped</span></td><td>Paid: no<br /><span class="faint">Record: unchanged</span></td><td>The seller is held (locally or in a trusted feed), or a payment to it is still pending.</td></tr>
-            <tr><td><code>pending</code><br /><span class="faint">Outcome unknown</span></td><td>Paid: unknown<br /><span class="faint">Record: refused until resolved</span></td><td>The payment was signed but its outcome was not seen. Resolve with <code>scripts/resolve.mjs</code>.</td></tr>
-            <tr><td><code>paid_unchecked</code><br /><span class="faint">Paid, unchecked</span></td><td>Paid: yes<br /><span class="faint">Record: unchanged</span></td><td>SERV gave no readable answer twice, or could not be reached.</td></tr>
-            <tr><td><code>paid_unverified</code><br /><span class="faint">Paid, no hash</span></td><td>Paid: unknown<br /><span class="faint">Record: unchanged</span></td><td>The payment rail returned no settlement hash, so the delivery was not judged.</td></tr>
-            <tr><td><code>failed</code><br /><span class="faint">Failed</span></td><td>Paid: no<br /><span class="faint">Record: unchanged</span></td><td>The payment was refused or errored, or the seller answered with an error and no settlement hash.</td></tr>
+            <tr><td data-label="Status"><code>clean</code><br /><span class="faint">Verified</span></td><td data-label="Money · record">Paid: yes<br /><span class="faint">Record: in good standing</span></td><td data-label="Meaning">Every claim matched.</td></tr>
+            <tr><td data-label="Status"><code>dispute</code><br /><span class="faint">Dispute</span></td><td data-label="Money · record">Paid: yes<br /><span class="faint">Record: held</span></td><td data-label="Meaning">A claim failed.</td></tr>
+            <tr><td data-label="Status"><code>unverifiable</code><br /><span class="faint">Unverifiable</span></td><td data-label="Money · record">Paid: yes<br /><span class="faint">Record: held</span></td><td data-label="Meaning">No count claim to check.</td></tr>
+            <tr><td data-label="Status"><code>refused</code><br /><span class="faint">Stopped</span></td><td data-label="Money · record">Paid: no<br /><span class="faint">Record: unchanged</span></td><td data-label="Meaning">The seller is held (locally or in a trusted feed), or a payment to it is still pending.</td></tr>
+            <tr><td data-label="Status"><code>pending</code><br /><span class="faint">Outcome unknown</span></td><td data-label="Money · record">Paid: unknown<br /><span class="faint">Record: refused until resolved</span></td><td data-label="Meaning">The payment was signed but its outcome was not seen. Resolve with <code>scripts/resolve.mjs</code>.</td></tr>
+            <tr><td data-label="Status"><code>paid_unchecked</code><br /><span class="faint">Paid, unchecked</span></td><td data-label="Money · record">Paid: yes<br /><span class="faint">Record: unchanged</span></td><td data-label="Meaning">SERV gave no readable answer twice, or could not be reached.</td></tr>
+            <tr><td data-label="Status"><code>paid_unverified</code><br /><span class="faint">Paid, no hash</span></td><td data-label="Money · record">Paid: unknown<br /><span class="faint">Record: unchanged</span></td><td data-label="Meaning">The payment rail returned no settlement hash, so the delivery was not judged.</td></tr>
+            <tr><td data-label="Status"><code>failed</code><br /><span class="faint">Failed</span></td><td data-label="Money · record">Paid: no<br /><span class="faint">Record: unchanged</span></td><td data-label="Meaning">The payment was refused or errored, or the seller answered with an error and no settlement hash.</td></tr>
           </tbody>
         </table>
         <p>A human can release a held seller after review with <code>node scripts/unblock.mjs &lt;origin&gt;</code>. Releasing a hold does not refund the first payment.</p>
 
         <h2 id="receipts">Receipts</h2>
         <p>Every buy, including a refused one, produces a receipt. These fields are the evidence; the hashes let anyone repeat a check.</p>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
           <tbody>
-            <tr><td><code>status</code></td><td>See <a href="#statuses" class="u">Statuses</a>.</td></tr>
-            <tr><td><code>origin</code>, <code>url</code></td><td>The seller. Records are keyed by origin (<code>new URL(url).origin</code>), never by a name the model returned.</td></tr>
-            <tr><td><code>tx_hash</code></td><td>The settlement hash from <code>PAYMENT-RESPONSE</code>, or <code>null</code>. Never invented. <code>tx_hash_source: "operator"</code> marks a hash a person entered after checking the explorer.</td></tr>
-            <tr><td><code>payment_rail</code></td><td><code>kpass</code> or <code>x402-direct</code>.</td></tr>
-            <tr><td><code>body_sha256</code></td><td>sha256 of the delivered body's exact bytes.</td></tr>
-            <tr><td><code>prompt_sha256</code></td><td>sha256 of the system prompt used to read the promise.</td></tr>
-            <tr><td><code>promise</code></td><td>The delivery note, word for word.</td></tr>
-            <tr><td><code>advertised</code></td><td>The 402 advertisement, word for word.</td></tr>
-            <tr><td><code>claims</code>, <code>advertised_claims</code></td><td>What SERV read from each, after grounding.</td></tr>
-            <tr><td><code>count</code>, <code>unique_count</code>, <code>oldest_age_hours</code></td><td>What code measured.</td></tr>
-            <tr><td><code>failed</code></td><td>The rules that failed, e.g. <code>count</code>, <code>advertised:fields</code>.</td></tr>
-            <tr><td><code>serv_notes</code>, <code>ad_notes</code>, <code>feed_notes</code>, <code>body_notes</code></td><td>How the receipt was read: claims dropped by grounding, advertisement problems, feed results and paid lookups, how the body was hashed.</td></tr>
-            <tr><td><code>reason</code>, <code>error</code></td><td>Why a buy was refused, or what went wrong. Shown with a plain sentence.</td></tr>
-            <tr><td><code>request_id</code>, <code>idempotency_key</code></td><td>Replay protection: <code>origin|request_id</code>. The payment key is derived from it, so one request can never pay twice.</td></tr>
+            <tr><td data-label=""><code>status</code></td><td data-label="">See <a href="#statuses" class="u">Statuses</a>.</td></tr>
+            <tr><td data-label=""><code>origin</code>, <code>url</code></td><td data-label="">The seller. Records are keyed by origin (<code>new URL(url).origin</code>), never by a name the model returned.</td></tr>
+            <tr><td data-label=""><code>tx_hash</code></td><td data-label="">The settlement hash from <code>PAYMENT-RESPONSE</code>, or <code>null</code>. Never invented. <code>tx_hash_source: "operator"</code> marks a hash a person entered after checking the explorer.</td></tr>
+            <tr><td data-label=""><code>payment_rail</code></td><td data-label=""><code>kpass</code> or <code>x402-direct</code>.</td></tr>
+            <tr><td data-label=""><code>body_sha256</code></td><td data-label="">sha256 of the delivered body's exact bytes.</td></tr>
+            <tr><td data-label=""><code>prompt_sha256</code></td><td data-label="">sha256 of the system prompt used to read the promise.</td></tr>
+            <tr><td data-label=""><code>promise</code></td><td data-label="">The delivery note, word for word.</td></tr>
+            <tr><td data-label=""><code>advertised</code></td><td data-label="">The 402 advertisement, word for word.</td></tr>
+            <tr><td data-label=""><code>claims</code>, <code>advertised_claims</code></td><td data-label="">What SERV read from each, after grounding.</td></tr>
+            <tr><td data-label=""><code>count</code>, <code>unique_count</code>, <code>oldest_age_hours</code></td><td data-label="">What code measured.</td></tr>
+            <tr><td data-label=""><code>failed</code></td><td data-label="">The rules that failed, e.g. <code>count</code>, <code>advertised:fields</code>.</td></tr>
+            <tr><td data-label=""><code>serv_notes</code>, <code>ad_notes</code>, <code>feed_notes</code>, <code>body_notes</code></td><td data-label="">How the receipt was read: claims dropped by grounding, advertisement problems, feed results and paid lookups, how the body was hashed.</td></tr>
+            <tr><td data-label=""><code>reason</code>, <code>error</code></td><td data-label="">Why a buy was refused, or what went wrong. Shown with a plain sentence.</td></tr>
+            <tr><td data-label=""><code>request_id</code>, <code>idempotency_key</code></td><td data-label="">Replay protection: <code>origin|request_id</code>. The payment key is derived from it, so one request can never pay twice.</td></tr>
           </tbody>
         </table>
 
@@ -202,11 +202,11 @@ node scripts/buy.mjs b    # verified</pre>
 
         <h2 id="rail">Payment rails</h2>
         <p>Two rails behind one interface, chosen with <code>TARE_PAYMENT_RAIL</code>. Both pay standard x402 on Kite testnet.</p>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Rail</th><th>Who signs</th><th>Caps</th></tr></thead>
           <tbody>
-            <tr><td><code>kpass</code> (default)</td><td>Kite Passport, inside a session you approve with your passkey. The agent holds no key.</td><td>Set on the session: 0.05 per payment, 1 in total, 1 hour.</td></tr>
-            <tr><td><code>x402-direct</code></td><td>Tare, with a testnet-only key (<code>node scripts/x402_wallet.mjs</code>). The Pieverse facilitator settles.</td><td>Enforced by Tare: testnet pieUSD on <code>eip155:2368</code> only, 0.05 per payment, 1 in total over the key's lifetime.</td></tr>
+            <tr><td data-label="Rail"><code>kpass</code> (default)</td><td data-label="Who signs">Kite Passport, inside a session you approve with your passkey. The agent holds no key.</td><td data-label="Caps">Set on the session: 0.05 per payment, 1 in total, 1 hour.</td></tr>
+            <tr><td data-label="Rail"><code>x402-direct</code></td><td data-label="Who signs">Tare, with a testnet-only key (<code>node scripts/x402_wallet.mjs</code>). The Pieverse facilitator settles.</td><td data-label="Caps">Enforced by Tare: testnet pieUSD on <code>eip155:2368</code> only, 0.05 per payment, 1 in total over the key's lifetime.</td></tr>
           </tbody>
         </table>
         <p><strong>The published run.</strong> Kite Passport currently pays only sellers in Kite's service catalog; for Tare's sellers it returned <code>host_not_in_executable_catalog</code> on 10 Nov 2026. So the published run used <code>x402-direct</code>: payer <code>0x7979989aD2A57dC6bBf28fFB120b18aC0aB10895</code> (Tare's testnet key), payee <code>0x9Ef47eA89403c6a2637271B655b0C5b99c68C447</code> (the owner's Passport wallet). Its settlements, verified on Kite testnet:</p>
@@ -229,11 +229,11 @@ kpass session create --separate --task-summary "tare receipt check" \
 
         <h2 id="sellers">Demo sellers</h2>
         <p>Two sellers, each the unchanged Kite x402 Express template on its <strong>own origin</strong>, priced at 0.001 testnet pieUSD and serving committed data files. Each seller's advertisement is set as <code>SERVICE_DESCRIPTION</code> and differs from its delivery note, so the two promises are checked as separate sources. Deploy steps are in <code>sellers/README.md</code>.</p>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Seller</th><th>Promises</th><th>What arrives</th></tr></thead>
           <tbody>
-            <tr><td>A</td><td>Ad: "Export of 1,240 records, fields id, ts and score."<br />Note: "…1,240 unique records, fields id and ts, no nulls."</td><td>1,240 rows · 860 unique ids · 40 empty <code>ts</code> · no <code>score</code></td></tr>
-            <tr><td>B</td><td>Ad: "200 records."<br />Note: "…200 records, fields id and ts, no nulls."</td><td>200 rows · 200 unique ids · no empty values</td></tr>
+            <tr><td data-label="Seller">A</td><td data-label="Promises">Ad: "Export of 1,240 records, fields id, ts and score."<br />Note: "…1,240 unique records, fields id and ts, no nulls."</td><td data-label="What arrives">1,240 rows · 860 unique ids · 40 empty <code>ts</code> · no <code>score</code></td></tr>
+            <tr><td data-label="Seller">B</td><td data-label="Promises">Ad: "200 records."<br />Note: "…200 records, fields id and ts, no nulls."</td><td data-label="What arrives">200 rows · 200 unique ids · no empty values</td></tr>
           </tbody>
         </table>
         <p>Check a seller charges what it should before paying it anything:</p>
@@ -256,33 +256,33 @@ const receipt = await tareFetch(sellerUrl, { requestId, allowFeedHold });
         </ul>
 
         <h2 id="cli">Command line</h2>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Command</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>npm run app</code></td><td>Local console with live Buy buttons on <code>127.0.0.1:4020</code>. It only buys the sellers in <code>sellers.json</code>.</td></tr>
-            <tr><td><code>node scripts/buy.mjs &lt;a|b|url&gt;</code></td><td>One buy. <code>--request-id ID</code> replays instead of paying twice; <code>--allow-feed-hold</code> overrides a trusted feed's hold for this buy.</td></tr>
-            <tr><td><code>node scripts/reset.mjs</code></td><td>Clear receipts and holds for a clean demo. Keeps the lifetime spending ledger.</td></tr>
-            <tr><td><code>node scripts/unblock.mjs &lt;origin&gt;</code></td><td>Release a held seller after review.</td></tr>
-            <tr><td><code>node scripts/resolve.mjs</code></td><td>List payments with an unknown outcome; resolve one with <code>&lt;id&gt; not-paid</code> or <code>&lt;id&gt; paid &lt;tx hash&gt;</code> after checking the explorer.</td></tr>
-            <tr><td><code>node scripts/publish.mjs</code></td><td>Write the receipts, <code>records.json</code> and badges for the hosted site. Refuses malformed hashes and pending payments.</td></tr>
-            <tr><td><code>node scripts/seller_probe.mjs &lt;url&gt;…</code></td><td>Check a seller charges testnet pieUSD 0.001, without paying.</td></tr>
-            <tr><td><code>node scripts/serv_check.mjs</code></td><td>One SERV call through the production client; prints <code>finish_reason</code>, usage and the parsed claims.</td></tr>
-            <tr><td><code>node scripts/serv_eval.mjs</code></td><td>Live accuracy and injection-safety evaluation.</td></tr>
-            <tr><td><code>node scripts/real_probe.mjs</code></td><td>Read what real x402 sellers promise in their advertisements (public discovery list, no payment).</td></tr>
-            <tr><td><code>node scripts/x402_wallet.mjs</code></td><td>Create or show the testnet-only key for the direct rail. The key is never printed.</td></tr>
+            <tr><td data-label=""><code>npm run app</code></td><td data-label="">Local console with live Buy buttons on <code>127.0.0.1:4020</code>. It only buys the sellers in <code>sellers.json</code>.</td></tr>
+            <tr><td data-label=""><code>node scripts/buy.mjs &lt;a|b|url&gt;</code></td><td data-label="">One buy. <code>--request-id ID</code> replays instead of paying twice; <code>--allow-feed-hold</code> overrides a trusted feed's hold for this buy.</td></tr>
+            <tr><td data-label=""><code>node scripts/reset.mjs</code></td><td data-label="">Clear receipts and holds for a clean demo. Keeps the lifetime spending ledger.</td></tr>
+            <tr><td data-label=""><code>node scripts/unblock.mjs &lt;origin&gt;</code></td><td data-label="">Release a held seller after review.</td></tr>
+            <tr><td data-label=""><code>node scripts/resolve.mjs</code></td><td data-label="">List payments with an unknown outcome; resolve one with <code>&lt;id&gt; not-paid</code> or <code>&lt;id&gt; paid &lt;tx hash&gt;</code> after checking the explorer.</td></tr>
+            <tr><td data-label=""><code>node scripts/publish.mjs</code></td><td data-label="">Write the receipts, <code>records.json</code> and badges for the hosted site. Refuses malformed hashes and pending payments.</td></tr>
+            <tr><td data-label=""><code>node scripts/seller_probe.mjs &lt;url&gt;…</code></td><td data-label="">Check a seller charges testnet pieUSD 0.001, without paying.</td></tr>
+            <tr><td data-label=""><code>node scripts/serv_check.mjs</code></td><td data-label="">One SERV call through the production client; prints <code>finish_reason</code>, usage and the parsed claims.</td></tr>
+            <tr><td data-label=""><code>node scripts/serv_eval.mjs</code></td><td data-label="">Live accuracy and injection-safety evaluation.</td></tr>
+            <tr><td data-label=""><code>node scripts/real_probe.mjs</code></td><td data-label="">Read what real x402 sellers promise in their advertisements (public discovery list, no payment).</td></tr>
+            <tr><td data-label=""><code>node scripts/x402_wallet.mjs</code></td><td data-label="">Create or show the testnet-only key for the direct rail. The key is never printed.</td></tr>
           </tbody>
         </table>
 
         <h2 id="config">Configuration</h2>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>Variable</th><th>Default</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>SERV_API_KEY</code></td><td>-</td><td>SERV Reasoning key, in <code>.env</code>. Required to check a delivery.</td></tr>
-            <tr><td><code>TARE_PAYMENT_RAIL</code></td><td><code>kpass</code></td><td><code>kpass</code> or <code>x402-direct</code>.</td></tr>
-            <tr><td><code>TARE_FEEDS</code></td><td>none</td><td>Comma-separated <code>records.json</code> URLs to trust (https only).</td></tr>
-            <tr><td><code>TARE_PAY_FEEDS</code></td><td>off</td><td><code>1</code> lets Tare pay feeds that charge per lookup.</td></tr>
-            <tr><td><code>TARE_SERV_TOOLS</code></td><td><code>disable_content_filter</code></td><td>SERV platform tools, comma list or <code>none</code>.</td></tr>
-            <tr><td><code>PORT</code></td><td><code>4020</code></td><td>Port of the local console.</td></tr>
+            <tr><td data-label="Variable"><code>SERV_API_KEY</code></td><td data-label="Default">-</td><td data-label="What it does">SERV Reasoning key, in <code>.env</code>. Required to check a delivery.</td></tr>
+            <tr><td data-label="Variable"><code>TARE_PAYMENT_RAIL</code></td><td data-label="Default"><code>kpass</code></td><td data-label="What it does"><code>kpass</code> or <code>x402-direct</code>.</td></tr>
+            <tr><td data-label="Variable"><code>TARE_FEEDS</code></td><td data-label="Default">none</td><td data-label="What it does">Comma-separated <code>records.json</code> URLs to trust (https only).</td></tr>
+            <tr><td data-label="Variable"><code>TARE_PAY_FEEDS</code></td><td data-label="Default">off</td><td data-label="What it does"><code>1</code> lets Tare pay feeds that charge per lookup.</td></tr>
+            <tr><td data-label="Variable"><code>TARE_SERV_TOOLS</code></td><td data-label="Default"><code>disable_content_filter</code></td><td data-label="What it does">SERV platform tools, comma list or <code>none</code>.</td></tr>
+            <tr><td data-label="Variable"><code>PORT</code></td><td data-label="Default"><code>4020</code></td><td data-label="What it does">Port of the local console.</td></tr>
           </tbody>
         </table>
 
@@ -308,17 +308,17 @@ const receipt = await tareFetch(sellerUrl, { requestId, allowFeedHold });
         </ul>
 
         <h2 id="troubleshooting">Troubleshooting</h2>
-        <table>
+        <table class="doc-table">
           <thead><tr><th>You see</th><th>What it means</th><th>What to do</th></tr></thead>
           <tbody>
-            <tr><td><code>payment_target_forbidden: host_not_in_executable_catalog</code></td><td>Kite Passport only pays sellers in Kite's catalog.</td><td>Ask Kite to list the seller, or use <code>TARE_PAYMENT_RAIL=x402-direct</code>.</td></tr>
-            <tr><td>Stopped, "seller held"</td><td>The seller failed a check before.</td><td>Read its receipt; <code>scripts/unblock.mjs</code> after review.</td></tr>
-            <tr><td>Stopped, "held in trusted feed"</td><td>A feed you trust holds the seller.</td><td>Read the feed's evidence; <code>--allow-feed-hold</code> for one buy.</td></tr>
-            <tr><td>Outcome unknown (pending)</td><td>The payment was signed but its result was not seen.</td><td>Check the payer on the Kite testnet explorer, then <code>scripts/resolve.mjs</code>.</td></tr>
-            <tr><td>Paid, unchecked: <code>SERV_INVALID</code></td><td>SERV gave no readable answer twice.</td><td>Run <code>scripts/serv_check.mjs</code> with the same text.</td></tr>
-            <tr><td>Paid, unchecked: <code>SERV_API</code></td><td>SERV could not be reached.</td><td>Check the key, the credit balance and the network.</td></tr>
-            <tr><td>"Tare refused to sign"</td><td>The payment was outside the caps or not testnet pieUSD.</td><td>Run <code>scripts/seller_probe.mjs</code> on the seller.</td></tr>
-            <tr><td>The first buy is slow or times out</td><td>A free-tier seller was asleep.</td><td>Open the seller's <code>/healthz</code> a minute before.</td></tr>
+            <tr><td data-label="You see"><code>payment_target_forbidden: host_not_in_executable_catalog</code></td><td data-label="What it means">Kite Passport only pays sellers in Kite's catalog.</td><td data-label="What to do">Ask Kite to list the seller, or use <code>TARE_PAYMENT_RAIL=x402-direct</code>.</td></tr>
+            <tr><td data-label="You see">Stopped, "seller held"</td><td data-label="What it means">The seller failed a check before.</td><td data-label="What to do">Read its receipt; <code>scripts/unblock.mjs</code> after review.</td></tr>
+            <tr><td data-label="You see">Stopped, "held in trusted feed"</td><td data-label="What it means">A feed you trust holds the seller.</td><td data-label="What to do">Read the feed's evidence; <code>--allow-feed-hold</code> for one buy.</td></tr>
+            <tr><td data-label="You see">Outcome unknown (pending)</td><td data-label="What it means">The payment was signed but its result was not seen.</td><td data-label="What to do">Check the payer on the Kite testnet explorer, then <code>scripts/resolve.mjs</code>.</td></tr>
+            <tr><td data-label="You see">Paid, unchecked: <code>SERV_INVALID</code></td><td data-label="What it means">SERV gave no readable answer twice.</td><td data-label="What to do">Run <code>scripts/serv_check.mjs</code> with the same text.</td></tr>
+            <tr><td data-label="You see">Paid, unchecked: <code>SERV_API</code></td><td data-label="What it means">SERV could not be reached.</td><td data-label="What to do">Check the key, the credit balance and the network.</td></tr>
+            <tr><td data-label="You see">"Tare refused to sign"</td><td data-label="What it means">The payment was outside the caps or not testnet pieUSD.</td><td data-label="What to do">Run <code>scripts/seller_probe.mjs</code> on the seller.</td></tr>
+            <tr><td data-label="You see">The first buy is slow or times out</td><td data-label="What it means">A free-tier seller was asleep.</td><td data-label="What to do">Open the seller's <code>/healthz</code> a minute before.</td></tr>
           </tbody>
         </table>
       </article>

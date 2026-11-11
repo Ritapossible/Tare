@@ -588,7 +588,7 @@ dl.facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
   padding: 18px 20px; overflow-x: auto; line-height: 1.75; color: var(--text);
 }
 .prose-doc :not(pre) > code { background: var(--surface-2); padding: 2px 6px; border-radius: 6px; color: var(--text); }
-.prose-doc table { width: 100%; border-collapse: collapse; font-size: 15px; display: block; overflow-x: auto; }
+.prose-doc table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .prose-doc th, .prose-doc td { text-align: left; padding: 12px 14px 12px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
 .prose-doc th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); font-weight: 500; }
 
@@ -639,9 +639,29 @@ ul.notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
 ul.notes li { line-height: 1.5; overflow-wrap: anywhere; }
 ul.notes .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-right: 6px; }
 
-/* docs on narrow screens: long addresses wrap; wide tables scroll inside themselves, not the page */
-.prose-doc code, .prose-doc .hash { overflow-wrap: anywhere; word-break: break-word; }
-.prose-doc table { display: block; max-width: 100%; overflow-x: auto; }
+/* docs: code wraps only when it would overflow its line (identifiers stay whole); hashes may break
+   anywhere. Section headings clear the sticky header when reached from a link. */
+.prose-doc code { overflow-wrap: break-word; word-break: normal; }
+.prose-doc .hash { overflow-wrap: anywhere; }
+.prose-doc h2[id] { scroll-margin-top: 120px; }
+.prose-doc td:first-child code { white-space: nowrap; }
+
+/* docs tables on phones: each row becomes a card; the first cell is its title, every other cell
+   carries its column name (data-label) above it. */
+@media (max-width: 720px) {
+  .doc-table, .doc-table tbody, .doc-table tr, .doc-table td { display: block; width: 100%; }
+  .doc-table thead { display: none; }
+  .doc-table tr { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .doc-table td { padding: 0; border: 0; }
+  .doc-table td + td { margin-top: 8px; }
+  .doc-table td:first-child { font-weight: 600; color: var(--text); }
+  .doc-table td:first-child code { white-space: normal; overflow-wrap: anywhere; }
+  .doc-table td[data-label]:not(:first-child):not([data-label=""])::before {
+    content: attr(data-label); display: block; margin-bottom: 2px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted);
+  }
+}
 
 /* docs: the long table of contents scrolls on desktop; phones get a collapsible menu instead */
 .toc { max-height: calc(100vh - 140px); overflow-y: auto; }
