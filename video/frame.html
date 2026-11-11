@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<!-- Renders the milk backdrop (with the window's shadow) and the rounded-corner mask used by assemble.mjs. -->
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  body.bg { background:
+      radial-gradient(1200px 700px at 18% 0%, #fffaf0 0%, transparent 70%),
+      radial-gradient(1000px 650px at 100% 100%, #f1e6d3 0%, transparent 70%),
+      #f6f0e4; }
+  .win { position: absolute; left: 160px; top: 40px; width: 1600px; height: 900px; border-radius: 22px; }
+  body.bg .win { background: #0a0a0a; box-shadow: 0 30px 80px rgba(60, 40, 10, .28), 0 8px 24px rgba(60, 40, 10, .18), 0 0 0 1px rgba(0,0,0,.08); }
+  body.mask { background: #000; width: 1600px; height: 900px; }
+  body.mask .win { left: 0; top: 0; background: #fff; }
+</style>
+<body><div class="win"></div>
+<script>document.body.className = new URLSearchParams(location.search).get("k") || "bg";</script>
+</body>

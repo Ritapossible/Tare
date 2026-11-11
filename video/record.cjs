@@ -198,7 +198,7 @@ async function consoleScenes(browser, wanted) {
     await zoom(page, null, 1); await sleep(800);
   });
 
-  await run("receipt", async () => {
+  await run("receipt", async (rec) => {
     const st = await (await page.request.get(`${CONSOLE}/api/state`)).json();
     const id = st.receipts.find((r) => r.status === "dispute").id;
     const link = page.locator(`a[href*="${id}"]:visible`).first();
@@ -208,18 +208,21 @@ async function consoleScenes(browser, wanted) {
     await page.waitForLoadState("networkidle");
     await page.evaluate(() => document.fonts.ready);
     await sleep(700);
+    rec.mark("speak"); // narration starts once the receipt is on screen
     const promise = page.locator("text=The promise, word for word").first();
     await page.evaluate(() => window.__tare.cursorTo(1750, 950));
     await scrollTo(page, ".promise-card, .card:has(.promise-quote), main .card:nth-of-type(2)", 120);
     const card = await page.evaluateHandle(() => [...document.querySelectorAll(".card")].find((c) => /word for word/i.test(c.textContent)));
     if (card) await page.evaluate((c) => window.__tare.scrollToEl(c, 140), card);
     await sleep(1200);
+    rec.mark("line-1");
     if (card) await page.evaluate((c) => window.__tare.zoomTo(c, 1.35), card);
     await sleep(lineMs("receipt", 0));
     await zoom(page, null, 1); await sleep(600);
     const ev = await page.evaluateHandle(() => [...document.querySelectorAll(".card")].find((c) => /Evidence/.test(c.querySelector("h2")?.textContent || "")));
     if (ev) await page.evaluate((c) => window.__tare.scrollToEl(c, 140), ev);
     await sleep(1200);
+    rec.mark("line-2");
     if (ev) await page.evaluate((c) => window.__tare.zoomTo(c, 1.3), ev);
     await sleep(Math.max(2000, lineMs("receipt", 1) - 1800));
     await zoom(page, null, 1); await sleep(700);
@@ -285,6 +288,7 @@ async function warnScene(browser) {
   const res = page.locator("[data-check-result]");
   await res.scrollIntoViewIfNeeded().catch(() => {});
   await page.evaluate(() => window.__tare.cursorTo(1500, 900));
+  rec.mark("line-3");
   await page.evaluate(() => window.__tare.zoomTo(document.querySelector("[data-check-result]"), 1.25));
   await sleep(Math.max(2600, lineMs("warn", 2)));
   await page.evaluate(() => window.__tare.zoomTo(null, 1));

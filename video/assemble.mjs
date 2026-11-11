@@ -5,8 +5,10 @@
 // - Frames become a constant 30 fps clip per scene. While a payment settles the page is static, so
 //   that wait is shortened to WAIT_KEEP seconds and marked on screen ("waiting shortened").
 // - Each scene lasts at least as long as its narration (the last frame is held if needed).
-// - Scenes are joined with short crossfades; subtitles are burned in (ASS, Inter); voice lines are
-//   placed at the same times as their subtitles.
+// - Scenes are joined with short crossfades, then framed as a rounded window on a light (milk)
+//   backdrop (video/frame.html renders the backdrop and mask into the build dir).
+// - Subtitles are burned in below the window (ASS, Inter); voice lines are placed at the same times
+//   as their subtitles.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
@@ -44,6 +46,10 @@ for (const scene of timing.scenes) {
     pts.push({ file: f.file, at: f.t - t0 - removed(f.t) });
   }
   const length = t1 - t0 - removed(t1);
+  // Narration starts when the scene's content is on screen: an explicit "speak" marker, or the moment
+  // a payment result arrived; otherwise shortly after the scene begins.
+  const speakMark = markers.find((m) => m.name === "speak") ?? markers.find((m) => m.name === "wait-end");
+  const speakAt = speakMark ? Math.max(LEAD, speakMark.t - t0 - removed(speakMark.t) + 0.25) : LEAD;
   let list = "";
   for (let i = 0; i < pts.length; i++) {
     const d = Math.max(1 / FPS, (i + 1 < pts.length ? pts[i + 1].at : length) - pts[i].at);
@@ -52,12 +58,18 @@ for (const scene of timing.scenes) {
   list += `file '${pts.at(-1).file}'\n`;
   const listFile = join(BUILD, "clips", `${scene.id}.txt`);
   writeFileSync(listFile, list);
-  const need = Math.max(length, scene.speech + LEAD + 0.6);
+  // a cued line can push later lines out: the clip must still hold until the last one ends
+  const cueList = markers.filter((m) => /^line-\d+$/.test(m.name)).map((m) => ({ i: Number(m.name.slice(5)) - 1, at: m.t - t0 - removed(m.t) + 0.2 }));
+  let end = speakAt;
+  scene.lines.forEach((l, li) => { const c = cueList.find((x) => x.i === li); if (c) end = Math.max(end, c.at); end += l.seconds + l.gap; });
+  const need = Math.max(length, end + 0.6);
   const clip = join(BUILD, "clips", `${scene.id}.mp4`);
   run(["-f", "concat", "-safe", "0", "-i", listFile,
     "-vf", `fps=${FPS},scale=1920:1080:flags=lanczos,format=yuv420p,tpad=stop_mode=clone:stop_duration=${Math.max(0, need - length + 0.1).toFixed(2)}`,
     "-t", need.toFixed(2), "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-r", String(FPS), clip]);
-  clips.push({ id: scene.id, file: clip, duration: probe(clip), cuts: cuts.map(([a, b]) => [a - t0 - removed(a), b - a]) });
+  // Per-line cues ("line-N", 1-based) pin a line to the moment its visual appears.
+  const cues = Object.fromEntries(markers.filter((m) => /^line-\d+$/.test(m.name)).map((m) => [Number(m.name.slice(5)) - 1, m.t - t0 - removed(m.t) + 0.2]));
+  clips.push({ id: scene.id, file: clip, duration: probe(clip), speakAt, cues, cuts: cuts.map(([a, b]) => [a - t0 - removed(a), b - a]) });
 }
 
 // ---------- 2. join with crossfades; scene start times ----------
@@ -82,16 +94,17 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Sub,Inter Display,46,&H00F6F6F6,&H000000FF,&H00000000,&H9E000000,0,0,0,0,100,100,0,0,4,0,0,2,180,180,64,1
-Style: Note,JetBrains Mono,26,&H00A3A3A3,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,4,0,0,9,40,40,40,1
+Style: Sub,Inter Display Medium,42,&H001C1A17,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,200,200,46,1
+Style: Note,JetBrains Mono,24,&H00D6D6D6,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,4,0,0,9,200,200,64,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 `;
 const voice = [];
 timing.scenes.forEach((scene, i) => {
-  let t = starts[i] + LEAD;
-  for (const line of scene.lines) {
+  let t = starts[i] + clips[i].speakAt;
+  for (const [li, line] of scene.lines.entries()) {
+    if (clips[i].cues[li] !== undefined) t = Math.max(t, starts[i] + clips[i].cues[li]);
     ass += `Dialogue: 0,${ts(t)},${ts(t + line.seconds + 0.1)},Sub,,0,0,0,,${line.text.replace(/\n/g, " ")}\n`;
     if (line.audio) voice.push({ file: line.audio, at: t });
     t += line.seconds + line.gap;
@@ -113,16 +126,22 @@ writeFileSync(OUT.replace(/\.mp4$/, ".srt"), srt);
 
 // ---------- 4. render ----------
 const inputs = clips.flatMap((c) => ["-i", c.file]);
+const BG = clips.length, MASK = clips.length + 1, FIRST_AUDIO = clips.length + 2;
+inputs.push("-loop", "1", "-framerate", String(FPS), "-i", join(BUILD, "frame-bg.png"));
+inputs.push("-loop", "1", "-framerate", String(FPS), "-i", join(BUILD, "frame-mask.png"));
 let afilter = "", amix = "";
 voice.forEach((v, k) => {
   inputs.push("-i", v.file);
-  afilter += `[${clips.length + k}:a]adelay=${Math.round(v.at * 1000)}|${Math.round(v.at * 1000)},aformat=channel_layouts=stereo[a${k}];`;
+  afilter += `[${FIRST_AUDIO + k}:a]adelay=${Math.round(v.at * 1000)}|${Math.round(v.at * 1000)},aformat=channel_layouts=stereo[a${k}];`;
   amix += `[a${k}]`;
 });
-const vf = `${filter}[vj]subtitles=${assFile}:fontsdir=/usr/share/fonts[v]`;
+// framed window: 1600x900 with rounded corners at (160, 40) on the milk backdrop; subtitles below it
+const vf = `${filter}[vj]scale=1600:900:flags=lanczos,format=rgba[win];[${MASK}:v]format=gray,scale=1600:900[mask];` +
+  `[win][mask]alphamerge[winA];[${BG}:v]format=rgba[bg];[bg][winA]overlay=160:40:format=auto,format=yuv420p,` +
+  `subtitles=${assFile}:fontsdir=/usr/share/fonts[v]`;
 if (!voice.length) inputs.push("-f", "lavfi", "-t", total.toFixed(2), "-i", "anullsrc=r=48000:cl=stereo"); // silent track until the voice exists
 const args = [...inputs, "-filter_complex", voice.length ? `${vf};${afilter}${amix}amix=inputs=${voice.length}:normalize=0,alimiter=limit=0.95[a]` : vf,
-  "-map", "[v]", "-map", voice.length ? "[a]" : `${clips.length}:a`, "-c:a", "aac", "-b:a", "192k",
+  "-map", "[v]", "-map", voice.length ? "[a]" : `${FIRST_AUDIO}:a`, "-c:a", "aac", "-b:a", "192k",
   "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-t", total.toFixed(2), OUT];
 run(args);
 console.log(`${OUT}: ${probe(OUT).toFixed(1)} s, ${clips.length} scenes, voice lines: ${voice.length}`);

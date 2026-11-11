@@ -1,0 +1,96 @@
+1
+00:00:00,450 --> 00:00:01,980
+This is Tare.
+
+2
+00:00:02,230 --> 00:00:04,930
+The label is not the delivery.
+
+3
+00:00:05,720 --> 00:00:10,380
+AI agents now pay for data on their own, over x402.
+
+4
+00:00:10,630 --> 00:00:16,080
+The seller describes the delivery: twelve hundred and forty unique records, no nulls.
+
+5
+00:00:16,330 --> 00:00:19,030
+The agent pays, and moves on.
+
+6
+00:00:19,280 --> 00:00:24,730
+Spending caps limit how much it can pay. Nothing checks what came back.
+
+7
+00:00:25,520 --> 00:00:29,790
+Tare is an independent check of what a seller delivered.
+
+8
+00:00:30,040 --> 00:00:33,530
+Before paying, it reads the seller's own advertisement.
+
+9
+00:00:33,780 --> 00:00:37,270
+After delivery, SERV Reasoning reads the seller's promise,
+
+10
+00:00:37,520 --> 00:00:40,620
+and plain code counts what actually arrived.
+
+11
+00:00:41,420 --> 00:00:48,040
+Here is the Tare console. Every payment is real x402 on Kite testnet, settled by Pieverse.
+
+12
+00:00:52,020 --> 00:00:57,080
+Seller A promised twelve hundred and forty unique records, with no nulls.
+
+13
+00:00:57,330 --> 00:01:01,990
+Code counted eight hundred and sixty unique, and forty empty timestamps.
+
+14
+00:01:02,240 --> 00:01:06,510
+Its advertisement also promised a score field. It never arrived.
+
+15
+00:01:06,760 --> 00:01:12,210
+Dispute. Here is the real settlement hash, and seller A is now held.
+
+16
+00:01:16,080 --> 00:01:23,100
+Buy from seller A again, and Tare stops before any payment. The payment counter does not move.
+
+17
+00:01:26,140 --> 00:01:30,800
+Seller B promised two hundred records, and delivered two hundred. Verified.
+
+18
+00:01:35,370 --> 00:01:40,820
+Every receipt keeps both promises word for word, next to what code measured.
+
+19
+00:01:42,880 --> 00:01:49,110
+The settlement hash, the body hash and the prompt hash let anyone repeat the check.
+
+20
+00:01:49,920 --> 00:01:52,230
+Tare publishes signed seller records.
+
+21
+00:01:52,480 --> 00:01:57,930
+Another agent that trusts the feed is warned, and never pays seller A.
+
+22
+00:02:01,760 --> 00:02:05,250
+And anyone can check a seller before paying.
+
+23
+00:02:06,050 --> 00:02:09,150
+SERV reads. Code decides. The wallet pays.
+
+24
+00:02:09,400 --> 00:02:14,060
+Spending policies decide whether to pay. Tare checks what you got.
+
