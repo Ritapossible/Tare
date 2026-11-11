@@ -149,8 +149,9 @@ Buys run **one at a time** (an in-process queue), so two clicks can never race p
 3. If any receipt for `origin` is still `pending` (a crash mid-payment: unknown whether it settled),
    store and return `refused`. A human resolves it.
 4. Write a `pending` receipt for the key **before** calling `kpass`. Increment `kpass_calls`.
-5. `kpass agent session execute --method GET --url <url>`. Read status, body, and the
-   `PAYMENT-RESPONSE` settlement hash.
+5. Pay through the payment rail: `kpass session execute --method GET --url <url> --idempotency-key <key>`
+   (kpass 6.13.1), or the `x402-direct` rail. Read status, body, and the `PAYMENT-RESPONSE`
+   settlement hash.
    - Non-200 or `kpass` error ⇒ `failed`, store the error, no hash.
    - 200 but no hash ⇒ `paid_unverified`. Stop. Do not dispute without a hash-backed payment record,
      do not invent a hash.
@@ -247,11 +248,15 @@ Payloads are generated deterministically by `sellers/generate.mjs` and committed
 ```
 kpass sandbox on
 kpass wallet address
-kpass faucet drop --recipient <address> --token pieUSD
 kpass agent register --type service-tester
-kpass agent session create --task-summary "tare receipt check" --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h
-kpass agent session execute --method GET --url "<seller url>"
+kpass session create --separate --task-summary "tare receipt check" \
+  --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h --no-browser
+kpass session execute --method GET --url "<seller url>" --idempotency-key <key> --output json
 ```
+
+kpass 6.13.1. The production faucet is disabled; testnet pieUSD came from Kite's dev backend
+(`docs/RUNBOOK.md`). Kite Passport pays only sellers in Kite's service catalog, so for Tare's sellers
+`session execute` returns `host_not_in_executable_catalog`; the published run used `x402-direct`.
 
 The human approves the passkey. That click is never automated.
 

@@ -63,9 +63,10 @@ kpass faucet drop --recipient <address from above> --token pieUSD
 # dev backend, then: kpass faucet drop --recipient <prod wallet> --token pieUSD --base-url https://passport.dev.gokite.ai
 # (run with a separate HOME so the prod login is not overwritten). Check with balanceOf on rpc-testnet.gokite.ai.
 kpass agent register --type service-tester
-kpass agent session create --task-summary "tare receipt check" --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h
+kpass session create --separate --task-summary "tare receipt check" \
+  --max-amount-per-tx 0.05 --max-total-amount 1 --assets pieUSD --ttl 1h --no-browser
 # open the printed approval URL and approve with your passkey (a phone works)
-kpass agent session execute --help
+kpass session execute --help
 ```
 
 You approve the passkey yourself. **Paste back:** every output, especially `execute --help`
@@ -96,7 +97,9 @@ Both sellers must print `RESULT : ok — testnet pieUSD, 0.001 per call`.
 ## 6. First real payment, by hand — GATE (2 min)
 
 ```
-kpass agent session execute --method GET --url "$(node -p 'require("./sellers.json").b')" > kpass_b_stdout.txt
+kpass session execute --method GET --url "$(node -p 'require("./sellers.json").b')" --idempotency-key tare-manual-1 --output json > kpass_b_stdout.txt
+# 10 Nov: Kite answered payment_target_forbidden / host_not_in_executable_catalog (sellers not in its
+# catalog). The run then used TARE_PAYMENT_RAIL=x402-direct (README, "Payment rail").
 cat kpass_b_stdout.txt
 ```
 

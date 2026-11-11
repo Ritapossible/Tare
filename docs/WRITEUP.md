@@ -193,5 +193,4 @@ What this says:
 Everything runs on Kite testnet with testnet pieUSD. That is our choice, not a hackathon rule: no
 real money moves while the project is built and judged, and the direct rail refuses to sign anything
 else. The network, asset and caps live in one config block (`src/x402direct.js`, `KITE_TESTNET`), and
-nothing in the checking logic depends on the network. The facilitator also settles on Kite mainnet
-(`eip155:2366`), so a mainnet run would be a configuration change plus a funded wallet.
+nothing in the checking logic depends on the network.

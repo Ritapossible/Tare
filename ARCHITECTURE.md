@@ -150,10 +150,13 @@ Buyer URLs: `https://<seller-a-host>/v1/Ritapossible/tare/2303e9e8a14d7801369977
 | No count claim, nothing failed | `unverifiable` | yes | yes (human may unblock) |
 | All claims pass | `clean` | yes | no |
 
-## Open questions (resolve in Step 0, then log in MEMORY.md)
+## Step 0 questions (resolved 10 Nov; details in MEMORY.md)
 
-1. `kpass agent session execute` output format: how the body and the `PAYMENT-RESPONSE` header are
-   printed (is there a `--json` flag?). `kpass.js` parses whatever it really prints.
-2. Whether `PAYMENT-RESPONSE` is the bare hash or base64 JSON containing it (x402 v2 typically
-   base64-encodes a settlement object with `transaction`). Store the hash exactly as decoded.
-3. SERV output-cap parameter name, and whether 120 tokens is enough with `reasoning_effort: low`.
+1. ~~kpass output format~~ Only error output has been seen: Kite refuses uncatalogued sellers
+   (`host_not_in_executable_catalog`), so a successful `kpass session execute` reply is still unseen.
+   `kpass.js` parses JSON or an HTTP-style dump and returns no hash when it finds none. If the reply
+   turns out to carry no hash, the hash is in `kpass activity --kind x402_payment --output json`.
+2. ~~PAYMENT-RESPONSE encoding~~ Base64 JSON with `transaction` (seen on the x402-direct rail).
+   A bare hash is also accepted.
+3. ~~SERV output cap~~ `max_completion_tokens`; 120 gave `finish_reason: "length"`, so the cap is 400
+   with a strict JSON schema.
