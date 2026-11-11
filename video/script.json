@@ -1,0 +1,93 @@
+{
+  "title": "Tare - demo",
+  "voice": "female, calm, clear",
+  "scenes": [
+    {
+      "id": "title",
+      "kind": "slide",
+      "lines": [
+        "This is Tare.",
+        "The label is not the delivery."
+      ]
+    },
+    {
+      "id": "problem",
+      "kind": "slide",
+      "lines": [
+        "AI agents now pay for data on their own, over x402.",
+        "The seller describes the delivery: twelve hundred and forty unique records, no nulls.",
+        "The agent pays, and moves on.",
+        "Spending caps limit how much it can pay. Nothing checks what came back."
+      ]
+    },
+    {
+      "id": "solution",
+      "kind": "slide",
+      "lines": [
+        "Tare is an independent check of what a seller delivered.",
+        "Before paying, it reads the seller's own advertisement.",
+        "After delivery, SERV Reasoning reads the seller's promise,",
+        "and plain code counts what actually arrived."
+      ]
+    },
+    {
+      "id": "console",
+      "kind": "console-intro",
+      "lines": [
+        "Here is the Tare console. Every payment is real x402 on Kite testnet, settled by Pieverse."
+      ]
+    },
+    {
+      "id": "buy-a",
+      "kind": "buy",
+      "seller": "a",
+      "lines": [
+        "Seller A promised twelve hundred and forty unique records, with no nulls.",
+        "Code counted eight hundred and sixty unique, and forty empty timestamps.",
+        "Its advertisement also promised a score field. It never arrived.",
+        "Dispute. Here is the real settlement hash, and seller A is now held."
+      ]
+    },
+    {
+      "id": "buy-a-again",
+      "kind": "buy",
+      "seller": "a",
+      "lines": [
+        "Buy from seller A again, and Tare stops before any payment. The payment counter does not move."
+      ]
+    },
+    {
+      "id": "buy-b",
+      "kind": "buy",
+      "seller": "b",
+      "lines": [
+        "Seller B promised two hundred records, and delivered two hundred. Verified."
+      ]
+    },
+    {
+      "id": "receipt",
+      "kind": "receipt",
+      "lines": [
+        "Every receipt keeps both promises word for word, next to what code measured.",
+        "The settlement hash, the body hash and the prompt hash let anyone repeat the check."
+      ]
+    },
+    {
+      "id": "warn",
+      "kind": "warn",
+      "lines": [
+        "Tare publishes signed seller records.",
+        "Another agent that trusts the feed is warned, and never pays seller A.",
+        "And anyone can check a seller before paying."
+      ]
+    },
+    {
+      "id": "close",
+      "kind": "slide",
+      "lines": [
+        "SERV reads. Code decides. The wallet pays.",
+        "Spending policies decide whether to pay. Tare checks what you got."
+      ]
+    }
+  ]
+}

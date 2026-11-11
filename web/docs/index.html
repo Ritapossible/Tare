@@ -189,7 +189,7 @@ node scripts/buy.mjs b    # verified</pre>
       "promised": { "claimed_count": 1240, "unique": true, ... },
       "delivered": { "count": 1240, "unique_count": 860 },
       "failed": ["count", "unique", "no_nulls", "advertised:fields"],
-      "tx_hash": "0x5856ec9a...ff5d1d09",
+      "tx_hash": "0x0c4bb0fc...2ab10d0",
       "body_sha256": "...", "prompt_sha256": "...",
       "promise": "...", "advertised": "...", "payment_rail": "x402-direct",
       "seller_identity": null
@@ -228,8 +228,8 @@ TARE_FEEDS=https://tare-agent.vercel.app/records.json#did:kite:&lt;controller&gt
         </table>
         <p><strong>The published run.</strong> Kite Passport currently pays only sellers in Kite's service catalog; for Tare's sellers it returned <code>host_not_in_executable_catalog</code> on 10 Nov 2026. So the published run used <code>x402-direct</code>: payer <code>0x7979989aD2A57dC6bBf28fFB120b18aC0aB10895</code> (Tare's testnet key), payee <code>0x9Ef47eA89403c6a2637271B655b0C5b99c68C447</code> (the owner's Passport wallet). Its settlements, verified on Kite testnet:</p>
         <ul>
-          <li>Seller A, dispute: <span class="hash">0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09</span></li>
-          <li>Seller B, verified: <span class="hash">0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1</span></li>
+          <li>Seller A, dispute: <span class="hash">0x0c4bb0fcab1f083b8174e8277b6aa194d618ec70f7091ccefc99da25d2ab10d0</span></li>
+          <li>Seller B, verified: <span class="hash">0x8c3da2a2cee55cc20088cbef0ce3e9a56b6c9b636825bbd9cc999881a81a4229</span></li>
         </ul>
         <p>Asset: pieUSD <code>0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A</code> (18 decimals), network <code>eip155:2368</code>, facilitator <code>https://facilitator.pieverse.io/v2</code>.</p>
 

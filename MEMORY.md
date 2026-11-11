@@ -215,6 +215,11 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   A dispute `0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09` (block 22043941), A refused,
   B clean `0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1` (block 22043942). Publisher
   key address `0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485`.
+- 2026-11-11: **Demo-video take** (recorded from the local console with a real browser, x402-direct),
+  verified on Kite testnet: A dispute `0x0c4bb0fcab1f083b8174e8277b6aa194d618ec70f7091ccefc99da25d2ab10d0`
+  (block 22043943; count, unique, no_nulls, advertised:fields), A refused, B clean
+  `0x8c3da2a2cee55cc20088cbef0ce3e9a56b6c9b636825bbd9cc999881a81a4229` (block 22043944). Published (signed);
+  README, docs and write-up cite these.
 
 ## Open questions
 

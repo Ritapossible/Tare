@@ -3,3 +3,7 @@ node_modules/
 /data/
 *.log
 .DS_Store
+
+# demo video: build output is not committed (sources in video/ are)
+/video/build/
+*.mp4

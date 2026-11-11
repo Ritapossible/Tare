@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Tare video slides</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap" />
+<style>
+  :root { --bg:#050505; --text:#f6f6f4; --muted:#a3a3a3; --faint:#6b6b6b; --orange:#f97316; --blue:#1d9bf0; --ok:#22c55e; --bad:#ef4444; --border:#2a2a2a; --surface:#111; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; background: var(--bg); color: var(--text); font-family: Inter, sans-serif; overflow: hidden; }
+  body { background-image: conic-gradient(from 90deg at 2px 2px, var(--bg) 90deg, #101010 0); background-size: 18px 18px; }
+  body::after { content: ""; position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 25%, var(--bg) 80%); pointer-events: none; }
+  .slide { position: absolute; inset: 0; display: none; padding: 120px 160px; z-index: 1; }
+  .slide.on { display: flex; flex-direction: column; justify-content: center; }
+  .display { font-family: Outfit, sans-serif; font-weight: 800; letter-spacing: -0.035em; line-height: 0.95; }
+  .label { font-family: "JetBrains Mono", monospace; color: var(--orange); letter-spacing: .2em; text-transform: uppercase; font-size: 26px; }
+  .stamp { display: inline-block; padding: 0 .18em; transform: rotate(-2deg); }
+  .stamp-blue { background: var(--blue); color: #050505; }
+  .stamp-orange { background: var(--orange); color: #050505; }
+  .in { opacity: 0; transform: translateY(26px); animation: up .8s cubic-bezier(.2,.7,.2,1) forwards; }
+  @keyframes up { to { opacity: 1; transform: none; } }
+  .d1 { animation-delay: .25s } .d2 { animation-delay: .7s } .d3 { animation-delay: 1.3s } .d4 { animation-delay: 2.2s } .d5 { animation-delay: 3.4s } .d6 { animation-delay: 4.6s } .d7 { animation-delay: 6s } .d8 { animation-delay: 7.6s }
+  .logo { display: flex; align-items: center; gap: 22px; font-family: Outfit; font-weight: 800; font-size: 64px; }
+  .logo i { display: inline-grid; gap: 7px; }
+  .logo b { display: block; width: 62px; height: 20px; border-radius: 10px; background: var(--text); }
+  .logo b + b { width: 40px; }
+  .logo i { position: relative; }
+  .logo i::after { content: ""; position: absolute; right: -12px; bottom: -2px; width: 8px; height: 8px; background: var(--orange);
+    box-shadow: -11px 0 0 var(--orange), 0 -11px 0 var(--orange); }
+  .sub { color: var(--muted); font-size: 34px; line-height: 1.5; max-width: 1300px; }
+  .chips { display: flex; gap: 18px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 12px 24px; font-size: 26px; color: var(--muted); }
+  /* problem */
+  .flow { display: flex; align-items: center; gap: 40px; margin-top: 70px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 38px 44px; }
+  .card .k { font-family: "JetBrains Mono"; font-size: 20px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-bottom: 14px; }
+  .card .v { font-size: 38px; font-weight: 600; }
+  .arrow { font-size: 64px; color: var(--faint); }
+  .paid { color: var(--ok); }
+  .q { color: var(--bad); }
+  /* solution */
+  .lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: 70px; }
+  .lane { border-radius: 28px; padding: 44px; background: var(--surface); border: 1px solid var(--border); border-top: 8px solid var(--c); }
+  .lane h3 { font-family: Outfit; font-size: 50px; letter-spacing: -.02em; margin: 10px 0 18px; }
+  .lane p { color: var(--muted); font-size: 28px; line-height: 1.5; }
+  .lane .who { font-family: "JetBrains Mono"; font-size: 20px; letter-spacing: .14em; text-transform: uppercase; color: var(--c); }
+  .steps { display: flex; gap: 14px; margin-top: 46px; flex-wrap: wrap; }
+  .step { font-family: "JetBrains Mono"; font-size: 24px; padding: 12px 22px; border-radius: 14px; border: 1px solid var(--border); color: var(--text); }
+  .step em { color: var(--faint); font-style: normal; margin-right: 10px; }
+  .url { font-family: "JetBrains Mono"; font-size: 34px; color: var(--text); }
+</style>
+</head>
+<body>
+  <section class="slide" id="title">
+    <div class="logo in d1"><i><b></b><b></b></i>Tare</div>
+    <h1 class="display in d2" style="font-size:190px;margin-top:60px">The label is not<br />the delivery.</h1>
+    <div class="in d3" style="margin-top:30px"><span class="display stamp stamp-blue" style="font-size:150px">Tare checks.</span></div>
+    <div class="chips in d4" style="margin-top:70px"><span class="chip">Delivery verification for x402</span><span class="chip">SERV Reasoning</span><span class="chip">Kite testnet · pieUSD</span></div>
+  </section>
+
+  <section class="slide" id="problem">
+    <span class="label in d1">[ The problem ]</span>
+    <h1 class="display in d1" style="font-size:150px;margin-top:30px">Agents pay first.<br /><span class="stamp stamp-blue">Nobody</span> checks <span class="stamp stamp-orange">the goods.</span></h1>
+    <div class="flow">
+      <div class="card in d3"><div class="k">The seller says</div><div class="v">"1,240 unique records, no nulls"</div></div>
+      <div class="arrow in d4">→</div>
+      <div class="card in d5"><div class="k">The agent</div><div class="v paid">Pays ✓</div></div>
+      <div class="arrow in d6">→</div>
+      <div class="card in d7"><div class="k">The rows</div><div class="v q">Never checked</div></div>
+    </div>
+  </section>
+
+  <section class="slide" id="solution">
+    <span class="label in d1">[ The solution ]</span>
+    <h1 class="display in d1" style="font-size:120px;margin-top:30px">An independent check of<br />what a seller delivered.</h1>
+    <div class="lanes">
+      <div class="lane in d3" style="--c:var(--blue)"><span class="who">SERV Reasoning</span><h3>Reads the promise</h3><p>The seller's own words, before and after payment. Never the rows. Never a verdict.</p></div>
+      <div class="lane in d5" style="--c:var(--text)"><span class="who">Tare code</span><h3>Counts the rows</h3><p>Rows, unique ids, fields, empty values, ages. Every claim, checked in code.</p></div>
+      <div class="lane in d7" style="--c:var(--orange)"><span class="who">x402 on Kite</span><h3>Pays, inside caps</h3><p>Real settlement hash on Kite testnet. A held seller is never paid again.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" id="close">
+    <div class="logo in d1"><i><b></b><b></b></i>Tare</div>
+    <h1 class="display in d2" style="font-size:120px;margin-top:50px">SERV reads.<br />Code decides.<br />The wallet pays.</h1>
+    <p class="sub in d4" style="margin-top:50px">Spending policies decide whether to pay. <strong style="color:var(--text)">Tare checks what you got.</strong></p>
+    <div class="in d5" style="margin-top:60px;display:flex;gap:60px;flex-wrap:wrap">
+      <span class="url">tare-agent.vercel.app</span><span class="url" style="color:var(--muted)">github.com/Ritapossible/Tare</span>
+    </div>
+    <div class="chips in d6" style="margin-top:40px"><span class="chip">Built with SERV Reasoning</span><span class="chip">Kite track</span><span class="chip">x402 · Kite testnet</span></div>
+  </section>
+  <script>
+    const id = new URLSearchParams(location.search).get("s") || "title";
+    document.getElementById(id).classList.add("on");
+  </script>
+</body>
+</html>
