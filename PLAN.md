@@ -101,6 +101,12 @@ Afternoon:
 - [x] 🧑 Find 2-3 **sourced** figures on agent payments / x402 adoption for the write-up (no invented numbers)
 - [x] 🤖 Draft X post (tags **@openservai**) and video script (< 90 s)
 
+## Added 11 Nov · Verifiable identity (Kite track)
+- [x] 🤖 records.json signed; agents pin the publisher by address or Kite DID (checked against Kite Passport's public key set)
+- [x] 🤖 Seller origin looked up in Kite's agent directory; DID or "not registered" on receipts, records and /check
+- [x] 🤖 Console tested end to end from a real browser; published run re-made from the console
+- [ ] 🧑 Optional: `kpass identifier claim` + `kpass onboarding submit` (KYC), then bind the publisher key to a Kite agent DID (steps in scripts/identity.mjs)
+
 ## Day 6 — Fri 13 Nov · Record + stretch
 - [ ] 🧑 Record the video from a fresh `reset`: A dispute → A stopped → B verified → another agent
       warned by the record → the "check a seller" page with the badge
