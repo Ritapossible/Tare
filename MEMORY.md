@@ -188,6 +188,14 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   failed count, unique, no_nulls, advertised:fields); A again refused, no payment; B clean
   `0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec` (block 22043920). Published;
   README, docs page and write-up cite these.
+- 2026-11-11: **No Kite catalog seller is payable on testnet.** The prod service-discovery catalog
+  (`ksearch service list`, 50 services) has none that accepts testnet pieUSD (`0x3812…621A`); external
+  services settle in mainnet stablecoins (mostly USDC on Base). Kite's own x402 gateway ("Kite
+  Services", 34 paths, both `kite-services.kiteai.dev` and `kite-services-dev.kiteai.dev`) charges
+  Bridged USDC on `eip155:2366` (Kite mainnet) on every path, confirmed by a live unpaid 402. Paying
+  any of them would break the testnet-only rule, so Passport cannot pay anything in this build until
+  Kite lists Tare's testnet sellers. kpass account: prod backend, sandbox mode, agent registered, no
+  allowance set, no active session. Installed bundle 110 (kpass 6.13.1) is also the current "latest".
 
 ## Open questions
 
