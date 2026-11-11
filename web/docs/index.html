@@ -28,6 +28,7 @@
         <a href="#statuses">Statuses</a>
         <a href="#receipts">Receipts</a>
         <a href="#records">Seller records</a>
+        <a href="#identity">Verifiable identity</a>
         <a href="#rail">Payment rails</a>
         <a href="#kite">Kite testnet setup</a>
         <a href="#sellers">Demo sellers</a>
@@ -46,7 +47,7 @@
         <details class="toc-mobile">
           <summary>On this page</summary>
           <nav aria-label="On this page (mobile)">
-            <a href="#overview">Overview</a><a href="#flow">How a buy works</a><a href="#quickstart">Quick start</a><a href="#serv">SERV Reasoning</a><a href="#grounding">Grounding</a><a href="#rules">Checks</a><a href="#statuses">Statuses</a><a href="#receipts">Receipts</a><a href="#records">Seller records</a><a href="#rail">Payment rails</a><a href="#kite">Kite testnet setup</a><a href="#sellers">Demo sellers</a><a href="#library">Library</a><a href="#cli">Command line</a><a href="#config">Configuration</a><a href="#security">Security</a><a href="#limits">Limits</a><a href="#troubleshooting">Troubleshooting</a>
+            <a href="#overview">Overview</a><a href="#flow">How a buy works</a><a href="#quickstart">Quick start</a><a href="#serv">SERV Reasoning</a><a href="#grounding">Grounding</a><a href="#rules">Checks</a><a href="#statuses">Statuses</a><a href="#receipts">Receipts</a><a href="#records">Seller records</a><a href="#identity">Verifiable identity</a><a href="#rail">Payment rails</a><a href="#kite">Kite testnet setup</a><a href="#sellers">Demo sellers</a><a href="#library">Library</a><a href="#cli">Command line</a><a href="#config">Configuration</a><a href="#security">Security</a><a href="#limits">Limits</a><a href="#troubleshooting">Troubleshooting</a>
           </nav>
         </details>
 
@@ -169,6 +170,7 @@ node scripts/buy.mjs b    # verified</pre>
             <tr><td data-label=""><code class="nw">failed</code></td><td data-label="">The rules that failed, e.g. <code>count</code>, <code>advertised:fields</code>.</td></tr>
             <tr><td data-label=""><code class="nw">serv_notes</code>, <code class="nw">ad_notes</code>, <code class="nw">feed_notes</code>, <code class="nw">body_notes</code></td><td data-label="">How the receipt was read: claims dropped by grounding, advertisement problems, feed results and paid lookups, how the body was hashed.</td></tr>
             <tr><td data-label=""><code class="nw">reason</code>, <code class="nw">error</code></td><td data-label="">Why a buy was refused, or what went wrong. Shown with a plain sentence.</td></tr>
+            <tr><td data-label=""><code class="nw">seller_identity</code></td><td data-label="">The seller's Kite agent DID from Kite's directory, or <code>null</code> (see <code>identity_notes</code>).</td></tr>
             <tr><td data-label=""><code class="nw">request_id</code>, <code class="nw">idempotency_key</code></td><td data-label="">Replay protection: <code>origin|request_id</code>. The payment key is derived from it, so one request can never pay twice.</td></tr>
           </tbody>
         </table>
@@ -187,18 +189,33 @@ node scripts/buy.mjs b    # verified</pre>
       "promised": { "claimed_count": 1240, "unique": true, ... },
       "delivered": { "count": 1240, "unique_count": 860 },
       "failed": ["count", "unique", "no_nulls", "advertised:fields"],
-      "tx_hash": "0xe46bad23...b3dda89a",
+      "tx_hash": "0x5856ec9a...ff5d1d09",
       "body_sha256": "...", "prompt_sha256": "...",
-      "promise": "...", "advertised": "...", "payment_rail": "x402-direct"
+      "promise": "...", "advertised": "...", "payment_rail": "x402-direct",
+      "seller_identity": null
     },
     "counts": { "verified": 0, "disputes": 1, "unverifiable": 0, "stopped": 1 }
-  }]
+  }],
+  "signature": {
+    "scheme": "tare-feed-eip191-sha256-v1",
+    "signer": "0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485",
+    "did": null, "digest": "...", "value": "0x..."
+  }
 }</pre>
         <p><strong>Trusting a feed.</strong> Another agent opts in. A seller held in a trusted feed is stopped before payment:</p>
 <pre>TARE_FEEDS=https://tare-agent.vercel.app/records.json node scripts/buy.mjs &lt;seller url&gt;
 # override for one buy, on purpose:  --allow-feed-hold</pre>
         <p>An unreachable or malformed feed never blocks a buy, and every feed problem is written on the receipt. Malformed records are ignored one by one. There is no global blacklist: each operator chooses which feeds to trust, and a record covers one origin only.</p>
         <p><strong>Paid lookups.</strong> The same seller template can sell the feed at 0.001 testnet pieUSD per lookup (steps in <code>sellers/README.md</code>). An agent pays for lookups only with <code>TARE_PAY_FEEDS=1</code>; the payment uses the same rail and caps as a buy, is cached for 5 minutes, and its hash is written on the receipt. Tested live on 10 Nov 2026: a fresh agent paid one lookup (<span class="hash">0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20</span>), saw seller A held, and paid seller A nothing. People check for free on <a href="/check" class="u">Check a seller</a>.</p>
+
+        <h2 id="identity">Verifiable identity</h2>
+        <p>Both checks use Kite Passport's public agent directory.</p>
+        <p><strong>Who published a record.</strong> <code>records.json</code> is signed by Tare's publisher key (<span class="hash">0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485</span>): EIP-191 over a sha256 of the feed's canonical JSON. An agent pins the publisher it trusts; a pinned feed whose signature does not check out is ignored, and the receipt says why.</p>
+<pre>TARE_FEEDS=https://tare-agent.vercel.app/records.json#0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485
+TARE_FEEDS=https://tare-agent.vercel.app/records.json#did:kite:&lt;controller&gt;:&lt;agent&gt;</pre>
+        <p>With a <code>did:kite:</code> pin, the signer must hold one of that agent's active keys in Kite Passport (<code>GET /v1/agents/&lt;did&gt;/signingKeys</code>). Tare derives each key's address from Kite's published public key itself, and checks the validity window.</p>
+        <p><strong>Who the seller is.</strong> Before paying, Tare looks the seller's origin up in Kite's agent directory and writes the result on the receipt and the seller record: the seller's DID, or "not registered". It is evidence only and never blocks a buy. Tare's demo sellers are not registered.</p>
+        <p>Linking the publisher key to a Kite DID needs the account owner's one-time Kite onboarding (a permanent identifier and KYC); the steps are in <code>scripts/identity.mjs</code>.</p>
 
         <h2 id="rail">Payment rails</h2>
         <p>Two rails behind one interface, chosen with <code>TARE_PAYMENT_RAIL</code>. Both pay standard x402 on Kite testnet.</p>
@@ -211,8 +228,8 @@ node scripts/buy.mjs b    # verified</pre>
         </table>
         <p><strong>The published run.</strong> Kite Passport currently pays only sellers in Kite's service catalog; for Tare's sellers it returned <code>host_not_in_executable_catalog</code> on 10 Nov 2026. So the published run used <code>x402-direct</code>: payer <code>0x7979989aD2A57dC6bBf28fFB120b18aC0aB10895</code> (Tare's testnet key), payee <code>0x9Ef47eA89403c6a2637271B655b0C5b99c68C447</code> (the owner's Passport wallet). Its settlements, verified on Kite testnet:</p>
         <ul>
-          <li>Seller A, dispute: <span class="hash">0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a</span></li>
-          <li>Seller B, verified: <span class="hash">0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec</span></li>
+          <li>Seller A, dispute: <span class="hash">0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09</span></li>
+          <li>Seller B, verified: <span class="hash">0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1</span></li>
         </ul>
         <p>Asset: pieUSD <code>0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A</code> (18 decimals), network <code>eip155:2368</code>, facilitator <code>https://facilitator.pieverse.io/v2</code>.</p>
 
@@ -269,6 +286,7 @@ const receipt = await tareFetch(sellerUrl, { requestId, allowFeedHold });
             <tr><td data-label=""><code>node scripts/serv_check.mjs</code></td><td data-label="">One SERV call through the production client; prints <code>finish_reason</code>, usage and the parsed claims.</td></tr>
             <tr><td data-label=""><code>node scripts/serv_eval.mjs</code></td><td data-label="">Live accuracy and injection-safety evaluation.</td></tr>
             <tr><td data-label=""><code>node scripts/real_probe.mjs</code></td><td data-label="">Read what real x402 sellers promise in their advertisements (public discovery list, no payment).</td></tr>
+            <tr><td data-label=""><code>node scripts/identity.mjs</code></td><td data-label="">Create or show the publisher key that signs <code>records.json</code>; <code>--did</code> links it to a Kite agent after checking Kite lists the key as active.</td></tr>
             <tr><td data-label=""><code>node scripts/x402_wallet.mjs</code></td><td data-label="">Create or show the testnet-only key for the direct rail. The key is never printed.</td></tr>
           </tbody>
         </table>
@@ -282,6 +300,7 @@ const receipt = await tareFetch(sellerUrl, { requestId, allowFeedHold });
             <tr><td data-label="Variable"><code class="nw">TARE_FEEDS</code></td><td data-label="Default">none</td><td data-label="What it does">Comma-separated <code>records.json</code> URLs to trust (https only).</td></tr>
             <tr><td data-label="Variable"><code class="nw">TARE_PAY_FEEDS</code></td><td data-label="Default">off</td><td data-label="What it does"><code>1</code> lets Tare pay feeds that charge per lookup.</td></tr>
             <tr><td data-label="Variable"><code class="nw">TARE_SERV_TOOLS</code></td><td data-label="Default"><code>disable_content_filter</code></td><td data-label="What it does">SERV platform tools, comma list or <code>none</code>.</td></tr>
+            <tr><td data-label="Variable"><code class="nw">TARE_KITE_DIRECTORY</code></td><td data-label="Default">on</td><td data-label="What it does"><code>0</code> skips the seller lookup in Kite's agent directory.</td></tr>
             <tr><td data-label="Variable"><code class="nw">PORT</code></td><td data-label="Default"><code>4020</code></td><td data-label="What it does">Port of the local console.</td></tr>
           </tbody>
         </table>
@@ -302,7 +321,7 @@ const receipt = await tareFetch(sellerUrl, { requestId, allowFeedHold });
         <ul>
           <li><strong>After the payment, not before.</strong> x402 returns the data only after payment, so Tare cannot stop the first bad buy. It catches it, keeps the evidence and stops the next one. It does not refund.</li>
           <li><strong>Rows only.</strong> The checks need a delivery with rows. Most real x402 responses are arbitrary JSON; reading the 402 advertisement works on any x402 seller.</li>
-          <li><strong>Per origin.</strong> A seller can move to a new domain. Binding records to a Kite agent identity is the next step.</li>
+          <li><strong>Per origin.</strong> Holds are keyed by origin, so a seller can move to a new domain. Receipts record a seller's Kite DID when it has one; keying holds by DID is the next step.</li>
           <li><strong>SERV can miss a window.</strong> In testing, "this week" was read as 168 hours in 2 of 3 calls. A missed window means freshness is not checked; it never invents one.</li>
           <li><strong>Real sellers promise little.</strong> Of 1,000 public x402 descriptions read on 10 Nov 2026, 11 stated a number of items and none said "unique" or "no nulls". Tare holds a delivery that promises nothing countable, and the badge goes only to sellers that state a promise and keep it.</li>
         </ul>

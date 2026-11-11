@@ -35,12 +35,13 @@
       <span class="label" style="display:block;margin:28px 0 14px">All published records</span>
       <div class="rec-list" data-check-list><p class="dim">Loading…</p></div>
       <p class="faint" style="font-size:14px;margin-top:22px">These records come from Tare's own purchases and are published as an opt-in feed at <a class="u" href="/records.json">/records.json</a>. Agents choose which feeds they trust; there is no global blacklist. A seller can change domain, so a record covers one origin only.</p>
+      <p class="faint" style="font-size:14px;margin-top:10px" data-feed-signer></p>
     </div>
   </main>
   <div data-footer></div>
   <script type="module">
     import { mountLayout, sprinkle } from "/assets/layout.js";
-    import { lookupRecord, checkResultHTML, recordListHTML } from "/assets/records-view.js";
+    import { lookupRecord, checkResultHTML, recordListHTML, feedSignerHTML } from "/assets/records-view.js";
     mountLayout("app");
     sprinkle(document.querySelector("[data-sprinkle-right]"), 12, { side: "right" });
     const form = document.querySelector("[data-check-form]");
@@ -52,6 +53,7 @@
       if (r.ok) feed = await r.json();
     } catch {}
     document.querySelector("[data-check-list]").innerHTML = recordListHTML(feed);
+    document.querySelector("[data-feed-signer]").innerHTML = feedSignerHTML(feed);
     const run = (value) => {
       out.innerHTML = checkResultHTML(lookupRecord(feed, value), { siteOrigin: location.origin, publisher: "Tare" });
     };

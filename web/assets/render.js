@@ -303,6 +303,7 @@ export function receiptNotes(r) {
     ...(r?.ad_notes ?? []).map((n) => ["402 advertisement", n]),
     ...(r?.feed_notes ?? []).map((n) => ["Trusted feed", n]),
     ...(r?.body_notes ?? []).map((n) => ["Body hash", n]),
+    ...(r?.identity_notes ?? []).map((n) => ["Kite identity", n]),
   ];
 }
 
@@ -336,5 +337,13 @@ export function plainError(r) {
       if (/after settlement/.test(e)) return "Paid, but the seller returned an error instead of the data. The settlement hash is kept and the seller is held.";
       return null;
   }
+}
+
+// The seller's Kite agent identity, as found in Kite Passport's public directory before payment.
+export function identityCell(r) {
+  const id = r?.seller_identity;
+  if (id?.did) return `<span class="hash">${esc(id.did)}</span>${id.verified_tier ? ` <span class="faint">(${esc(id.verified_tier)})</span>` : ""}`;
+  if (r && "seller_identity" in r && (r.identity_notes ?? []).some((n) => /not registered/.test(n))) return `<span class="faint">not registered in Kite's agent directory</span>`;
+  return `<span class="faint">not checked</span>`;
 }
 

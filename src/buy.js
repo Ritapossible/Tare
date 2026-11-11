@@ -29,7 +29,7 @@ export function originOf(url) {
 export function createBuyer(deps) {
   const now = deps.now ?? (() => new Date().toISOString());
   const newId = deps.newId ?? (() => randomUUID());
-  const { store, kpass, extract, promptSha256, paymentRail = null, feedCheck = null, readAdvertisement = null } = deps;
+  const { store, kpass, extract, promptSha256, paymentRail = null, feedCheck = null, readAdvertisement = null, findIdentity = null } = deps;
 
   // Buys run strictly one at a time, so two clicks can never race past the checks below.
   let queue = Promise.resolve();
@@ -66,6 +66,8 @@ export function createBuyer(deps) {
       advertised_claims: null,
       ad_notes: [],
       oldest_age_hours: null,
+      seller_identity: null, // the seller's Kite agent identity, if its origin is in Kite's directory
+      identity_notes: [],
       created_at: now(),
     };
 
@@ -115,6 +117,17 @@ export function createBuyer(deps) {
         if (ad?.note) base.ad_notes.push(ad.note);
       } catch (err) {
         base.ad_notes.push(`advertisement unavailable: ${err?.message ?? err}`);
+      }
+    }
+
+    // 3d. Seller identity: is this origin a registered agent in Kite Passport's directory?
+    //     Evidence only; it never blocks or allows a buy.
+    if (findIdentity) {
+      try {
+        base.seller_identity = await findIdentity(origin);
+        if (!base.seller_identity) base.identity_notes.push("this seller origin is not registered as an agent in Kite Passport's directory");
+      } catch (err) {
+        base.identity_notes.push(`Kite directory not read: ${err?.message ?? err}`);
       }
     }
 

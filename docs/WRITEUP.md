@@ -91,7 +91,7 @@ All of it, from 8 Nov 2026:
 
 - The buyer (`src/`): payment order with idempotency, a one-at-a-time queue, a pending lock so a
   timed-out payment can never be paid twice, hold checks before any payment, the SERV extraction with
-  one retry, the code checks, and receipts. 158 tests (`npm test`), with SERV and the wallet faked.
+  one retry, the code checks, and receipts. 198 tests (`npm test`), with SERV and the wallet faked.
   Key rules are mutation-checked: each fix was undone to confirm a test fails.
 - Two payment rails behind one interface: Kite Passport (`kpass`) and `x402-direct`, a standard
   x402 signer capped by Tare at 0.05 per payment and 1 pieUSD in total, testnet chain 2368 only.
@@ -109,9 +109,9 @@ All of it, from 8 Nov 2026:
 Real Kite testnet settlements, 0.001 pieUSD each, verified on-chain:
 
 - Seller A, dispute (the delivery note failed count, unique and no_nulls; the 402 advertisement, "Export of 1,240 records, fields id, ts and score.", failed fields: no score arrived):
-  `0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a`
+  `0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09`
 - Seller A again: stopped, no payment attempted, no hash.
-- Seller B, verified: `0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec`
+- Seller B, verified: `0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1`
 - A second, fresh agent trusting the published feed: seller A refused before payment, zero payment
   attempts.
 
@@ -122,6 +122,19 @@ been asked to list them. The published run therefore used `x402-direct`: the sam
 signed with a testnet-only key, settled by the Pieverse facilitator on Kite testnet. The payee is the
 owner's Kite Passport wallet. No Passport payment hash exists for this run and none is shown.
 
+## Verifiable identity, with Kite Passport
+
+- **Who published a record.** The published feed is signed by Tare's publisher key
+  (`0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485`). An agent pins the publisher it trusts, by address or by Kite DID
+  (`TARE_FEEDS=…/records.json#did:kite:…`). For a DID, the signer must hold one of that agent's
+  active keys in Kite Passport's public key set; Tare derives each address from Kite's published
+  public key and it matches Kite's own `settlement_address`. A tampered or wrongly signed feed is
+  ignored, with a note. Linking the key to a DID needs the account owner's one-time Kite onboarding
+  (identifier and KYC), which is the owner's decision.
+- **Who the seller is.** Before paying, Tare looks the seller's origin up in Kite's public agent
+  directory and records the seller's DID on the receipt and the seller record, or "not registered".
+  Evidence only, never a gate. Tare's demo sellers are not registered.
+
 ## Shared records, and their limits
 
 - **Opt-in only.** An agent trusts the feeds its operator lists (`TARE_FEEDS`). There is no global
@@ -130,7 +143,7 @@ owner's Kite Passport wallet. No Passport payment hash exists for this run and n
   body hash, the prompt hash, and the seller's words verbatim.
 - **Never silent.** An unreachable or malformed feed never blocks a buy; the receipt says what happened.
   A human can override a feed hold per buy, and release a local hold after review.
-- **Per origin.** A seller can move domain. Binding records to a Kite agent identity is the next step.
+- **Per origin.** Holds are keyed by origin, so a seller can move domain. Receipts already record a seller's Kite DID when it has one; keying holds by DID is the next step.
 - **A business model, honestly small.** The same unchanged Kite seller template can sell the feed:
   0.001 testnet pieUSD per lookup for agents, free for people on `/check`. Tested live: a fresh
   agent paid one lookup (`0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20`),

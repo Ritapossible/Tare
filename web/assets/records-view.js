@@ -45,6 +45,7 @@ function evidenceHTML(e) {
     <dl class="facts">
       <div><dt>Settlement tx hash</dt><dd>${txCell(e.tx_hash, e.status)}</dd></div>
       <div><dt>Body sha256</dt><dd><span class="hash">${esc(e.body_sha256 ?? "-")}</span></dd></div>
+      <div><dt>Kite identity</dt><dd>${e.seller_identity?.did ? `<span class="hash">${esc(e.seller_identity.did)}</span>` : `<span class="faint">none on record</span>`}</dd></div>
       <div><dt>Checked</dt><dd>${esc(formatTime(e.checked_at))}</dd></div>
     </dl>`;
 }
@@ -92,3 +93,13 @@ export function recordListHTML(feed) {
     .join("");
   return rows || `<p class="dim">No seller records published yet.</p>`;
 }
+
+// Who signed this feed. The browser shows it; agents verify it (TARE_FEEDS=url#signer).
+export function feedSignerHTML(feed) {
+  const sig = feed?.signature;
+  if (!sig?.signer) return "This feed is not signed.";
+  const who = sig.did ? `<span class="hash">${esc(sig.did)}</span> (key <span class="hash">${esc(sig.signer)}</span>)` : `<span class="hash">${esc(sig.signer)}</span>`;
+  const pin = sig.did ?? sig.signer;
+  return `Signed by ${who}. An agent can refuse anything else: <code class="hash">TARE_FEEDS=${esc(globalThis.location?.origin ?? "")}/records.json#${esc(pin)}</code>`;
+}
+

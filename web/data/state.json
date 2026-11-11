@@ -1,6 +1,6 @@
 {
   "mode": "published",
-  "generated_at": "2026-11-10T15:56:21.629Z",
+  "generated_at": "2026-11-11T09:10:40.007Z",
   "model": "gpt-5.4-mini-serv-multipath",
   "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
   "sellers": {
@@ -13,12 +13,12 @@
   },
   "receipts": [
     {
-      "id": "rcpt_2dbeff67-31ec-44c5-8c22-134e3b5c7a8b",
-      "request_id": "b1597e6c-e0a1-4b15-8caf-dd4c5a2aa4c0",
-      "idempotency_key": "https://tare-seller-a.onrender.com|b1597e6c-e0a1-4b15-8caf-dd4c5a2aa4c0",
+      "id": "rcpt_34cf2a35-bded-449d-8a5b-fa90b1bc48a4",
+      "request_id": "182b83f8-22b0-4e45-898a-78e70f72405c",
+      "idempotency_key": "https://tare-seller-a.onrender.com|182b83f8-22b0-4e45-898a-78e70f72405c",
       "url": "https://tare-seller-a.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
       "origin": "https://tare-seller-a.onrender.com",
-      "tx_hash": "0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a",
+      "tx_hash": "0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09",
       "body_sha256": "22df2684da4982bfe1d30996b26ad181c7327de03e21dca7848a3fc0c11bc2b2",
       "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
       "payment_rail": "x402-direct",
@@ -58,14 +58,18 @@
       },
       "ad_notes": [],
       "oldest_age_hours": null,
-      "created_at": "2026-11-10T15:55:47.273Z",
+      "seller_identity": null,
+      "identity_notes": [
+        "this seller origin is not registered as an agent in Kite Passport's directory"
+      ],
+      "created_at": "2026-11-11T09:09:38.539Z",
       "status": "dispute",
       "serv_notes": []
     },
     {
-      "id": "rcpt_b8c98f7c-2d83-4b25-aa28-c4bfc53993e0",
-      "request_id": "886db1f2-147e-4452-aca2-3e2624b5d622",
-      "idempotency_key": "https://tare-seller-a.onrender.com|886db1f2-147e-4452-aca2-3e2624b5d622",
+      "id": "rcpt_14c485ac-a132-4bab-9655-a25f00abb824",
+      "request_id": "6397a92c-ce97-4d61-95be-1fdc48d1b390",
+      "idempotency_key": "https://tare-seller-a.onrender.com|6397a92c-ce97-4d61-95be-1fdc48d1b390",
       "url": "https://tare-seller-a.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
       "origin": "https://tare-seller-a.onrender.com",
       "tx_hash": null,
@@ -84,16 +88,18 @@
       "advertised_claims": null,
       "ad_notes": [],
       "oldest_age_hours": null,
-      "created_at": "2026-11-10T15:55:56.993Z",
+      "seller_identity": null,
+      "identity_notes": [],
+      "created_at": "2026-11-11T09:09:47.636Z",
       "status": "refused"
     },
     {
-      "id": "rcpt_5558d6ca-4c44-4600-8119-4fed63f19932",
-      "request_id": "4e1a4879-a83c-445c-b6e5-a9c20d7e95e8",
-      "idempotency_key": "https://tare-seller-b.onrender.com|4e1a4879-a83c-445c-b6e5-a9c20d7e95e8",
+      "id": "rcpt_298b7e8f-60b8-4df7-84dd-8465f221a0c9",
+      "request_id": "09022735-c4c1-41fd-93ee-eb5a0d1bba6c",
+      "idempotency_key": "https://tare-seller-b.onrender.com|09022735-c4c1-41fd-93ee-eb5a0d1bba6c",
       "url": "https://tare-seller-b.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/b.json",
       "origin": "https://tare-seller-b.onrender.com",
-      "tx_hash": "0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec",
+      "tx_hash": "0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1",
       "body_sha256": "1adba78eabc8674fefa588b0654b4b23a821b79d6199de364e805c48a0fa6493",
       "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
       "payment_rail": "x402-direct",
@@ -123,17 +129,21 @@
         "max_age_hours": null
       },
       "ad_notes": [],
-      "oldest_age_hours": 231.9,
-      "created_at": "2026-11-10T15:55:57.296Z",
+      "oldest_age_hours": 249.2,
+      "seller_identity": null,
+      "identity_notes": [
+        "this seller origin is not registered as an agent in Kite Passport's directory"
+      ],
+      "created_at": "2026-11-11T09:09:49.200Z",
       "status": "clean",
       "serv_notes": []
     }
   ],
   "blocklist": {
     "https://tare-seller-a.onrender.com": {
-      "receipt_id": "rcpt_2dbeff67-31ec-44c5-8c22-134e3b5c7a8b",
+      "receipt_id": "rcpt_34cf2a35-bded-449d-8a5b-fa90b1bc48a4",
       "reason": "dispute",
-      "at": "2026-11-10T15:55:56.700Z"
+      "at": "2026-11-11T09:09:46.071Z"
     }
   },
   "kpass_calls": 2,

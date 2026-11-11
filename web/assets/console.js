@@ -1,7 +1,7 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML, receiptNotesHTML, plainError } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML, receiptNotesHTML, plainError, identityCell } from "./render.js";
 import { icons } from "./icons.js";
 import { sprinkle } from "./layout.js";
 
@@ -217,6 +217,7 @@ export async function mountReceipt(root) {
           <div><dt>Failed checks</dt><dd>${failedTags(r.failed)}</dd></div>
           ${receiptNotesHTML(r)}
           <div><dt>Seller record</dt><dd><span class="hash">${esc(r.origin)}</span> · ${recordCell(blocked)}</dd></div>
+          <div><dt>Seller's Kite identity</dt><dd>${identityCell(r)}</dd></div>
           <div><dt>URL</dt><dd><span class="hash">${esc(r.url)}</span></dd></div>
           <div><dt>Request id</dt><dd><span class="hash">${esc(r.request_id ?? "-")}</span></dd></div>
           <div><dt>Time</dt><dd>${esc(formatTime(r.created_at))}</dd></div>

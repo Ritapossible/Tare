@@ -1,15 +1,15 @@
 {
   "version": 1,
   "publisher": "tare",
-  "generated_at": "2026-11-10T15:56:21.643Z",
+  "generated_at": "2026-11-11T09:10:40.019Z",
   "records": [
     {
       "origin": "https://tare-seller-a.onrender.com",
       "status": "held",
       "reason": "dispute",
-      "since": "2026-11-10T15:55:56.700Z",
+      "since": "2026-11-11T09:09:46.071Z",
       "evidence": {
-        "receipt_id": "rcpt_2dbeff67-31ec-44c5-8c22-134e3b5c7a8b",
+        "receipt_id": "rcpt_34cf2a35-bded-449d-8a5b-fa90b1bc48a4",
         "status": "dispute",
         "url": "https://tare-seller-a.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/a.json",
         "promised": {
@@ -32,13 +32,14 @@
           "no_nulls",
           "advertised:fields"
         ],
-        "tx_hash": "0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a",
+        "tx_hash": "0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09",
         "body_sha256": "22df2684da4982bfe1d30996b26ad181c7327de03e21dca7848a3fc0c11bc2b2",
         "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
         "payment_rail": "x402-direct",
         "promise": "Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.",
         "advertised": "Export of 1,240 records, fields id, ts and score.",
-        "checked_at": "2026-11-10T15:55:47.273Z"
+        "seller_identity": null,
+        "checked_at": "2026-11-11T09:09:38.539Z"
       },
       "counts": {
         "verified": 0,
@@ -53,7 +54,7 @@
       "reason": null,
       "since": null,
       "evidence": {
-        "receipt_id": "rcpt_5558d6ca-4c44-4600-8119-4fed63f19932",
+        "receipt_id": "rcpt_298b7e8f-60b8-4df7-84dd-8465f221a0c9",
         "status": "clean",
         "url": "https://tare-seller-b.onrender.com/v1/Ritapossible/tare/2303e9e8a14d7801369977668f6067fb5b49ef17/sellers/data/b.json",
         "promised": {
@@ -71,13 +72,14 @@
           "unique_count": 200
         },
         "failed": [],
-        "tx_hash": "0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec",
+        "tx_hash": "0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1",
         "body_sha256": "1adba78eabc8674fefa588b0654b4b23a821b79d6199de364e805c48a0fa6493",
         "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
         "payment_rail": "x402-direct",
         "promise": "Delivered two hundred records, fields id and ts, no nulls.",
         "advertised": "200 records.",
-        "checked_at": "2026-11-10T15:55:57.296Z"
+        "seller_identity": null,
+        "checked_at": "2026-11-11T09:09:49.200Z"
       },
       "counts": {
         "verified": 1,
@@ -86,5 +88,12 @@
         "stopped": 0
       }
     }
-  ]
+  ],
+  "signature": {
+    "scheme": "tare-feed-eip191-sha256-v1",
+    "signer": "0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485",
+    "did": null,
+    "digest": "e9c926ffdb89741edf8d0ca32e409986ffb31d513d2092a383a4f90dbd54d11e",
+    "value": "0x73c976ea46f25763a0788bc509377df6bb42f341ef4499610cf4c7359cd74e3b2284a230eea4330ec2e2e3bfaabab08b892364a1e414e6350de84136f519e7031b"
+  }
 }

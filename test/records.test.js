@@ -75,12 +75,12 @@ test("badge: publishing removes a badge when a seller is no longer eligible", ()
   assert.ok(!readdirSync(dir).includes("seller-a.test.svg"));
 });
 
-test("publish writes state, records feed and badges, and never a malformed hash", () => {
+test("publish writes state, records feed and badges, and never a malformed hash", async () => {
   const store = memoryStore();
   for (const r of snapshot().receipts.filter((r) => r.id !== "d1")) store.put(r);
   store.block(A_ORIGIN, { receipt_id: "a1", reason: "dispute", at: "T" });
   const webDir = mkdtempSync(join(tmpdir(), "tare-web-"));
-  const { feed, badges } = publish({ store, sellers: { a: A_URL, b: B_URL }, webDir });
+  const { feed, badges } = await publish({ store, sellers: { a: A_URL, b: B_URL }, webDir });
   assert.equal(JSON.parse(readFileSync(join(webDir, "records.json"), "utf8")).records.length, feed.records.length);
   assert.deepEqual(badges, ["seller-b.test.svg"]);
   assert.ok(JSON.parse(readFileSync(join(webDir, "data", "state.json"), "utf8")).receipts.length >= 3);

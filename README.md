@@ -22,7 +22,7 @@ Requires Node 22 or newer.
 ```
 git clone https://github.com/Ritapossible/Tare && cd Tare
 npm ci
-npm test                      # 189 tests; SERV and the payment rail are faked, no network
+npm test                      # 198 tests; SERV and the payment rail are faked, no network
 cp .env.example .env          # then set SERV_API_KEY
 node scripts/serv_check.mjs   # one real SERV call through the production client
 npm run app                   # live console on http://127.0.0.1:4020/app
@@ -103,8 +103,8 @@ So the published run used `x402-direct`:
 
 Real Kite testnet settlements from the published run, verified on-chain, 0.001 pieUSD each:
 
-- Seller A, dispute: `0xe46bad23d51a6733155851686243d13ce7cb042063e846a150884507b3dda89a`
-- Seller B, verified: `0x63397bda15d8738c7ae8204be8adfb18013dfe78a76f72e8ad169ae1cc21deec`
+- Seller A, dispute: `0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09`
+- Seller B, verified: `0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1`
 
 No Passport payment hash exists for this run, and none is shown.
 
@@ -171,6 +171,31 @@ cached for 5 minutes and is noted on the receipt. Tested live on 10 Nov 2026: a 
 lookup (`0x217a85b7ee1563555664308ca6800510efb22a4a403ceb159dad4ee15c8d3d20`, Kite testnet), saw seller A
 held, and made no payment to seller A.
 
+## Verifiable identity
+
+Two checks, both built on Kite Passport's public agent directory:
+
+- **Who published a seller record.** `records.json` is signed by Tare's publisher key
+  (`0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485`, created with `node scripts/identity.mjs`; signing is EIP-191 over a sha256 of the
+  feed's canonical JSON). An agent can pin the publisher it trusts, and a feed whose signature does
+  not check out is ignored, with a note on the receipt:
+
+  ```
+  TARE_FEEDS=https://tare-agent.vercel.app/records.json#0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485 node scripts/buy.mjs <seller url>
+  TARE_FEEDS=https://tare-agent.vercel.app/records.json#did:kite:<controller>:<agent> ...
+  ```
+
+  With a `did:kite:` pin, the signer must hold one of that agent's **active keys in Kite Passport**
+  (`GET https://passport.prod.gokite.ai/v1/agents/<did>/signingKeys`). Tare derives each key's address
+  from Kite's published public key itself; it matches Kite's own `settlement_address`.
+- **Who the seller is.** Before paying, Tare looks the seller's origin up in Kite's agent directory
+  and writes the result on the receipt and the seller record: the seller's DID, or "not registered".
+  It is evidence only and never blocks a buy. Tare's demo sellers are not registered.
+
+Binding the publisher key to a Kite DID needs the account owner's one-time Kite onboarding (a
+permanent identifier and KYC); the steps are in `scripts/identity.mjs`. Until then the feed is
+signed by the key's address alone.
+
 ## Add Tare to your agent
 
 ```js
@@ -192,6 +217,7 @@ is the full buyer, as in the CLI; it keeps its store in `./data/store.json` of t
 | `TARE_FEEDS` | none | Comma-separated `records.json` URLs to trust (https only) |
 | `TARE_PAY_FEEDS` | off | `1` lets Tare pay feeds that charge per lookup |
 | `TARE_SERV_TOOLS` | `disable_content_filter` | SERV platform tools, comma list or `none` |
+| `TARE_KITE_DIRECTORY` | on | `0` skips the seller lookup in Kite's agent directory |
 | `PORT` | `4020` | Port of the local console |
 
 ## Scripts
@@ -209,6 +235,7 @@ is the full buyer, as in the CLI; it keeps its store in `./data/store.json` of t
 | `node scripts/serv_eval.mjs` | Live accuracy and injection-safety evaluation |
 | `node scripts/real_probe.mjs` | What real x402 sellers promise in their advertisements (no payment) |
 | `node scripts/x402_wallet.mjs` | Create or show the testnet-only key for the direct rail |
+| `node scripts/identity.mjs` | Create or show the publisher key that signs `records.json`; `--did` links it to a Kite agent |
 
 ## Web app
 
@@ -225,7 +252,7 @@ the operator's machine, never by the website.
 npm test
 ```
 
-189 tests with `node --test`. SERV and the payment rail are injected fakes, so tests never touch the
+198 tests with `node --test`. SERV and the payment rail are injected fakes, so tests never touch the
 network. Test hashes are obviously fake (`0xTEST…`, `0x7e57…`).
 
 ## License

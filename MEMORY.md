@@ -87,6 +87,9 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
 | 2026-11-10 | `scripts/resolve.mjs` resolves a pending payment: `not-paid` ⇒ failed; `paid <hash>` ⇒ paid_unchecked with `tx_hash_source: "operator"`, shown as "entered by the operator". The seller's record is never changed by a resolve | before this, a pending payment blocked its seller until a full reset; an operator-entered hash must never pass for one Tare received |
 | 2026-11-10 | Seller advertisements differ from the delivery notes: A "Export of 1,240 records, fields id, ts and score." (fails advertised:fields), B "200 records." (true). Live SERV read both identically on two calls each | an advertisement identical to the delivery note showed one check twice; a separate promise must be able to fail on its own |
 | 2026-11-10 | Copy no longer says the agent "never holds a private key" without qualification: the published run paid with Tare's capped testnet key | review: a judge reading only the top would think Passport paid |
+| 2026-11-11 | Verifiable identity: records.json signed (EIP-191 over sha256 of canonical JSON) by a publisher key in data/publisher.key; agents pin `url#0x…` or `url#did:kite:…`; a DID pin checks the signer against the agent's active keys from Kite Passport's public signingKeys endpoint, deriving addresses from pub_key ourselves. Seller origins are looked up in Kite's agent directory (evidence only, never a gate; holds stay keyed by origin per CLAUDE.md rule 4) | Kite track asks for verifiable identity; both checks use Kite's public directory with no new trust in Tare |
+| 2026-11-11 | `@noble/curves` 1.9.1 pinned as a direct dependency (already shipped inside viem) | decompress Kite's base64 secp256k1 public keys to derive addresses |
+| 2026-11-11 | Not done without the owner: `kpass identifier claim` + `kpass onboarding submit` (permanent identifier, KYC with legal name and country) needed before `kpass agent create` | personal data and irreversible; steps documented in scripts/identity.mjs |
 
 ## Facts learned (from docs)
 
@@ -202,6 +205,16 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   judged on "creativity, user readiness and revenue potential", deadline 15 Nov 2026 23:59 UTC.
   Testnet-only came from the owner's brief and stays a project rule (CLAUDE.md rule 7) unless the
   owner changes it. The Pieverse facilitator supports both eip155:2368 and eip155:2366.
+- 2026-11-11: Kite Passport public endpoints (no auth): `GET /v1/agents/<did|agt_id>/signingKeys` →
+  `{data:{agent_id,did,keys:[{key_id,pub_key:"secp256k1:<b64 compressed>",status,settlement_address,valid_from,valid_to}]}}`;
+  `GET /v1/agents:search?limit&offset` and `GET /v1/agents:lookup?ref=` return agents with `did`, `uid`,
+  `kind`, `url`, `verified_tier`. Address derived from pub_key equals settlement_address
+  (checked on did:kite:corp-gokite:support). 57 agents listed on 11 Nov; neither Tare seller is registered.
+- 2026-11-11: **Console runs from the website** (local console driven by a real browser, x402-direct):
+  first run `0x5b222e4d…` / `0xc6f6a1a7…`; second run on the identity code, now published and signed:
+  A dispute `0x5856ec9ad03b69f15262c80542e62b010e07621750317e417bd49518ff5d1d09` (block 22043941), A refused,
+  B clean `0x96b03e0c895e70bc7d712a339ae150c01983adfd1cebd8baf5cf16f32d7840b1` (block 22043942). Publisher
+  key address `0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485`.
 
 ## Open questions
 

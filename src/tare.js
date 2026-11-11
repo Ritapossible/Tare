@@ -10,6 +10,7 @@ import { extractClaims, createServComplete } from "./serv.js";
 import { fileStore } from "./store.js";
 import { PROMPT_SHA256 } from "./prompt.js";
 import { createFeedChecker, parseFeedList } from "./feeds.js";
+import { createKiteDirectory } from "./identity.js";
 
 export const STORE_PATH = "data/store.json";
 
@@ -57,6 +58,7 @@ export function createTare({
   rail = process.env.TARE_PAYMENT_RAIL || "kpass",
   feeds = parseFeedList(process.env.TARE_FEEDS),
   payFeeds = process.env.TARE_PAY_FEEDS === "1",
+  identity = process.env.TARE_KITE_DIRECTORY !== "0", // look sellers up in Kite's agent directory
 } = {}) {
   const store = fileStore(storePath);
   let complete; // created lazily so refused buys work without a key
@@ -77,6 +79,7 @@ export function createTare({
     // TARE_FEEDS: comma-separated records.json URLs the operator chooses to trust (opt-in).
     feedCheck: feeds.length ? createFeedChecker({ feeds, payFetch }) : null,
     readAdvertisement: (u) => readAdvertisement(u),
+    findIdentity: identity ? createKiteDirectory() : null,
   });
   return { store, buy: buyer.buy };
 }
