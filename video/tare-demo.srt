@@ -59,38 +59,38 @@ Its advertisement also promised a score field. It never arrived.
 Dispute. Here is the real settlement hash, and seller A is now held.
 
 16
-00:01:16,080 --> 00:01:23,100
+00:01:16,040 --> 00:01:23,060
 Buy from seller A again, and Tare stops before any payment. The payment counter does not move.
 
 17
-00:01:26,140 --> 00:01:30,800
+00:01:26,060 --> 00:01:30,720
 Seller B promised two hundred records, and delivered two hundred. Verified.
 
 18
-00:01:35,370 --> 00:01:40,820
+00:01:35,190 --> 00:01:40,640
 Every receipt keeps both promises word for word, next to what code measured.
 
 19
-00:01:42,880 --> 00:01:49,110
+00:01:42,710 --> 00:01:48,940
 The settlement hash, the body hash and the prompt hash let anyone repeat the check.
 
 20
-00:01:49,920 --> 00:01:52,230
+00:01:49,750 --> 00:01:52,060
 Tare publishes signed seller records.
 
 21
-00:01:52,480 --> 00:01:57,930
+00:01:52,310 --> 00:01:57,760
 Another agent that trusts the feed is warned, and never pays seller A.
 
 22
-00:02:01,760 --> 00:02:05,250
+00:02:01,560 --> 00:02:05,050
 And anyone can check a seller before paying.
 
 23
-00:02:06,050 --> 00:02:09,150
+00:02:05,850 --> 00:02:08,950
 SERV reads. Code decides. The wallet pays.
 
 24
-00:02:09,400 --> 00:02:14,060
+00:02:09,200 --> 00:02:13,860
 Spending policies decide whether to pay. Tare checks what you got.
 
