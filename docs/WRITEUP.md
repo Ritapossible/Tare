@@ -98,7 +98,7 @@ All of it, from 8 Nov 2026:
 
 - The buyer (`src/`): payment order with idempotency, a one-at-a-time queue, a pending lock so a
   timed-out payment can never be paid twice, hold checks before any payment, the SERV extraction with
-  one retry, the code checks, and receipts. 198 tests (`npm test`), with SERV and the wallet faked.
+  one retry, the code checks, and receipts. 204 tests (`npm test`), with SERV and the wallet faked.
   Key rules are mutation-checked: each fix was undone to confirm a test fails.
 - Two payment rails behind one interface: Kite Passport (`kpass`) and `x402-direct`, a standard
   x402 signer capped by Tare at 0.05 per payment and 1 pieUSD in total, testnet chain 2368 only.

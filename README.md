@@ -22,7 +22,7 @@ Requires Node 22 or newer.
 ```
 git clone https://github.com/Ritapossible/Tare && cd Tare
 npm ci
-npm test                      # 198 tests; SERV and the payment rail are faked, no network
+npm test                      # 204 tests; SERV and the payment rail are faked, no network
 cp .env.example .env          # then set SERV_API_KEY
 node scripts/serv_check.mjs   # one real SERV call through the production client
 npm run app                   # live console on http://127.0.0.1:4020/app
@@ -78,6 +78,20 @@ Details: [SPEC.md](SPEC.md) (behaviour), [ARCHITECTURE.md](ARCHITECTURE.md) (str
 
 **Live evaluation** (`node scripts/serv_eval.mjs`, 10 Nov 2026): accuracy **9/9** on honest seller
 texts, safety **6/6** on injection attempts (no manipulated text got seller A verified).
+
+**Dispute explanations.** After a verdict is final, SERV turns the evidence into plain English for
+the operator and the seller. From the published run:
+
+> "The biggest mismatch is uniqueness: the delivery note promised 1,240 unique records, but the
+> delivery had 1,240 rows with only 860 unique ids and 380 duplicate ids. It also promised no empty
+> values, yet 40 ts values were empty. The advertisement before payment promised fields id, ts, and
+> score, but the delivered data was missing score in all 1,240 rows."
+
+SERV writes it from a small JSON of facts built in code: the claims it already read, the numbers code
+measured (duplicate ids, rows missing each field, empty values) and the failed checks. No seller text
+and no rows go in, so there is nothing to inject into. Code checks the answer: every number must be in
+the evidence, no guesses at intent, at most 600 characters, otherwise it is dropped. It never changes
+the verdict or the hold.
 
 **SERV platform tools.** Requests declare `serv_disable_content_filter` by default. The default filter
 refused plain texts like "Here is your data.", and accuracy was 7/9. SERV's Prompt Guard is
@@ -153,8 +167,8 @@ The same buys work from the console (`npm run app`). Sellers and their deploy st
 `node scripts/publish.mjs` publishes the local run for the hosted site:
 
 - [`/records.json`](https://tare-agent.vercel.app/records.json): one record per seller, held or in good
-  standing, with the evidence (both promises word for word, promised vs delivered, failed checks,
-  settlement hash, body hash, prompt hash).
+  standing, with the evidence (both promises word for word, SERV's plain-English explanation,
+  promised vs delivered, failed checks, settlement hash, body hash, prompt hash).
 - [`/check`](https://tare-agent.vercel.app/check): look up any seller before paying.
 - `/badges/<host>.svg`: a "Verified by Tare" badge, only for sellers verified and in good standing.
 
@@ -239,6 +253,7 @@ is the full buyer, as in the CLI; it keeps its store in `./data/store.json` of t
 | `node scripts/serv_eval.mjs` | Live accuracy and injection-safety evaluation |
 | `node scripts/real_probe.mjs` | What real x402 sellers promise in their advertisements (no payment) |
 | `node scripts/x402_wallet.mjs` | Create or show the testnet-only key for the direct rail |
+| `node scripts/explain.mjs <id> --body <file>` | Add SERV's explanation to a stored dispute without paying again; refuses unless the file's sha256 equals the receipt's body hash |
 | `node scripts/identity.mjs` | Create or show the publisher key that signs `records.json`; `--did` links it to a Kite agent |
 
 ## Web app
@@ -250,13 +265,21 @@ Pages: landing `/`, console `/app`, receipt `/app/receipt`, sellers `/app/seller
 no build command. The hosted site is read-only and shows the published run: payments are signed on
 the operator's machine, never by the website.
 
+## Demo video
+
+A 1:50 walkthrough with a female voice-over and subtitles: the problem, the solution, then the live
+console making real Kite testnet payments (A disputed, A stopped, B verified), a receipt, another agent
+being warned, and the check page. Every hash in it is the published run above. It is built from
+[`video/`](video/README.md) (scenes recorded from Chrome, voice by the open-source Kokoro model running
+locally); the rendered file is not committed.
+
 ## Tests
 
 ```
 npm test
 ```
 
-198 tests with `node --test`. SERV and the payment rail are injected fakes, so tests never touch the
+204 tests with `node --test`. SERV and the payment rail are injected fakes, so tests never touch the
 network. Test hashes are obviously fake (`0xTEST…`, `0x7e57…`).
 
 ## License
