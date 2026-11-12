@@ -1,7 +1,7 @@
 {
   "version": 1,
   "publisher": "tare",
-  "generated_at": "2026-11-11T10:02:04.126Z",
+  "generated_at": "2026-11-12T06:36:18.953Z",
   "records": [
     {
       "origin": "https://tare-seller-a.onrender.com",
@@ -38,6 +38,7 @@
         "payment_rail": "x402-direct",
         "promise": "Delivered one thousand two hundred forty unique records, fields id and ts, no nulls.",
         "advertised": "Export of 1,240 records, fields id, ts and score.",
+        "explanation": "The biggest mismatch is uniqueness: the delivery note promised 1,240 unique records, but the delivery had 1,240 rows with only 860 unique ids and 380 duplicate ids. It also promised no empty values, yet 40 ts values were empty. The advertisement before payment promised fields id, ts, and score, but the delivered data was missing score in all 1,240 rows.",
         "seller_identity": null,
         "checked_at": "2026-11-11T10:00:30.723Z"
       },
@@ -78,6 +79,7 @@
         "payment_rail": "x402-direct",
         "promise": "Delivered two hundred records, fields id and ts, no nulls.",
         "advertised": "200 records.",
+        "explanation": null,
         "seller_identity": null,
         "checked_at": "2026-11-11T10:01:12.582Z"
       },
@@ -93,7 +95,7 @@
     "scheme": "tare-feed-eip191-sha256-v1",
     "signer": "0x9C81aD8f2B0e3Ff97604F4a3CFCbd6771Df89485",
     "did": null,
-    "digest": "b8241ead24e980c64e0119c0f8a203998eeb070be8f785bfd8dda5f8f872ec41",
-    "value": "0x6e54e4b254483018c513bbec973d8d5ce14dec1c09b404648b4dbef76f1a69aa77aaf2d2613dc3b11a87ce2c6589006c7f89a3f5ebf19310f7df39de0353ae831c"
+    "digest": "cadfa99bbd5577d1ba8dfae0e15dd432108d20bdadb5101fb4c862f5cfe57b91",
+    "value": "0x2363d175727150b13fc1d8d4f005ab92522b696872080295bef222ede4b6f09b0e7f058ba8a0adb81083ecd85336a4f92ac4c37f7c113518afe8a5ec5a788f211b"
   }
 }

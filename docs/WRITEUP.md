@@ -49,6 +49,13 @@ The lanes are strict:
 - **Untrusted input.** The seller's text sits inside `<prose>` tags; any `<prose>` tags the seller
   hides in its own text are stripped first.
 
+**SERV explains, too.** After the verdict is final, SERV turns the evidence into plain English for the
+operator and the seller, for example: "The biggest mismatch is uniqueness: the delivery note promised
+1,240 unique records, but the delivery had 1,240 rows with only 860 unique ids and 380 duplicate ids…
+the delivered data was missing score in all 1,240 rows." It is written from a small JSON of facts code
+measured (no seller text, no rows), and code rejects it unless every number in it is in the evidence.
+It never changes the verdict.
+
 Every receipt carries the sha256 of the delivered body and of the prompt used to read the promise,
 so any check can be repeated.
 

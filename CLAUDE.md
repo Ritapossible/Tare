@@ -9,6 +9,9 @@ fact by running something, add it to `MEMORY.md`. When you finish a plan item, t
 1. **SERV never decides.** It only returns claims: the four from the main prompt (`claimed_count`,
    `unique`, `fields`, `no_nulls`) and, from a separate time-gated prompt, `max_age_hours`. Never ask
    the model for allow/dispute, never read any other field. Code may drop an ungrounded claim, never add one.
+   After a verdict is final, a third prompt may write a **display-only** explanation of a dispute from
+   code-measured facts (no seller text, no rows); code rejects it unless every number in it is in the
+   evidence. It never changes a verdict, a hold or a record's status.
 2. **The rows never go to SERV.** Only the seller's own text (delivery prose or 402 description), wrapped in `<prose>` tags.
 3. **Never invent a transaction hash.** Not in code, tests fixtures shown in the UI, README, docs or
    video. Test fixtures use obviously fake values like `0xTEST…` and never reach the live store.

@@ -347,3 +347,10 @@ export function identityCell(r) {
   return `<span class="faint">not checked</span>`;
 }
 
+// SERV's plain-English explanation of a dispute (written from the measured evidence; display only).
+export function explanationHTML(r) {
+  if (!r?.explanation) return "";
+  return `<div class="card explain-card"><h2>In plain English</h2><p class="explain">${esc(r.explanation)}</p>
+    <p class="faint explain-note">Written by SERV Reasoning from the numbers Tare's code measured. Code checked that every number in it is in the evidence. It does not change the verdict.</p></div>`;
+}
+

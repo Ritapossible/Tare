@@ -26,6 +26,7 @@ function evidence(r) {
     payment_rail: r.payment_rail ?? null,
     promise: r.promise ?? null,
     advertised: r.advertised ?? null,
+    explanation: r.explanation ?? null,
     seller_identity: r.seller_identity?.did ? { did: r.seller_identity.did, verified_tier: r.seller_identity.verified_tier ?? null } : null,
     checked_at: r.created_at ?? null,
   };

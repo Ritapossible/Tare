@@ -29,7 +29,7 @@ export function originOf(url) {
 export function createBuyer(deps) {
   const now = deps.now ?? (() => new Date().toISOString());
   const newId = deps.newId ?? (() => randomUUID());
-  const { store, kpass, extract, promptSha256, paymentRail = null, feedCheck = null, readAdvertisement = null, findIdentity = null } = deps;
+  const { store, kpass, extract, promptSha256, paymentRail = null, feedCheck = null, readAdvertisement = null, findIdentity = null, explain = null } = deps;
 
   // Buys run strictly one at a time, so two clicks can never race past the checks below.
   let queue = Promise.resolve();
@@ -195,6 +195,7 @@ export function createBuyer(deps) {
         }
         if (adClaims) {
           const ad = check(body.rows, adClaims, { now: nowMs });
+          finish({ advertised_details: ad.details });
           const adFailed = ad.failed.map((f) => `advertised:${f}`);
           const failed = [...result.failed, ...adFailed];
           const anyCount = claims.claimed_count !== null || adClaims.claimed_count !== null;
@@ -210,10 +211,22 @@ export function createBuyer(deps) {
       unique_count: result.unique_count,
       oldest_age_hours: result.oldest_age_hours ?? null,
       failed: result.failed,
+      details: result.details ?? null,
     });
 
     if (result.verdict === "dispute" || result.verdict === "unverifiable") {
       store.block(origin, { receipt_id: receipt.id, reason: result.verdict, at: now() });
+      // 8. Plain-English explanation, written by SERV from the measured evidence. The verdict and the
+      //    hold are already final; this is display only, and a failure just leaves it out.
+      if (explain) {
+        let out;
+        try {
+          out = await explain(receipt);
+        } catch (err) {
+          out = { explanation: null, notes: [`no explanation: ${err?.message ?? err}`] };
+        }
+        finish({ explanation: out.explanation ?? null, explanation_notes: out.notes ?? [] });
+      }
     }
     return receipt;
   }

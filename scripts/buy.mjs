@@ -58,6 +58,7 @@ const record = tare.store.blockEntry(r.origin);
 const feedHold = !record && /^held in trusted feed/.test(r.reason ?? "");
 show("record", record ? `held (${record.reason})` : feedHold ? "held in a trusted feed (not held locally)" : "in good standing");
 if (r.reason) show("reason", r.reason);
+if (r.explanation) show("explanation", r.explanation);
 const plain = plainError(r);
 if (plain) show("what happened", plain);
 if (r.error) show("error", r.error);

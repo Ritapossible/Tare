@@ -1,6 +1,6 @@
 {
   "mode": "published",
-  "generated_at": "2026-11-11T10:02:04.118Z",
+  "generated_at": "2026-11-12T06:36:18.946Z",
   "model": "gpt-5.4-mini-serv-multipath",
   "prompt_sha256": "7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86",
   "sellers": {
@@ -64,7 +64,28 @@
       ],
       "created_at": "2026-11-11T10:00:30.723Z",
       "status": "dispute",
-      "serv_notes": []
+      "serv_notes": [],
+      "details": {
+        "rows": 1240,
+        "unique_ids": 860,
+        "duplicate_ids": 380,
+        "rows_missing_field": {},
+        "empty_values": {
+          "ts": 40
+        }
+      },
+      "advertised_details": {
+        "rows": 1240,
+        "unique_ids": 860,
+        "duplicate_ids": 380,
+        "rows_missing_field": {
+          "score": 1240
+        }
+      },
+      "explanation": "The biggest mismatch is uniqueness: the delivery note promised 1,240 unique records, but the delivery had 1,240 rows with only 860 unique ids and 380 duplicate ids. It also promised no empty values, yet 40 ts values were empty. The advertisement before payment promised fields id, ts, and score, but the delivered data was missing score in all 1,240 rows.",
+      "explanation_notes": [
+        "explained afterwards from the delivered body (sha256 22df2684da49… matches the receipt)"
+      ]
     },
     {
       "id": "rcpt_1e3d27f5-c057-4701-bd76-784187973673",

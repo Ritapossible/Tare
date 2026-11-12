@@ -1,6 +1,7 @@
 // SERV claim extraction. SERV reads the prose and returns four typed claims. It never sees the
 // rows and is never asked for a verdict. See SPEC.md "SERV call" and "Parse rule".
 
+import { EXPLAIN_RESPONSE_FORMAT } from "./explain.js";
 import OpenAI from "openai";
 import {
   SERV_BASE_URL,
@@ -285,7 +286,7 @@ export function createServComplete({ apiKey, capParam = SERV_CAP_PARAM, tools = 
       model: SERV_MODEL,
       reasoning_effort: SERV_REASONING_EFFORT,
       [capParam]: SERV_MAX_OUTPUT_TOKENS,
-      response_format: kind === "freshness" ? FRESHNESS_RESPONSE_FORMAT : SERV_RESPONSE_FORMAT,
+      response_format: kind === "freshness" ? FRESHNESS_RESPONSE_FORMAT : kind === "explain" ? EXPLAIN_RESPONSE_FORMAT : SERV_RESPONSE_FORMAT,
       messages,
       ...(tools.length ? { tools } : {}),
     });

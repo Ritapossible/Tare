@@ -680,3 +680,9 @@ ul.notes .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
 /* narrow phones: code blocks scroll inside themselves, and grid children may shrink below their content */
 pre { max-width: 100%; }
 .band .wrap, .detail-grid > * { min-width: 0; }
+
+/* SERV's plain-English dispute explanation */
+.explain-card { border-color: rgba(29, 155, 240, .35); margin-bottom: 16px; }
+.explain { font-size: 19px; line-height: 1.6; color: var(--text); max-width: 75ch; }
+.explain-note { font-size: 13px; margin-top: 12px; }
+.explain-inline { font-size: 15px; margin: 0 0 12px; }

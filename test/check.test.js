@@ -9,15 +9,17 @@ const rows = (...r) => r;
 test("seller A against its own label: count, unique, no_nulls fail", () => {
   const { rows: a } = parseBody(BODY_A);
   const r = check(a, claims({ claimed_count: 1240, unique: true, fields: ["id", "ts"], no_nulls: true }));
-  const { oldest_age_hours, ...rest } = r;
+  const { oldest_age_hours, details, ...rest } = r;
   assert.deepEqual(rest, { count: 1240, unique_count: 860, failed: ["count", "unique", "no_nulls"], verdict: "dispute" });
+  assert.deepEqual(details, { rows: 1240, unique_ids: 860, duplicate_ids: 380, rows_missing_field: {}, empty_values: { ts: 40 } });
 });
 
 test("seller B against its own label: clean", () => {
   const { rows: b } = parseBody(BODY_B);
   const r = check(b, claims({ claimed_count: 200, fields: ["id", "ts"], no_nulls: true }));
-  const { oldest_age_hours, ...rest } = r;
+  const { oldest_age_hours, details, ...rest } = r;
   assert.deepEqual(rest, { count: 200, unique_count: 200, failed: [], verdict: "clean" });
+  assert.deepEqual(details, { rows: 200, unique_ids: 200, duplicate_ids: 0, rows_missing_field: {}, empty_values: {} });
 });
 
 test("count compares to unique_count only when unique is claimed", () => {

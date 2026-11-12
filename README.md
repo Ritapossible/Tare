@@ -44,7 +44,10 @@ npm run app                   # live console on http://127.0.0.1:4020/app
    checks every claim. A failed claim is a **dispute**. A delivery that promises no count is
    **unverifiable**. Either one puts the seller on hold, and the next buy stops before any payment is
    attempted. A broken advertised claim shows as `advertised:<rule>`.
-5. **Record.** Each buy becomes a receipt with the settlement hash, the body's sha256, the prompt's
+5. **Explain.** For a dispute, SERV Reasoning writes a short plain-English explanation from the numbers
+   code measured (never the seller's text or the rows). Code rejects it unless every number in it is
+   in the evidence, and it never changes the verdict. It appears on the receipt and the seller record.
+6. **Record.** Each buy becomes a receipt with the settlement hash, the body's sha256, the prompt's
    sha256 and both promises word for word. Seller records can be published for other agents.
 
 Tare works after the payment, whoever pays. Kite Passport can pay inside a capped, time-limited
@@ -70,6 +73,7 @@ Details: [SPEC.md](SPEC.md) (behaviour), [ARCHITECTURE.md](ARCHITECTURE.md) (str
 | Model | `gpt-5.4-mini-serv-multipath`, `reasoning_effort: low`, strict JSON schema, 400-token cap |
 | Main prompt sha256 | `7b5d603d7c140d3cf34afc3b525cac2e7ddb4bd001a092f26fa28c89437bec86` |
 | Freshness prompt sha256 | `b7089fef4ceba1244340c9c975202a8630356e20298c6d3fa0b81fe59facaa1c` |
+| Explanation prompt sha256 | `eaed79bd697a4403d45ec4d5f275daf116dd606606ee541435c599d11af589f6` ([`src/explain.js`](src/explain.js)) |
 | Source | [`src/prompt.js`](src/prompt.js) |
 
 **Live evaluation** (`node scripts/serv_eval.mjs`, 10 Nov 2026): accuracy **9/9** on honest seller

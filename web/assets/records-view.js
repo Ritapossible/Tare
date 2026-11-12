@@ -35,7 +35,8 @@ export function badgeSnippet(siteOrigin, record) {
 
 function evidenceHTML(e) {
   if (!e) return `<p class="dim">No receipt evidence published.</p>`;
-  const quote = e.promise ? `<blockquote class="promise-inline">${esc(e.promise)}</blockquote>` : "";
+  const quote = (e.explanation ? `<p class="explain explain-inline">${esc(e.explanation)}<span class="faint"> (SERV Reasoning, from the measured evidence)</span></p>` : "") +
+    (e.promise ? `<blockquote class="promise-inline">${esc(e.promise)}</blockquote>` : "");
   const promised = e.promised?.claimed_count ?? "-";
   const uniq = e.promised?.unique === true;
   const delivered = e.delivered ? (uniq ? e.delivered.unique_count : e.delivered.count) : "-";

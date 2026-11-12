@@ -68,6 +68,7 @@
           <li><strong>Read.</strong> SERV Reasoning reads the delivery note and the advertisement and returns claims. Code drops any claim the seller's text does not support (<a href="#grounding" class="u">grounding</a>).</li>
           <li><strong>Check.</strong> Code counts rows, distinct ids, fields, empty values and timestamp ages, and checks every claim from both sources.</li>
           <li><strong>Record.</strong> A dispute or an unverifiable delivery puts the seller on hold. The receipt keeps the evidence.</li>
+          <li><strong>Explain.</strong> For a dispute, SERV Reasoning writes a short plain-English explanation from the numbers code measured. Code rejects it unless every number in it is in the evidence. It never changes the verdict.</li>
         </ol>
 
         <h2 id="quickstart">Quick start</h2>
@@ -96,6 +97,7 @@ node scripts/buy.mjs b    # verified</pre>
             <tr><td>Retries</td><td>An invalid answer is retried once. A second invalid answer is <code>SERV_INVALID</code>; an API error is <code>SERV_API</code>. Either one leaves the receipt <em>paid, unchecked</em>.</td></tr>
           </tbody>
         </table>
+        <p><strong>Dispute explanations.</strong> After the verdict is final, a third prompt turns the measured evidence into two or three plain sentences for the operator and the seller ("…only 860 unique ids and 380 duplicate ids… missing score in all 1,240 rows"). Its input is a small JSON of facts built in code: the claims SERV already read, the numbers code measured, the failed checks. No seller text and no rows, so there is nothing to inject into. Code then checks the answer: every number must appear in the evidence, no guesses at intent, at most 600 characters, otherwise it is dropped (one retry). sha256 <code>eaed79bd697a4403d45ec4d5f275daf116dd606606ee541435c599d11af589f6</code>.</p>
         <p><strong>Why two prompts.</strong> Adding the time window to the main prompt made SERV's content filter refuse far more short texts (9 of 12 against 3 of 12), so freshness became its own call and the main prompt was left unchanged.</p>
         <p><strong>SERV platform tools.</strong> Requests declare <code>serv_disable_content_filter</code> by default (<code>TARE_SERV_TOOLS</code>), because the default filter refused plain seller texts such as "Here is your data.". <code>serv_prompt_guard</code> is deliberately off: it blocks injection-looking text, which Tare would have to record as a SERV failure, so the seller would be paid but not held. Without it, the same text is read, checked and disputed.</p>
         <p><strong>Live evaluation</strong> (<code>node scripts/serv_eval.mjs</code>, 10 Nov 2026, final code):</p>
@@ -167,6 +169,7 @@ node scripts/buy.mjs b    # verified</pre>
             <tr><td data-label=""><code class="nw">advertised</code></td><td data-label="">The 402 advertisement, word for word.</td></tr>
             <tr><td data-label=""><code class="nw">claims</code>, <code class="nw">advertised_claims</code></td><td data-label="">What SERV read from each, after grounding.</td></tr>
             <tr><td data-label=""><code class="nw">count</code>, <code class="nw">unique_count</code>, <code class="nw">oldest_age_hours</code></td><td data-label="">What code measured.</td></tr>
+            <tr><td data-label=""><code class="nw">details</code>, <code class="nw">explanation</code></td><td data-label="">What code measured behind each failure (duplicate ids, missing fields, empty values, rows outside the window), and SERV's plain-English explanation of a dispute, written from those numbers.</td></tr>
             <tr><td data-label=""><code class="nw">failed</code></td><td data-label="">The rules that failed, e.g. <code>count</code>, <code>advertised:fields</code>.</td></tr>
             <tr><td data-label=""><code class="nw">serv_notes</code>, <code class="nw">ad_notes</code>, <code class="nw">feed_notes</code>, <code class="nw">body_notes</code></td><td data-label="">How the receipt was read: claims dropped by grounding, advertisement problems, feed results and paid lookups, how the body was hashed.</td></tr>
             <tr><td data-label=""><code class="nw">reason</code>, <code class="nw">error</code></td><td data-label="">Why a buy was refused, or what went wrong. Shown with a plain sentence.</td></tr>

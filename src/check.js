@@ -88,7 +88,36 @@ export function check(rows, claims, { now = Date.now() } = {}) {
   else if (claimed_count === null) verdict = "unverifiable";
   else verdict = "clean";
 
-  return { count, unique_count, oldest_age_hours: oldestAgeHours(rows, now), failed, verdict };
+  return { count, unique_count, oldest_age_hours: oldestAgeHours(rows, now), failed, verdict, details: details(rows, claims, { now }) };
+}
+
+// The specifics behind each failed rule, measured in code: how many ids repeat, which promised field
+// is missing from how many rows, how many checked values are empty, how many rows are outside the
+// promised time window. Plain numbers only; they are what a dispute explanation may cite.
+export function details(rows, claims, { now = Date.now() } = {}) {
+  const { count, unique_count } = measure(rows);
+  const out = { rows: count, unique_ids: unique_count, duplicate_ids: count - unique_count };
+  if (claims?.fields) {
+    const missing = {};
+    for (const f of claims.fields) {
+      const n = rows.filter((r) => !Object.hasOwn(r, f)).length;
+      if (n) missing[f] = n;
+    }
+    out.rows_missing_field = missing;
+  }
+  if (claims?.no_nulls === true) {
+    const empty = {};
+    for (const r of rows) for (const k of claims.fields ?? Object.keys(r)) if (Object.hasOwn(r, k) && isEmpty(r[k])) empty[k] = (empty[k] ?? 0) + 1;
+    out.empty_values = empty;
+  }
+  const window = claims?.max_age_hours ?? null;
+  if (window !== null) {
+    out.rows_outside_window = rows.filter((r) => {
+      const t = Date.parse(r?.ts);
+      return !Number.isFinite(t) || now - t > window * 3_600_000 || t - now > FUTURE_SKEW_MS;
+    }).length;
+  }
+  return out;
 }
 
 // For bodies that fail parseBody: a paid but unreadable delivery is a failed delivery.

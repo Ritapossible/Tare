@@ -11,6 +11,7 @@ import { fileStore } from "./store.js";
 import { PROMPT_SHA256 } from "./prompt.js";
 import { createFeedChecker, parseFeedList } from "./feeds.js";
 import { createKiteDirectory } from "./identity.js";
+import { explainReceipt } from "./explain.js";
 
 export const STORE_PATH = "data/store.json";
 
@@ -80,6 +81,10 @@ export function createTare({
     feedCheck: feeds.length ? createFeedChecker({ feeds, payFetch }) : null,
     readAdvertisement: (u) => readAdvertisement(u),
     findIdentity: identity ? createKiteDirectory() : null,
+    explain: (receipt) => {
+      complete ??= createServComplete({ apiKey: process.env.SERV_API_KEY });
+      return explainReceipt(receipt, { complete });
+    },
   });
   return { store, buy: buyer.buy };
 }

@@ -1,7 +1,7 @@
 // Console data + behaviour. Two modes, decided at runtime:
 //   live       - served by `npm run app` on this machine; /api/state exists and Buy works.
 //   published  - static hosting (e.g. Vercel); reads /data/state.json, read-only.
-import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML, receiptNotesHTML, plainError, identityCell } from "./render.js";
+import { esc, statusChip, receiptRow, ruleRows, sellerName, txCell, formatTime, STATUS, failedTags, recordChip, recordCell, receiptCard, PREVIEW_RECEIPTS, sellerSummary, sellerProfileCard, isTxHash, settlementCell, advertisedRows, promiseHTML, receiptNotesHTML, plainError, identityCell, explanationHTML } from "./render.js";
 import { icons } from "./icons.js";
 import { sprinkle } from "./layout.js";
 
@@ -183,6 +183,7 @@ export async function mountReceipt(root) {
     ${back}
     <div class="verdict-hero"><h1 class="display">${esc(name)}</h1>${statusChip(r.status)}</div>
     <p class="lede" style="margin:-8px 0 32px">${esc(s.note)}</p>
+    ${explanationHTML(r)}
     <div class="card promise-card"><h2>The promise, word for word</h2>${promiseHTML(r)}</div>
     <div class="detail-grid">
       <div class="card">
