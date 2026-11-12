@@ -226,6 +226,8 @@ Anyone (human or agent) picking this up should read this file and `SPEC.md` firs
   A refused, B clean `0x94c3e5f085b5425b9f2a2783a69c43953d89dcbd146415b283fe81860533bb23`. Published (signed).
 - 2026-11-11: favicon.svg redrawn as Logo A (the nav logo); it still showed the older dot design.
 
+- 2026-11-12: Demo video and launch post live on X: https://x.com/RitaCryptoTips/status/2120768705210532348
+
 ## Open questions
 
 1. `kpass agent session execute` output format (body, headers, `--json`?).

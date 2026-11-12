@@ -1,6 +1,7 @@
 # Tare: the label is not the delivery
 
 **Track:** Kite · **Live site:** https://tare-agent.vercel.app · **Repo:** https://github.com/Ritapossible/Tare
+**Demo video:** https://x.com/RitaCryptoTips/status/2120768705210532348
 
 ## What Tare does
 

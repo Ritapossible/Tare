@@ -108,7 +108,7 @@ Afternoon:
 - [ ] 🧑 Optional: `kpass identifier claim` + `kpass onboarding submit` (KYC), then bind the publisher key to a Kite agent DID (steps in scripts/identity.mjs)
 
 ## Day 6 — Fri 13 Nov · Record + stretch
-- [ ] 🧑 Record the video from a fresh `reset`: A dispute → A stopped → B verified → another agent
+- [x] 🧑 Record the video from a fresh `reset`: A dispute → A stopped → B verified → another agent
       warned by the record → the "check a seller" page with the badge
 - [x] 🤖 Stretch (10 Nov: paid-feed support + TARE_PAY_FEEDS; tested live against the unchanged template run locally; hosting a `tare-records` Render service is optional, steps in sellers/README.md): serve the records feed behind x402 with the same
       Kite seller template (0.001 pieUSD per lookup) as the revenue story
@@ -123,7 +123,7 @@ Afternoon:
 
 ## Day 7 — Sat 14 Nov · Submit
 - [ ] 🧑 Repo public, video uploaded
-- [ ] 🧑 X post live and tagging **@openservai** (link goes in the form)
+- [x] 🧑 X post live and tagging **@openservai** (link goes in the form)
 - [ ] 🧑 Re-check data collection is enabled in OpenServ org settings
 - [ ] 🧑 Submit at https://openserv.typeform.com/submissions02 (Kite track)
 

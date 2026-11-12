@@ -9,6 +9,7 @@ testnet, has SERV Reasoning read what the seller promised, counts and checks the
 plain code, and keeps an evidence-backed record of every seller that over-promised, so the agent
 stops buying from it.
 
+- **Demo video:** https://x.com/RitaCryptoTips/status/2120768705210532348 (1:50, voice-over and subtitles)
 - **Live site:** https://tare-agent.vercel.app (the published run, read-only)
 - **Built for:** SERV Hackathon 02, Kite track
 - **Network:** Kite testnet only, testnet pieUSD
@@ -269,7 +270,7 @@ the operator's machine, never by the website.
 
 A 1:50 walkthrough with a female voice-over and subtitles: the problem, the solution, then the live
 console making real Kite testnet payments (A disputed, A stopped, B verified), a receipt, another agent
-being warned, and the check page. Every hash in it is the published run above. It is built from
+being warned, and the check page. Watch it on X: https://x.com/RitaCryptoTips/status/2120768705210532348. Every hash in it is the published run above. It is built from
 [`video/`](video/README.md) (scenes recorded from Chrome, voice by the open-source Kokoro model running
 locally); the rendered file is not committed.
 
